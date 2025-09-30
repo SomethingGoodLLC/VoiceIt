@@ -1,9 +1,10 @@
 import SwiftUI
 
-/// Evidence type selection view
+/// Main "Add Evidence" tab with centered action button
 struct AddEvidenceView: View {
     // MARK: - Properties
     
+    @State private var showingActionSheet = false
     @State private var selectedType: EvidenceType?
     
     // MARK: - Body
@@ -15,68 +16,91 @@ struct AddEvidenceView: View {
                 Color.voiceitGradient
                     .ignoresSafeArea()
                 
-                VStack(spacing: 30) {
+                VStack {
                     Spacer()
                     
-                    Text("Add Evidence")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.white)
-                    
-                    Text("Choose the type of evidence to document")
-                        .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.9))
-                        .multilineTextAlignment(.center)
-                    
-                    Spacer()
-                    
-                    // Evidence type buttons
-                    VStack(spacing: 20) {
-                        evidenceTypeButton(.voiceNote)
-                        evidenceTypeButton(.photo)
-                        evidenceTypeButton(.video)
-                        evidenceTypeButton(.text)
+                    // Title Section
+                    VStack(spacing: 12) {
+                        Text("Document Evidence")
+                            .font(.system(size: 34, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                        
+                        Text("Tap the button below to add evidence")
+                            .font(.subheadline)
+                            .foregroundStyle(.white.opacity(0.9))
+                            .multilineTextAlignment(.center)
                     }
-                    .padding()
+                    .padding(.bottom, 60)
                     
                     Spacer()
+                    
+                    // Large Centered + Button
+                    Button {
+                        showingActionSheet = true
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .fill(.white)
+                                .frame(width: 140, height: 140)
+                                .shadow(color: .black.opacity(0.2), radius: 20, y: 10)
+                            
+                            Image(systemName: "plus")
+                                .font(.system(size: 60, weight: .medium))
+                                .foregroundStyle(Color.voiceitPurple)
+                        }
+                    }
+                    .scaleEffect(showingActionSheet ? 0.95 : 1.0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.6), value: showingActionSheet)
+                    
+                    Spacer()
+                    
+                    // Tip Section
+                    VStack(spacing: 8) {
+                        Image(systemName: "lock.shield.fill")
+                            .font(.title3)
+                            .foregroundStyle(.white.opacity(0.7))
+                        
+                        Text("All evidence is encrypted and stored securely on your device")
+                            .font(.caption)
+                            .foregroundStyle(.white.opacity(0.7))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 40)
+                    }
+                    .padding(.bottom, 40)
                 }
+            }
+            .confirmationDialog("Add Evidence", isPresented: $showingActionSheet, titleVisibility: .visible) {
+                Button {
+                    selectedType = .voiceNote
+                } label: {
+                    Label("Voice Note", systemImage: "mic.circle.fill")
+                }
+                
+                Button {
+                    selectedType = .photo
+                } label: {
+                    Label("Photo", systemImage: "camera.circle.fill")
+                }
+                
+                Button {
+                    selectedType = .video
+                } label: {
+                    Label("Video", systemImage: "video.circle.fill")
+                }
+                
+                Button {
+                    selectedType = .text
+                } label: {
+                    Label("Text Entry", systemImage: "doc.text.fill")
+                }
+                
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Choose the type of evidence to document")
             }
             .sheet(item: $selectedType) { type in
                 destinationView(for: type)
             }
-        }
-    }
-    
-    // MARK: - Evidence Type Button
-    
-    private func evidenceTypeButton(_ type: EvidenceType) -> some View {
-        Button {
-            selectedType = type
-        } label: {
-            HStack {
-                Image(systemName: type.icon)
-                    .font(.title2)
-                    .frame(width: 40)
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(type.title)
-                        .font(.headline)
-                    
-                    Text(type.description)
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.8))
-                }
-                
-                Spacer()
-                
-                Image(systemName: "chevron.right")
-                    .font(.caption)
-            }
-            .foregroundStyle(.white)
-            .padding()
-            .background(.white.opacity(0.2))
-            .clipShape(RoundedRectangle(cornerRadius: Constants.UI.cornerRadius))
         }
     }
     
@@ -90,7 +114,7 @@ struct AddEvidenceView: View {
         case .photo:
             PhotoCaptureView()
         case .video:
-            PhotoCaptureView() // Will use camera for video
+            VideoCaptureView()
         case .text:
             TextEntryView()
         }
@@ -147,13 +171,13 @@ enum EvidenceType: Identifiable {
     var description: String {
         switch self {
         case .voiceNote:
-            return "Record audio with optional transcription"
+            return "Record what happened"
         case .photo:
-            return "Capture photos with metadata"
+            return "Take or upload photo"
         case .video:
             return "Record video evidence"
         case .text:
-            return "Write detailed notes"
+            return "Write it down"
         }
     }
 }

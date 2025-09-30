@@ -32,6 +32,8 @@
 	<string>Voice It needs access to your microphone to record voice notes as evidence.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Voice It needs access to your photo library to save and retrieve evidence securely.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Voice It uses speech recognition to transcribe voice notes, helping you document what happened. All transcription is done on-device for your privacy.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -40,6 +42,7 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>
+		<string>audio</string>
 	</array>
 	<key>UILaunchScreen</key>
 	<dict>

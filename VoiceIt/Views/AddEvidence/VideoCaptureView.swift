@@ -1,8 +1,9 @@
 import SwiftUI
+import AVFoundation
 import PhotosUI
 
-/// Enhanced photo capture view with camera integration
-struct PhotoCaptureView: View {
+/// Video capture view with camera integration
+struct VideoCaptureView: View {
     // MARK: - Properties
     
     @Environment(\.dismiss) private var dismiss
@@ -11,18 +12,19 @@ struct PhotoCaptureView: View {
     @Environment(\.encryptionService) private var encryptionService
     
     @State private var fileStorageService: FileStorageService?
+    @State private var cameraViewModel = CameraViewModel()
     
-    @State private var selectedPhotoItem: PhotosPickerItem?
-    @State private var selectedImage: UIImage?
+    @State private var selectedVideoItem: PhotosPickerItem?
+    @State private var videoURL: URL?
     @State private var notes = ""
     @State private var selectedCategories: [EvidenceCategory] = []
     @State private var isCritical = false
     @State private var includeLocation = false
     
-    @State private var showingCamera = false
     @State private var showingError = false
     @State private var errorMessage = ""
     @State private var isSaving = false
+    @State private var showingCamera = false
     
     // MARK: - Body
     
@@ -30,11 +32,11 @@ struct PhotoCaptureView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 24) {
-                    // Photo preview or selection
-                    photoSection
+                    // Video preview or selection
+                    videoSection
                     
                     // Categories
-                    if selectedImage != nil {
+                    if videoURL != nil {
                         categoriesSection
                         notesSection
                         optionsSection
@@ -43,7 +45,7 @@ struct PhotoCaptureView: View {
                 .padding()
             }
             .background(Color(uiColor: .systemGroupedBackground))
-            .navigationTitle("Photo Evidence")
+            .navigationTitle("Video Evidence")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -57,14 +59,14 @@ struct PhotoCaptureView: View {
                         ProgressView()
                     } else {
                         Button("Save") {
-                            savePhoto()
+                            saveVideo()
                         }
-                        .disabled(selectedImage == nil)
+                        .disabled(videoURL == nil)
                     }
                 }
             }
             .sheet(isPresented: $showingCamera) {
-                CameraPickerView(image: $selectedImage)
+                CameraView(videoURL: $videoURL, viewModel: cameraViewModel)
             }
             .alert("Error", isPresented: $showingError) {
                 Button("OK", role: .cancel) {}
@@ -77,33 +79,29 @@ struct PhotoCaptureView: View {
         }
     }
     
-    // MARK: - Photo Section
+    // MARK: - Video Section
     
-    private var photoSection: some View {
+    private var videoSection: some View {
         VStack(spacing: 16) {
-            if let image = selectedImage {
-                // Photo preview
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxHeight: 350)
+            if let url = videoURL {
+                // Video preview (using thumbnail)
+                VideoThumbnailView(url: url)
+                    .frame(height: 250)
                     .clipShape(RoundedRectangle(cornerRadius: Constants.UI.cornerRadius))
-                    .shadow(radius: 5)
                 
-                // Photo info
+                // Video info
                 HStack {
-                    Image(systemName: "photo.fill")
+                    Image(systemName: "video.fill")
                         .foregroundStyle(.secondary)
                     
-                    Text("\(Int(image.size.width))×\(Int(image.size.height))")
+                    Text("Video selected")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     
                     Spacer()
                     
                     Button("Change") {
-                        selectedImage = nil
-                        selectedPhotoItem = nil
+                        videoURL = nil
                     }
                     .font(.subheadline)
                 }
@@ -111,25 +109,25 @@ struct PhotoCaptureView: View {
             } else {
                 // Selection options
                 VStack(spacing: 20) {
-                    Image(systemName: "camera.circle.fill")
+                    Image(systemName: "video.circle.fill")
                         .font(.system(size: 70))
                         .foregroundStyle(Color.voiceitPurple)
                     
-                    Text("Add Photo Evidence")
+                    Text("Add Video Evidence")
                         .font(.headline)
                     
                     VStack(spacing: 12) {
                         Button {
                             showingCamera = true
                         } label: {
-                            Label("Take Photo", systemImage: "camera.fill")
+                            Label("Record Video", systemImage: "video.fill")
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.bordered)
                         .controlSize(.large)
                         .tint(.voiceitPurple)
                         
-                        PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+                        PhotosPicker(selection: $selectedVideoItem, matching: .videos) {
                             Label("Choose from Library", systemImage: "photo.on.rectangle")
                                 .frame(maxWidth: .infinity)
                         }
@@ -143,8 +141,8 @@ struct PhotoCaptureView: View {
         .padding()
         .background(Color(uiColor: .secondarySystemGroupedBackground))
         .clipShape(RoundedRectangle(cornerRadius: Constants.UI.cornerRadius))
-        .onChange(of: selectedPhotoItem) { oldValue, newValue in
-            loadPhotoFromPicker(newValue)
+        .onChange(of: selectedVideoItem) { oldValue, newValue in
+            loadVideoFromPicker(newValue)
         }
     }
     
@@ -178,7 +176,7 @@ struct PhotoCaptureView: View {
             Label("Additional Notes", systemImage: "note.text")
                 .font(.headline)
             
-            TextField("Describe what this photo shows...", text: $notes, axis: .vertical)
+            TextField("Describe what this video shows...", text: $notes, axis: .vertical)
                 .textFieldStyle(.roundedBorder)
                 .lineLimit(3...6)
         }
@@ -207,34 +205,33 @@ struct PhotoCaptureView: View {
         .clipShape(RoundedRectangle(cornerRadius: Constants.UI.cornerRadius))
     }
     
-    // MARK: - Load Photo
+    // MARK: - Load Video
     
-    private func loadPhotoFromPicker(_ item: PhotosPickerItem?) {
+    private func loadVideoFromPicker(_ item: PhotosPickerItem?) {
         guard let item = item else { return }
         
         Task {
             do {
-                guard let data = try await item.loadTransferable(type: Data.self),
-                      let image = UIImage(data: data) else {
-                    throw FileStorageError.imageLoadFailed
+                guard let movie = try await item.loadTransferable(type: VideoTransferable.self) else {
+                    throw FileStorageError.fileNotFound
                 }
                 
                 await MainActor.run {
-                    selectedImage = image
+                    videoURL = movie.url
                 }
             } catch {
                 await MainActor.run {
-                    errorMessage = "Failed to load photo: \(error.localizedDescription)"
+                    errorMessage = "Failed to load video: \(error.localizedDescription)"
                     showingError = true
                 }
             }
         }
     }
     
-    // MARK: - Save Photo
+    // MARK: - Save Video
     
-    private func savePhoto() {
-        guard let image = selectedImage else { return }
+    private func saveVideo() {
+        guard let url = videoURL else { return }
         
         isSaving = true
         
@@ -246,28 +243,28 @@ struct PhotoCaptureView: View {
                     locationSnapshot = await locationService.createSnapshot()
                 }
                 
-                // Save and encrypt image
+                // Save and encrypt video file
                 guard let fileStorage = fileStorageService else {
                     throw FileStorageError.encryptionFailed
                 }
                 
-                let (filePath, fileSize, width, height) = try await fileStorage.saveImage(image, format: "heic")
+                let (filePath, fileSize, duration, thumbnailPath) = try await fileStorage.saveVideoFile(url)
                 
-                // Create photo evidence
-                let photoEvidence = PhotoEvidence(
+                // Create video evidence
+                let videoEvidence = VideoEvidence(
                     notes: notes,
                     locationSnapshot: locationSnapshot,
                     tags: selectedCategories.map { $0.rawValue },
                     isCritical: isCritical,
-                    imageFilePath: filePath,
-                    imageFormat: "heic",
-                    fileSize: fileSize,
-                    width: width,
-                    height: height
+                    videoFilePath: filePath,
+                    thumbnailFilePath: thumbnailPath,
+                    duration: duration,
+                    videoFormat: "mp4",
+                    fileSize: fileSize
                 )
                 
                 await MainActor.run {
-                    modelContext.insert(photoEvidence)
+                    modelContext.insert(videoEvidence)
                 }
                 
                 try modelContext.save()
@@ -282,7 +279,7 @@ struct PhotoCaptureView: View {
             } catch {
                 await MainActor.run {
                     isSaving = false
-                    errorMessage = "Failed to save photo: \(error.localizedDescription)"
+                    errorMessage = "Failed to save video: \(error.localizedDescription)"
                     showingError = true
                 }
             }
@@ -300,16 +297,84 @@ struct PhotoCaptureView: View {
     }
 }
 
-// MARK: - Camera Picker View
+// MARK: - Video Thumbnail View
 
-struct CameraPickerView: UIViewControllerRepresentable {
-    @Binding var image: UIImage?
+struct VideoThumbnailView: View {
+    let url: URL
+    @State private var thumbnail: UIImage?
+    
+    var body: some View {
+        ZStack {
+            if let thumbnail = thumbnail {
+                Image(uiImage: thumbnail)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                Color.secondary.opacity(0.3)
+                ProgressView()
+            }
+            
+            // Play overlay
+            Image(systemName: "play.circle.fill")
+                .font(.system(size: 50))
+                .foregroundStyle(.white)
+                .shadow(radius: 10)
+        }
+        .task {
+            await loadThumbnail()
+        }
+    }
+    
+    private func loadThumbnail() async {
+        let asset = AVURLAsset(url: url)
+        let imageGenerator = AVAssetImageGenerator(asset: asset)
+        imageGenerator.appliesPreferredTrackTransform = true
+        
+        do {
+            let cgImage = try await imageGenerator.image(at: .zero).image
+            await MainActor.run {
+                thumbnail = UIImage(cgImage: cgImage)
+            }
+        } catch {
+            print("Failed to generate thumbnail: \(error)")
+        }
+    }
+}
+
+// MARK: - Video Transferable
+
+struct VideoTransferable: Transferable {
+    let url: URL
+    
+    static var transferRepresentation: some TransferRepresentation {
+        FileRepresentation(contentType: .movie) { video in
+            SentTransferredFile(video.url)
+        } importing: { received in
+            let copy = FileManager.default.temporaryDirectory.appendingPathComponent(received.file.lastPathComponent)
+            
+            if FileManager.default.fileExists(atPath: copy.path) {
+                try FileManager.default.removeItem(at: copy)
+            }
+            
+            try FileManager.default.copyItem(at: received.file, to: copy)
+            return Self(url: copy)
+        }
+    }
+}
+
+// MARK: - Camera View
+
+struct CameraView: UIViewControllerRepresentable {
+    @Binding var videoURL: URL?
     @Environment(\.dismiss) private var dismiss
+    let viewModel: CameraViewModel
     
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
         picker.sourceType = .camera
-        picker.cameraCaptureMode = .photo
+        picker.mediaTypes = ["public.movie"]
+        picker.videoQuality = .typeHigh
+        picker.videoMaximumDuration = 600 // 10 minutes
         picker.delegate = context.coordinator
         return picker
     }
@@ -321,15 +386,15 @@ struct CameraPickerView: UIViewControllerRepresentable {
     }
     
     class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-        let parent: CameraPickerView
+        let parent: CameraView
         
-        init(_ parent: CameraPickerView) {
+        init(_ parent: CameraView) {
             self.parent = parent
         }
         
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-            if let image = info[.originalImage] as? UIImage {
-                parent.image = image
+            if let url = info[.mediaURL] as? URL {
+                parent.videoURL = url
             }
             parent.dismiss()
         }
@@ -340,7 +405,27 @@ struct CameraPickerView: UIViewControllerRepresentable {
     }
 }
 
+// MARK: - Camera View Model
+
+@Observable
+final class CameraViewModel {
+    var hasPermission = false
+    
+    func checkPermission() async -> Bool {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        
+        switch status {
+        case .authorized:
+            return true
+        case .notDetermined:
+            return await AVCaptureDevice.requestAccess(for: .video)
+        default:
+            return false
+        }
+    }
+}
+
 #Preview {
-    PhotoCaptureView()
-        .modelContainer(for: [PhotoEvidence.self], inMemory: true)
+    VideoCaptureView()
+        .modelContainer(for: [VideoEvidence.self], inMemory: true)
 }

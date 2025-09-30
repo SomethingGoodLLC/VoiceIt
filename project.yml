@@ -53,8 +53,10 @@ targets:
         NSLocationWhenInUseUsageDescription: "Voice It can optionally record your location with evidence for documentation purposes."
         NSLocationAlwaysAndWhenInUseUsageDescription: "Voice It can optionally track your location in the background for safety purposes."
         NSFaceIDUsageDescription: "Voice It uses Face ID to securely protect your evidence and personal information."
+        NSSpeechRecognitionUsageDescription: "Voice It uses speech recognition to transcribe voice notes, helping you document what happened. All transcription is done on-device for your privacy."
         UIBackgroundModes:
           - location
+          - audio
     settings:
       SWIFT_VERSION: "6.0"
       SWIFT_STRICT_CONCURRENCY: complete

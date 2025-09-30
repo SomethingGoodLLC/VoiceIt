@@ -15,6 +15,7 @@ struct VoiceItApp: App {
     private let emergencyService: EmergencyService
     private let resourceService: ResourceService
     private let authenticationService: AuthenticationService
+    private let fileStorageService: FileStorageService
     
     // MARK: - Initialization
     
@@ -53,6 +54,14 @@ struct VoiceItApp: App {
         emergencyService = EmergencyService()
         resourceService = ResourceService()
         authenticationService = AuthenticationService()
+        fileStorageService = FileStorageService(encryptionService: encryptionService)
+        
+        // Create required storage directories
+        do {
+            try Constants.Storage.createDirectories()
+        } catch {
+            print("Warning: Failed to create storage directories: \(error)")
+        }
     }
     
     // MARK: - Body
@@ -67,6 +76,7 @@ struct VoiceItApp: App {
                 .environment(\.emergencyService, emergencyService)
                 .environment(\.resourceService, resourceService)
                 .environment(\.authenticationService, authenticationService)
+                .environment(\.fileStorageService, fileStorageService)
         }
     }
 }
@@ -80,4 +90,5 @@ extension EnvironmentValues {
     @Entry var emergencyService: EmergencyService = EmergencyService()
     @Entry var resourceService: ResourceService = ResourceService()
     @Entry var authenticationService: AuthenticationService = AuthenticationService()
+    @Entry var fileStorageService: FileStorageService = FileStorageService(encryptionService: EncryptionService())
 }

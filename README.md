@@ -47,10 +47,11 @@ VoiceIt/
 ├── Models/
 │   ├── Evidence/
 │   │   ├── EvidenceProtocol.swift     # Common evidence protocol
-│   │   ├── VoiceNote.swift            # Audio evidence
-│   │   ├── PhotoEvidence.swift        # Photo evidence
-│   │   ├── VideoEvidence.swift        # Video evidence
-│   │   └── TextEntry.swift            # Text notes
+│   │   ├── VoiceNote.swift            # Audio evidence with transcription
+│   │   ├── PhotoEvidence.swift        # Photo evidence with metadata
+│   │   ├── VideoEvidence.swift        # Video evidence with thumbnails
+│   │   └── TextEntry.swift            # Text notes with templates
+│   ├── EvidenceCategory.swift         # Evidence categorization
 │   ├── LocationSnapshot.swift         # GPS tracking data
 │   ├── EmergencyContact.swift         # Emergency contacts
 │   └── Resource.swift                 # Support resources
@@ -60,7 +61,10 @@ VoiceIt/
 │   ├── ExportService.swift            # PDF/JSON exports
 │   ├── EmergencyService.swift         # Panic button & 911
 │   ├── ResourceService.swift          # Find nearby resources
-│   └── AuthenticationService.swift    # Biometric security
+│   ├── AuthenticationService.swift    # Biometric security
+│   ├── AudioRecordingService.swift    # Audio recording with waveform
+│   ├── TranscriptionService.swift     # Speech-to-text transcription
+│   └── FileStorageService.swift       # Encrypted file management
 ├── Views/
 │   ├── Onboarding/
 │   │   └── OnboardingView.swift       # Privacy onboarding
@@ -69,10 +73,11 @@ VoiceIt/
 │   │   ├── EvidenceRowView.swift      # Timeline row item
 │   │   └── ExportOptionsSheet.swift   # Export format selection
 │   ├── AddEvidence/
-│   │   ├── AddEvidenceView.swift      # Evidence type picker
-│   │   ├── VoiceRecorderView.swift    # Audio recording
-│   │   ├── PhotoCaptureView.swift     # Camera capture
-│   │   └── TextEntryView.swift        # Text notes
+│   │   ├── AddEvidenceView.swift      # Main tab with centered + button
+│   │   ├── VoiceRecorderView.swift    # Audio recording with transcription
+│   │   ├── VideoCaptureView.swift     # Video recording and capture
+│   │   ├── PhotoCaptureView.swift     # Photo camera and library
+│   │   └── TextEntryView.swift        # Text entry with templates
 │   ├── Resources/
 │   │   ├── ResourcesView.swift        # Support resources
 │   │   └── ResourceDetailView.swift   # Resource details
@@ -124,9 +129,27 @@ VoiceIt/
 
 ### Evidence Management
 - 📝 **Text Notes**: Quick text entries with rich formatting
-- 🎤 **Voice Notes**: Audio recordings with optional transcription
-- 📷 **Photos**: Camera capture with EXIF metadata
-- 🎥 **Videos**: Video recording with thumbnails
+  - Voice-to-text transcription
+  - Quick templates: "He said...", "He did...", "I felt...", incident reports
+  - Real-time word count
+  - Auto-save drafts
+- 🎤 **Voice Notes**: Professional audio recordings with live transcription
+  - Real-time waveform visualization
+  - Live on-device transcription (SFSpeechRecognizer)
+  - Pause/resume capability
+  - High-quality M4A format with compression
+  - Background recording support
+- 📷 **Photos**: Camera capture with metadata extraction
+  - Direct camera access or library selection
+  - Automatic HEIC compression
+  - Image dimension tracking
+  - Encrypted storage
+- 🎥 **Videos**: Professional video recording
+  - Camera recording with 10-minute max duration
+  - Library import support
+  - Automatic thumbnail generation
+  - High-quality MP4 format
+  - Compressed and encrypted storage
 
 ### Timeline Features
 - 📊 **Modern List UI**: Purple accent bars, SF Symbol badges, and relative timestamps
@@ -288,11 +311,13 @@ struct ContentView: View {
 ### Required Capabilities
 In Xcode → Target → Signing & Capabilities, add:
 - ✅ Background Modes → Location updates
+- ✅ Background Modes → Audio (for voice recording)
 - ✅ Keychain Sharing
 
 ### Info.plist Permissions (Already Configured)
 - ✅ Camera (`NSCameraUsageDescription`)
 - ✅ Microphone (`NSMicrophoneUsageDescription`)
+- ✅ Speech Recognition (`NSSpeechRecognitionUsageDescription`)
 - ✅ Photo Library (`NSPhotoLibraryUsageDescription`)
 - ✅ Location When In Use (`NSLocationWhenInUseUsageDescription`)
 - ✅ Location Always (`NSLocationAlwaysAndWhenInUseUsageDescription`)
@@ -315,14 +340,70 @@ private let emergencyNumber = "911" // Change for your country
 **Update Default Resources:**
 Edit `Services/ResourceService.swift` to add your local resources.
 
+## 🎯 Add Evidence Features
+
+The "Add Evidence" tab provides a clean, intuitive interface for documenting incidents:
+
+### Main Interface
+- **Centered Purple + Button**: Large, accessible action button with gradient background
+- **Action Sheet**: Clean selection dialog for evidence type
+- **Security Message**: Reassurance about encryption and local storage
+
+### Voice Note Recording
+- **Real-time Waveform**: Visual feedback with 30-sample rolling waveform
+- **Live Transcription**: On-device speech recognition (requires permission)
+- **Recording Controls**: Record, pause/resume, stop with clear visual feedback
+- **Duration Display**: Large monospaced timer showing recording length
+- **Category Tags**: Physical, Verbal, Financial, Emotional, Digital, Witness, Other
+- **Additional Notes**: Text field for context and details
+- **Location Option**: Optional GPS coordinates with user consent
+- **Critical Flag**: Mark important evidence for quick filtering
+
+### Photo Capture
+- **Camera Integration**: Direct access to device camera
+- **Library Selection**: Choose existing photos with PHPicker
+- **Image Preview**: Full-size preview before saving
+- **Metadata Extraction**: Automatic capture of image dimensions
+- **HEIC Compression**: Efficient storage with quality preservation
+- **Category Tags**: Same category system as voice notes
+
+### Video Recording
+- **Camera Recording**: Direct video capture up to 10 minutes
+- **Library Import**: Select videos from photo library
+- **Thumbnail Generation**: Automatic video thumbnail for timeline display
+- **Playback Preview**: Visual thumbnail with play overlay
+- **MP4 Format**: Standard format with efficient compression
+
+### Text Entry
+- **Quick Templates**: Pre-filled formats for common scenarios
+  - "He said..." - Verbal statements
+  - "He did..." - Action documentation
+  - "I felt..." - Emotional impact
+  - "Incident Report" - Structured documentation
+  - "What I witnessed..." - Observer accounts
+- **Voice-to-Text**: Toggle microphone for live transcription
+- **Word Count**: Real-time counter for tracking length
+- **Multi-line Editor**: Expandable text area with auto-scroll
+
+### Shared Features (All Evidence Types)
+- **Automatic Timestamps**: Every piece of evidence timestamped
+- **Optional Location**: GPS tagging with user permission
+- **Category System**: 7 categories with icons and colors
+- **Critical Flagging**: Mark high-priority evidence
+- **Additional Notes**: Context field for all evidence types
+- **Encrypted Storage**: AES-GCM-256 encryption before saving
+- **Haptic Feedback**: Success vibration on save
+- **Error Handling**: Clear error messages with recovery options
+
 ## 📝 TODO
 
 ### High Priority
-- [ ] Implement audio recording (AVFoundation)
-- [ ] Add audio transcription (Speech framework)
+- [x] Implement audio recording (AVFoundation)
+- [x] Add audio transcription (Speech framework)
+- [x] Add camera capture functionality
+- [x] Implement video recording
+- [x] Create evidence categorization system
 - [ ] Implement PDF export generation
-- [ ] Add camera capture functionality
-- [ ] Implement video recording
 
 ### Medium Priority
 - [ ] Create comprehensive test suite

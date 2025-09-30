@@ -12,6 +12,62 @@
 - ✅ ALWAYS follow existing patterns and conventions described in README
 - ✅ ALWAYS reference README sections when explaining features to users
 
+## MANDATORY BUILD VERIFICATION
+**ALWAYS BUILD AND VERIFY CODE AFTER IMPLEMENTATION**
+
+### Critical Build Process
+1. **After Creating/Modifying Files**: ALWAYS regenerate the Xcode project if using XcodeGen
+2. **After Code Changes**: ALWAYS attempt to build the project before considering the task complete
+3. **Fix All Build Errors**: NEVER leave code in a non-compiling state
+4. **Report Build Results**: ALWAYS inform the user of build success or specific errors
+
+### Build Commands (Execute in Order)
+For XcodeGen projects (check for project.yml):
+```bash
+# 1. Regenerate project (if project.yml exists)
+cd /path/to/project && xcodegen generate
+
+# 2. Clean build to verify
+cd /path/to/project && xcodebuild -project ProjectName.xcodeproj -scheme SchemeName -sdk iphonesimulator clean build
+
+# 3. If errors, get specific error messages
+cd /path/to/project && xcodebuild -project ProjectName.xcodeproj -scheme SchemeName -sdk iphonesimulator build 2>&1 | grep -E "(error:|warning:)" | head -20
+```
+
+For standard Xcode projects:
+```bash
+# Clean build
+cd /path/to/project && xcodebuild -project ProjectName.xcodeproj -scheme SchemeName -sdk iphonesimulator clean build
+```
+
+### Why This Rule Exists
+- Prevents shipping broken code to users
+- Catches Swift 6 concurrency issues immediately
+- Identifies missing file references in Xcode project
+- Detects API mismatches and deprecated usage
+- Ensures all imports and dependencies are properly configured
+- Catches parameter order mismatches in initializers
+- Validates Sendable conformance and thread safety
+
+### Common Build Issues to Watch For
+1. **Missing Files in Xcode Project**: Run `xcodegen generate` if project.yml exists
+2. **Sendable Conformance**: @Observable classes can't be Sendable, use @unchecked Sendable for services
+3. **Parameter Order**: Match function/initializer parameter order exactly
+4. **Deprecated APIs**: Update to modern equivalents (e.g., AVAudioApplication.requestRecordPermission)
+5. **Async/Await**: Use `await asset.load(.duration)` instead of `asset.duration`
+
+### ❌ NEVER
+- Skip building after making code changes
+- Assume code compiles without verification
+- Leave compilation errors for the user to fix
+- Ignore deprecation warnings in new code
+
+### ✅ ALWAYS
+- Regenerate Xcode project after creating new files (XcodeGen projects)
+- Build and fix all errors before reporting completion
+- Test with clean build to catch cached issues
+- Report build status to user with specific error details if any
+
 ## CRITICAL iOS/SWIFTUI DEVELOPMENT LESSONS (FROM 12+ HOUR DEBUG SESSION)
 
 ### 1. THREADING AND @MAINACTOR PITFALLS
@@ -641,23 +697,25 @@ def test_end_to_end_[scenario](self):
 
 Cursor should:
 1. **ALWAYS read README.md first** - understand project structure and patterns before coding
-2. **Plan modular architecture** - design package structure for any file that might exceed 200 lines
-3. **Modularize immediately after working** - once code works, break it into focused modules
-4. **Start with cost optimization check** - always assess if a cheaper model could handle the task
-5. **NEVER commit changes automatically** - always let user control git operations
-6. **NEVER delete files without explicit permission** - always ask before suggesting any deletion commands
-7. **ALWAYS use `uv` commands** - never suggest manual virtual environment activation
-8. **AVOID `.env` files** - prefer direct environment variable configuration
-9. Always suggest adding tests when new code is written
-10. Always ask about regression tests when fixing bugs
-11. Always consider integration impact when modifying pipeline code
-12. Always verify test coverage before suggesting code completion
-13. **Verify modularization impact** - ensure all imports still work after refactoring
-14. Remind about running tests before user commits changes
-15. Add all new documentation to existing README files, never create separate ones
-16. **Prefer FFmpeg over MoviePy** for video operations - suggest FFmpeg-based solutions first
-17. **Question MoviePy usage** - when MoviePy is used, ask if FFmpeg could handle the task instead
-18. **Document modularization decisions** - explain why code was organized in specific way
+2. **ALWAYS BUILD AND VERIFY after code changes** - run xcodegen generate (if project.yml exists) then xcodebuild to verify compilation
+3. **FIX ALL BUILD ERRORS immediately** - never leave code in non-compiling state, fix all errors before reporting completion
+4. **Plan modular architecture** - design package structure for any file that might exceed 200 lines
+5. **Modularize immediately after working** - once code works, break it into focused modules
+6. **Start with cost optimization check** - always assess if a cheaper model could handle the task
+7. **NEVER commit changes automatically** - always let user control git operations
+8. **NEVER delete files without explicit permission** - always ask before suggesting any deletion commands
+9. **ALWAYS use `uv` commands** - never suggest manual virtual environment activation (for Python projects)
+10. Always suggest adding tests when new code is written
+11. Always ask about regression tests when fixing bugs
+12. Always consider integration impact when modifying pipeline code
+13. Always verify test coverage before suggesting code completion
+14. **Verify modularization impact** - ensure all imports still work after refactoring
+15. Remind about running tests before user commits changes
+16. Add all new documentation to existing README files, never create separate ones
+17. **Prefer FFmpeg over MoviePy** for video operations - suggest FFmpeg-based solutions first
+18. **Question MoviePy usage** - when MoviePy is used, ask if FFmpeg could handle the task instead
+19. **Document modularization decisions** - explain why code was organized in specific way
+20. **Report build status** - always inform user whether build succeeded or failed with specific errors
 
 ## WHY THESE RULES EXIST
 
@@ -677,8 +735,17 @@ The transcript JSON regression taught us:
 - Comprehensive testing saves time and prevents user frustration
 - **Cost optimization prevents unnecessary expenses**
 
+The FileStorageService build failure taught us:
+- **Code that doesn't compile is worthless** - always verify builds
+- **XcodeGen projects need regeneration** - new files require `xcodegen generate`
+- **Swift 6 concurrency is strict** - @Observable + Sendable = compilation error
+- **Deprecation matters** - update to modern APIs immediately (AVAudioApplication, asset.load())
+- **Parameter order matters** - match initializer signatures exactly
+- **Build verification catches issues early** - saves hours of debugging later
+
 REMEMBER: 
 - **Modularization is not optional** - it's the foundation of maintainable software
 - **Tests are not optional** - they are the foundation of reliable software
 - **README awareness is not optional** - it's the foundation of efficient development
-- **Cost efficiency is not optional** - always use the right tool for the job 
+- **Cost efficiency is not optional** - always use the right tool for the job
+- **BUILD VERIFICATION IS NOT OPTIONAL** - code must compile before task completion 
