@@ -16,6 +16,7 @@
 		2B35D7099CBDA2A500EEA572 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB51773AC5E683B49BA10158 /* OnboardingView.swift */; };
 		34CF67BF30CAC0075E48D372 /* EmergencyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 994294DA46F8D020FC1CF7C9 /* EmergencyService.swift */; };
 		3A17C16328A9EFBAB982042B /* VoiceItTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C9C852D9874714ACA9FC60 /* VoiceItTests.swift */; };
+		3C737E7A929ED4B2012D76E2 /* View+ShakeGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6CD5D343E7B5E529AF27444 /* View+ShakeGesture.swift */; };
 		48344FDF7C73D4AEB530C3FB /* TextEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7D529F90C69EDEF6BBC7736 /* TextEntryView.swift */; };
 		4DBCA0358D2D984E1FDAD9ED /* Evidence.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDC336421DE5E3E57CDE7070 /* Evidence.swift */; };
 		4E97698D641A7CD57F7FEF0E /* AuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E8EFAE6F245697C7C1B364 /* AuthenticationService.swift */; };
@@ -32,6 +33,7 @@
 		C05A7757619C70E27A516839 /* VoiceNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0800E2CDE4DD1BA3D2B836A /* VoiceNote.swift */; };
 		C344D5BB91D6C110D3221063 /* VideoEvidence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48669A83C5BACFA2091FC6B9 /* VideoEvidence.swift */; };
 		C6F52E431153F2154445C571 /* EmergencyContact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6644EA8D6D4197CCBCBE1595 /* EmergencyContact.swift */; };
+		C94A502261D4AF37D1E4A621 /* ExportOptionsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80268412DD63D44310AABB0B /* ExportOptionsSheet.swift */; };
 		CEB43B322C9860C451F3B93B /* ExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57E12407D22DB4F345F87F68 /* ExportService.swift */; };
 		D0D891CD1BB477A59DB8BFC5 /* EncryptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B45A65AAAA005E650B897729 /* EncryptionService.swift */; };
 		D686E39B3CB6377E5380D373 /* LocationSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642E51F55E45A6B42C1998E9 /* LocationSnapshot.swift */; };
@@ -68,6 +70,7 @@
 		6644EA8D6D4197CCBCBE1595 /* EmergencyContact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContact.swift; sourceTree = "<group>"; };
 		69568CB2D1D9198A6182399B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		69C920B807A19FDAE7C0146C /* EvidenceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvidenceProtocol.swift; sourceTree = "<group>"; };
+		80268412DD63D44310AABB0B /* ExportOptionsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportOptionsSheet.swift; sourceTree = "<group>"; };
 		90591C235E9D5DE381929F5A /* Color+Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Theme.swift"; sourceTree = "<group>"; };
 		97C9C852D9874714ACA9FC60 /* VoiceItTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceItTests.swift; sourceTree = "<group>"; };
 		994294DA46F8D020FC1CF7C9 /* EmergencyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyService.swift; sourceTree = "<group>"; };
@@ -81,6 +84,7 @@
 		CDC336421DE5E3E57CDE7070 /* Evidence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Evidence.swift; sourceTree = "<group>"; };
 		D549CC5E3193031E7916425B /* AddEvidenceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEvidenceView.swift; sourceTree = "<group>"; };
 		DA2D5B1040617F27E4DA175D /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
+		E6CD5D343E7B5E529AF27444 /* View+ShakeGesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+ShakeGesture.swift"; sourceTree = "<group>"; };
 		E830E74E10058F471CB80ACC /* TextEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextEntry.swift; sourceTree = "<group>"; };
 		EBDF9E126E14F247F4ECE8CF /* VoiceIt.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VoiceIt.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F049833FE477C98BD296F9B7 /* PhotoEvidence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoEvidence.swift; sourceTree = "<group>"; };
@@ -156,6 +160,7 @@
 			isa = PBXGroup;
 			children = (
 				0AFD383CA09C700C24C2EEDB /* EvidenceRowView.swift */,
+				80268412DD63D44310AABB0B /* ExportOptionsSheet.swift */,
 				C82E53A51D445386782E277F /* TimelineView.swift */,
 			);
 			path = Timeline;
@@ -166,6 +171,7 @@
 			children = (
 				90591C235E9D5DE381929F5A /* Color+Theme.swift */,
 				DA2D5B1040617F27E4DA175D /* Date+Extensions.swift */,
+				E6CD5D343E7B5E529AF27444 /* View+ShakeGesture.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -342,6 +348,7 @@
 				4DBCA0358D2D984E1FDAD9ED /* Evidence.swift in Sources */,
 				07CB9F3A94094767408FBF51 /* EvidenceProtocol.swift in Sources */,
 				715B28614606B580D2BAB276 /* EvidenceRowView.swift in Sources */,
+				C94A502261D4AF37D1E4A621 /* ExportOptionsSheet.swift in Sources */,
 				CEB43B322C9860C451F3B93B /* ExportService.swift in Sources */,
 				B59F76888DD6A5101918ADE3 /* KeychainManager.swift in Sources */,
 				66FC13DA7EFA1436253A716C /* LocationService.swift in Sources */,
@@ -357,6 +364,7 @@
 				48344FDF7C73D4AEB530C3FB /* TextEntryView.swift in Sources */,
 				141925EA1D323F94F8429C85 /* TimelineView.swift in Sources */,
 				C344D5BB91D6C110D3221063 /* VideoEvidence.swift in Sources */,
+				3C737E7A929ED4B2012D76E2 /* View+ShakeGesture.swift in Sources */,
 				83CE63C597DC4C19F1FE89E7 /* VoiceItApp.swift in Sources */,
 				C05A7757619C70E27A516839 /* VoiceNote.swift in Sources */,
 				0ABD17A519923361D5259C0B /* VoiceRecorderView.swift in Sources */,

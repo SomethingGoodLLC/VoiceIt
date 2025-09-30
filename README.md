@@ -65,8 +65,9 @@ VoiceIt/
 │   ├── Onboarding/
 │   │   └── OnboardingView.swift       # Privacy onboarding
 │   ├── Timeline/
-│   │   ├── TimelineView.swift         # Evidence timeline
-│   │   └── EvidenceRowView.swift      # Timeline row item
+│   │   ├── TimelineView.swift         # Evidence timeline with stealth mode
+│   │   ├── EvidenceRowView.swift      # Timeline row item
+│   │   └── ExportOptionsSheet.swift   # Export format selection
 │   ├── AddEvidence/
 │   │   ├── AddEvidenceView.swift      # Evidence type picker
 │   │   ├── VoiceRecorderView.swift    # Audio recording
@@ -82,7 +83,8 @@ VoiceIt/
 │   ├── Constants.swift                # App constants
 │   └── Extensions/
 │       ├── Color+Theme.swift          # App colors
-│       └── Date+Extensions.swift      # Date utilities
+│       ├── Date+Extensions.swift      # Date utilities
+│       └── View+ShakeGesture.swift    # Shake gesture detection
 └── Resources/
     └── Info.plist                     # App configuration
 ```
@@ -126,6 +128,15 @@ VoiceIt/
 - 📷 **Photos**: Camera capture with EXIF metadata
 - 🎥 **Videos**: Video recording with thumbnails
 
+### Timeline Features
+- 📊 **Modern List UI**: Purple accent bars, SF Symbol badges, and relative timestamps
+- 🔄 **Pull-to-Refresh**: Swipe down to refresh the timeline
+- 👆 **Swipe Actions**: Share or delete evidence with swipe gestures
+- 🕶️ **Stealth Mode**: Hide app content with calculator decoy screen (shake device to exit)
+- 🔍 **Smart Filtering**: Filter by evidence type or critical status
+- 📤 **Export Banner**: One-tap access to legal export options
+- ⚡ **Performant**: Optimized for 1000+ evidence items with lazy loading
+
 ### Location Tracking
 - GPS coordinates with timestamps
 - Reverse geocoding for addresses
@@ -138,9 +149,10 @@ VoiceIt/
 - 📍 **Location Sharing**: Send location to trusted contacts
 
 ### Export Options
-- 📄 **PDF Export**: Legal-ready documentation
-- 📊 **JSON Export**: Machine-readable format
-- 🔒 **Encrypted Export**: Password-protected files
+- 📄 **PDF Export**: Legal-ready documentation with formatted evidence
+- 📊 **JSON Export**: Machine-readable format for data analysis
+- 🔒 **Encrypted Export**: Password-protected files for maximum security
+- 💼 **Export Options Sheet**: Choose format, include/exclude images, and customize export
 
 ### Support Resources
 - 🏥 **Find Shelters**: Nearby safe locations
@@ -219,6 +231,13 @@ struct ContentView: View {
 - [ ] Biometric authentication works
 - [ ] Evidence creation (all 4 types)
 - [ ] Timeline displays evidence correctly
+- [ ] Timeline pull-to-refresh works
+- [ ] Timeline swipe actions (share/delete) work
+- [ ] Stealth mode activates and hides content
+- [ ] Shake gesture exits stealth mode
+- [ ] Export banner displays correct item count
+- [ ] Export options sheet presents correctly
+- [ ] Evidence filtering works for all types
 - [ ] Emergency button dials 911
 - [ ] Resources list loads
 - [ ] Location permission handling
