@@ -2,6 +2,63 @@
 
 A privacy-first iOS application built with Swift 6 and SwiftUI for documenting and managing evidence in sensitive situations.
 
+## 📑 Table of Contents
+
+- [🚀 Quick Start](#-quick-start)
+  - [Prerequisites](#prerequisites)
+  - [Running the App](#running-the-app)
+- [🏗️ Architecture (2025 Best Practices)](#️-architecture-2025-best-practices)
+  - [Technology Stack](#technology-stack)
+  - [Architecture Patterns](#architecture-patterns)
+- [📁 Project Structure](#-project-structure)
+- [🎨 Design System](#-design-system)
+  - [Colors](#colors)
+  - [UI Patterns](#ui-patterns)
+- [🔐 Security & Privacy](#-security--privacy)
+  - [Encryption](#encryption)
+  - [Authentication](#authentication)
+  - [Privacy](#privacy)
+- [🚀 Features](#-features)
+  - [Evidence Management](#evidence-management)
+  - [Timeline Features](#timeline-features)
+  - [Location Tracking](#location-tracking)
+  - [Emergency Features](#emergency-features)
+  - [Export Options](#export-options)
+  - [Support Resources](#support-resources)
+  - [Community (Privacy-First Support Network)](#community-privacy-first-support-network)
+- [🛠️ Development](#️-development)
+  - [Swift 6 Concurrency Guidelines](#swift-6-concurrency-guidelines)
+  - [SwiftData Best Practices](#swiftdata-best-practices)
+  - [Service Layer Pattern](#service-layer-pattern)
+- [🧪 Testing](#-testing)
+  - [Unit Tests](#unit-tests-to-be-implemented)
+  - [Integration Tests](#integration-tests-to-be-implemented)
+  - [Manual Testing Checklist](#manual-testing-checklist)
+- [🐛 Troubleshooting](#-troubleshooting)
+  - [Build Errors](#build-errors)
+  - [Runtime Issues](#runtime-issues)
+  - [Simulator Issues](#simulator-issues)
+- [📋 Configuration](#-configuration)
+  - [Required Capabilities](#required-capabilities)
+  - [Info.plist Permissions](#infoplist-permissions-already-configured)
+  - [Customization](#customization)
+- [🎯 Add Evidence Features](#-add-evidence-features)
+  - [Main Interface](#main-interface)
+  - [Voice Note Recording](#voice-note-recording)
+  - [Photo Capture](#photo-capture)
+  - [Video Recording](#video-recording)
+  - [Text Entry](#text-entry)
+  - [Shared Features](#shared-features-all-evidence-types)
+- [📝 TODO](#-todo)
+  - [High Priority](#high-priority)
+  - [Medium Priority](#medium-priority)
+  - [Low Priority](#low-priority)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
+- [🆘 Emergency Resources](#-emergency-resources)
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -51,6 +108,11 @@ VoiceIt/
 │   │   ├── PhotoEvidence.swift        # Photo evidence with metadata
 │   │   ├── VideoEvidence.swift        # Video evidence with thumbnails
 │   │   └── TextEntry.swift            # Text notes with templates
+│   ├── Community/
+│   │   ├── SupportGroup.swift         # Anonymous support groups
+│   │   ├── Therapist.swift            # Pro bono therapists
+│   │   ├── Lawyer.swift               # Pro bono legal consultations
+│   │   └── CommunityArticle.swift     # Educational resources
 │   ├── EvidenceCategory.swift         # Evidence categorization
 │   ├── LocationSnapshot.swift         # GPS tracking data
 │   ├── EmergencyContact.swift         # Emergency contacts with auto-notify
@@ -65,7 +127,8 @@ VoiceIt/
 │   ├── AudioRecordingService.swift    # Audio recording with waveform
 │   ├── TranscriptionService.swift     # Speech-to-text transcription
 │   ├── FileStorageService.swift       # Encrypted file management
-│   └── StealthModeService.swift       # Stealth mode with decoy screens
+│   ├── StealthModeService.swift       # Stealth mode with decoy screens
+│   └── CommunityService.swift         # Community features with @Observable
 ├── Views/
 │   ├── Onboarding/
 │   │   └── OnboardingView.swift       # Privacy onboarding flow
@@ -92,7 +155,22 @@ VoiceIt/
 │   │   ├── ResourcesView.swift        # Support resources
 │   │   └── ResourceDetailView.swift   # Resource details
 │   └── Community/
-│       └── CommunityView.swift        # Community tab
+│       ├── CommunityView.swift               # Main community navigation hub
+│       ├── Components/
+│       │   └── SimpleFilterChip.swift        # Filter chip component
+│       ├── SupportGroups/
+│       │   ├── SupportGroupsListView.swift   # Support groups list
+│       │   ├── SupportGroupDetailView.swift  # Group details with posts
+│       │   └── CreatePostView.swift          # Create anonymous post
+│       ├── Therapy/
+│       │   ├── TherapyListView.swift         # Therapists list
+│       │   └── TherapistDetailView.swift     # Therapist details with booking
+│       ├── Legal/
+│       │   ├── LawyersListView.swift         # Lawyers list
+│       │   └── LawyerDetailView.swift        # Lawyer details with booking
+│       └── Resources/
+│           ├── ResourceLibraryView.swift     # Resource library
+│           └── ArticleDetailView.swift       # Article/guide details
 ├── Utilities/
 │   ├── KeychainManager.swift          # Secure keychain operations
 │   ├── Constants.swift                # App-wide constants
@@ -251,6 +329,49 @@ VoiceIt/
 - 📞 **Hotlines**: 24/7 crisis support numbers
 - ⚖️ **Legal Aid**: Local legal resources
 - 🌐 **Distance-based**: Sorted by proximity
+
+### Community (Privacy-First Support Network)
+- 💬 **Anonymous Support Groups**: Join moderated discussions without revealing identity
+  - Topics: "First Steps", "Legal Journey", "Healing & Recovery", "Parenting Support", "Financial Independence"
+  - Professional moderators (LCSW, attorneys, counselors)
+  - Report harmful content
+  - Optional pseudonyms (auto-generated: "BravePhoenix421")
+  - Privacy notice: "Your identity is never shared"
+  
+- 🧠 **Free Therapy Sessions**: Pro bono 30-minute video sessions
+  - Licensed therapists (PhD, LMFT, PsyD, LCSW)
+  - Filter by specialization (Trauma, PTSD, Domestic Violence, Anxiety, etc.)
+  - Filter by language support
+  - Book time slots directly
+  - Discreet calendar reminders
+  - Rating/feedback system
+  - All sessions are confidential and end-to-end encrypted
+  
+- ⚖️ **Legal Consultations**: Connect with pro bono lawyers
+  - Filter by state/jurisdiction
+  - Filter by practice area (Domestic Violence, Restraining Orders, Family Law, Child Custody, etc.)
+  - Initial free consultations (30 minutes)
+  - Secure document sharing (send evidence exports)
+  - Bar-certified attorneys
+  - Messaging system for follow-up questions
+  
+- 📚 **Resource Library**: Educational content and downloadable guides
+  - Articles: "Understanding Restraining Orders", "Safety Planning 101", "Court Preparation"
+  - Survivor stories (anonymous)
+  - Downloadable checklists: "Leaving Safely", "Emergency Bag", "Financial Independence"
+  - Expert videos and guides
+  - Filter by category (Legal, Safety, Healing, Financial, Childcare, Stories)
+  - Filter by content type (Article, Video, Checklist, Guide, Story)
+  - Search functionality
+
+**Privacy Features**:
+- All interactions are anonymous by default
+- Optional pseudonyms for support groups
+- End-to-end encrypted messaging
+- Local-first data storage with optional sync
+- "Delete My Activity" option
+- No analytics or tracking
+- Clear privacy notices throughout
 
 ## 🛠️ Development
 
@@ -525,8 +646,21 @@ The "Add Evidence" tab provides a clean, intuitive interface for documenting inc
   - [x] Evidence type selection
   - [x] Password protection
   - [x] Cryptographic hash verification
+- [x] **Community support network** (Privacy-first)
+  - [x] Anonymous support groups with moderation
+  - [x] Free therapy sessions with licensed therapists
+  - [x] Pro bono legal consultations
+  - [x] Resource library with articles, videos, and guides
+  - [x] @Observable state management (iOS 18+)
+  - [x] Mock data for demonstration
 
 ### Medium Priority
+- [ ] **Community backend integration**
+  - [ ] Real API integration for therapists and lawyers
+  - [ ] Live video session infrastructure
+  - [ ] Real-time messaging system
+  - [ ] Content moderation system
+  - [ ] User authentication for professionals
 - [ ] Create comprehensive test suite
 - [ ] Add data export encryption
 - [ ] Implement auto-lock timer

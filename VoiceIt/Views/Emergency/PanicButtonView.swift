@@ -240,6 +240,7 @@ struct PanicButtonView: View {
             Text("• Hold to activate emergency\n• Drag to move\n• Tap ↓ to minimize")
                 .font(.caption2)
                 .foregroundColor(.secondary)
+                .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(12)
@@ -248,8 +249,8 @@ struct PanicButtonView: View {
                 .fill(Color(uiColor: .systemBackground))
                 .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 2)
         )
-        .frame(maxWidth: 200)
-        .offset(x: 100, y: -80)
+        .frame(maxWidth: 280)
+        .offset(x: 80, y: -20)
         .transition(.scale.combined(with: .opacity))
     }
     
@@ -437,7 +438,7 @@ struct PanicButtonView: View {
         print("👥 Found \(contacts.count) emergency contacts")
         
         // Activate emergency service
-        await emergencyService.activatePanicButton(
+        emergencyService.activatePanicButton(
             emergencyContacts: contacts,
             location: location
         )

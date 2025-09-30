@@ -18,6 +18,7 @@ struct VoiceItApp: App {
     private let fileStorageService: FileStorageService
     private let stealthModeService: StealthModeService
     private let audioRecordingService: AudioRecordingService
+    private let communityService: CommunityService
     
     // MARK: - Initialization
     
@@ -30,7 +31,14 @@ struct VoiceItApp: App {
             TextEntry.self,
             LocationSnapshot.self,
             EmergencyContact.self,
-            Resource.self
+            Resource.self,
+            SupportGroup.self,
+            SupportGroupPost.self,
+            Therapist.self,
+            TherapySession.self,
+            Lawyer.self,
+            LegalConsultation.self,
+            CommunityArticle.self
         ])
         
         // Configure model container with encryption
@@ -59,6 +67,7 @@ struct VoiceItApp: App {
         exportService = ExportService(encryptionService: encryptionService, fileStorageService: fileStorageService)
         stealthModeService = StealthModeService()
         audioRecordingService = AudioRecordingService()
+        communityService = CommunityService()
         
         // Create required storage directories
         do {
@@ -83,6 +92,7 @@ struct VoiceItApp: App {
                 .environment(\.fileStorageService, fileStorageService)
                 .environment(\.stealthModeService, stealthModeService)
                 .environment(\.audioRecordingService, audioRecordingService)
+                .environment(\.communityService, communityService)
         }
     }
 }
@@ -103,4 +113,9 @@ extension EnvironmentValues {
     )
     @Entry var stealthModeService: StealthModeService = StealthModeService()
     @Entry var audioRecordingService: AudioRecordingService = AudioRecordingService()
+}
+
+@available(iOS 18, *)
+extension EnvironmentValues {
+    @Entry var communityService: CommunityService = CommunityService()
 }

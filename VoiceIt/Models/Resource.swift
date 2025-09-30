@@ -5,7 +5,7 @@ import CoreLocation
 /// Support resource (shelter, hotline, legal aid, etc.)
 @available(iOS 18, *)
 @Model
-final class Resource: @unchecked Sendable {
+final class Resource {
     // MARK: - Properties
     
     /// Unique identifier

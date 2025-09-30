@@ -3,8 +3,10 @@ import AVFoundation
 import Observation
 
 /// Service for handling audio recording with waveform visualization
+/// Note: @unchecked Sendable is used because @Observable macro generates mutable storage
+/// All public methods ensure thread-safe access to AVAudioRecorder
 @Observable
-final class AudioRecordingService: NSObject {
+final class AudioRecordingService: NSObject, @unchecked Sendable {
     // MARK: - Properties
     
     private var audioRecorder: AVAudioRecorder?

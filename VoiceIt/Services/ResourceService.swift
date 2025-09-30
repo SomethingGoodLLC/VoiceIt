@@ -3,8 +3,7 @@ import CoreLocation
 import UIKit
 
 /// Service for finding and managing support resources (shelters, hotlines, legal aid)
-@MainActor
-final class ResourceService {
+final class ResourceService: @unchecked Sendable {
     // MARK: - Properties
     
     /// Cached resources
@@ -13,7 +12,7 @@ final class ResourceService {
     private let cacheExpirationInterval: TimeInterval = 604800 // 7 days
     
     /// Init can be called from nonisolated context since Resource instances don't require MainActor
-    nonisolated(unsafe) init() {}
+    init() {}
     
     /// Default resources (national hotlines and local resources)
     private let defaultResources: [Resource] = [
@@ -349,6 +348,7 @@ final class ResourceService {
     // MARK: - Contact Resource
     
     /// Call resource phone number
+    @MainActor
     func callResource(_ resource: Resource) {
         guard let phoneNumber = resource.phoneNumber else { return }
         let cleanNumber = phoneNumber.filter { $0.isNumber }
@@ -361,6 +361,7 @@ final class ResourceService {
     }
     
     /// Open resource website
+    @MainActor
     func openWebsite(_ resource: Resource) {
         guard let urlString = resource.websiteURL,
               let url = URL(string: urlString) else { return }
@@ -371,6 +372,7 @@ final class ResourceService {
     }
     
     /// Get directions to resource
+    @MainActor
     func getDirections(to resource: Resource) {
         guard let coordinate = resource.coordinate else { return }
         

@@ -130,6 +130,14 @@ struct ContentView: View {
                 }
                 .tag(2)
             
+            if #available(iOS 18, *) {
+                CommunityView()
+                    .tabItem {
+                        Label("Community", systemImage: "person.3.fill")
+                    }
+                    .tag(3)
+            }
+            
             NavigationStack {
                 List {
                     Section {
@@ -161,19 +169,13 @@ struct ContentView: View {
                     } footer: {
                         Text("When disabled, panic button will only send SMS alerts to emergency contacts without calling 911.")
                     }
-                    
-                    Section {
-                        CommunityView()
-                    } header: {
-                        Text("Community")
-                    }
                 }
                 .navigationTitle("More")
             }
             .tabItem {
                 Label("More", systemImage: "ellipsis.circle.fill")
             }
-            .tag(3)
+            .tag(4)
         }
         .tint(.voiceitPurple)
     }

@@ -450,16 +450,86 @@ from .services.user_service import UserService
 from .utils.validation import validate_input
 ```
 
-### 5. ANTI-PATTERNS TO AVOID
+### 5. SWIFTUI VIEW FILE ORGANIZATION
+
+#### ONE STRUCT PER VIEW FILE RULE
+**CRITICAL: Each SwiftUI view file should contain only ONE primary view struct**
+
+❌ **NEVER put multiple view structs in a single file**:
+```swift
+// ❌ BAD: Multiple views in one file
+// TherapyListView.swift
+struct TherapyListView: View { }
+struct TherapistCard: View { }
+struct SessionRow: View { }
+struct FilterChip: View { }
+struct AllSessionsView: View { }
+```
+
+✅ **ALWAYS organize multiple view structs into a folder structure**:
+```
+Therapy/
+├── TherapyListView.swift         # Main view only
+├── Components/
+│   ├── TherapistCard.swift       # Individual component
+│   ├── SessionRow.swift          # Individual component
+│   └── FilterChip.swift          # Shared component
+└── AllSessionsView.swift         # Separate full view
+```
+
+#### Why This Rule Exists:
+- **Maintainability**: Easy to find and modify specific components
+- **Reusability**: Components can be imported and reused independently
+- **Testing**: Each component can be tested in isolation
+- **Navigation**: Clear file structure makes codebase easier to navigate
+- **Conflicts**: Prevents naming conflicts and duplicate definitions
+- **Single Responsibility**: Each file has one clear purpose
+
+#### Exceptions (Allowed in same file):
+- **Helper structs**: Small, private structs used only within the view
+- **View modifiers**: Custom view modifiers specific to that view
+- **Preview providers**: `#Preview` blocks
+- **View extensions**: Extensions on the main view struct
+
+#### Example of Proper Organization:
+```swift
+// ✅ GOOD: TherapistDetailView.swift
+struct TherapistDetailView: View {
+    // Main view implementation
+    
+    // ✅ OK: Private helper struct used only here
+    private struct TimeSlotRow: View { }
+}
+
+// ✅ OK: View extension
+extension TherapistDetailView {
+    private func setupLayout() { }
+}
+
+// ✅ OK: Preview
+#Preview {
+    TherapistDetailView(...)
+}
+```
+
+#### Enforcement:
+- When creating views with multiple components, immediately organize into folders
+- Never leave multiple public view structs in a single file
+- Extract components to separate files before moving to next feature
+- Update imports when refactoring to maintain clean dependencies
+
+### 6. ANTI-PATTERNS TO AVOID
 
 ❌ **Never Do**:
 - **God Classes**: Classes that do everything
 - **Monster Files**: Files over 500 lines without modularization
+- **Multiple View Structs**: Multiple public view structs in one file
 - **Circular Imports**: Modules importing each other
 - **Tight Coupling**: Modules that can't work independently
 - **Deep Nesting**: More than 3 levels of package hierarchy
 
 ✅ **Always Do**:
+- **One View Per File**: Each view file contains one primary view struct
 - **Composition over Inheritance**: Favor composition
 - **Dependency Injection**: Pass dependencies as parameters
 - **Interface Segregation**: Small, focused interfaces
@@ -787,6 +857,61 @@ def test_end_to_end_[scenario](self):
 - Backend-specific documentation: backend/README.md
 - Never create README_API.md, README_NEW_FEATURE.md, etc.
 
+### 14. README TABLE OF CONTENTS MAINTENANCE
+**CRITICAL: ALWAYS update the Table of Contents when modifying README.md**
+
+#### When to Update Table of Contents:
+- ✅ Adding new sections (## headers)
+- ✅ Adding new subsections (### headers)
+- ✅ Renaming sections or subsections
+- ✅ Removing sections or subsections
+- ✅ Reordering major sections
+
+#### Table of Contents Requirements:
+1. **Location**: Must be placed immediately after the project description, before the first ## section
+2. **Format**: Use markdown anchor links with proper formatting:
+   ```markdown
+   ## 📑 Table of Contents
+   
+   - [🚀 Section Name](#-section-name)
+     - [Subsection](#subsection)
+   ```
+3. **Anchor Links**: 
+   - Convert section titles to lowercase
+   - Replace spaces with hyphens
+   - Remove special characters except hyphens
+   - Keep emoji symbols in the link text but remove from anchor
+   - Example: `## 🚀 Quick Start` → `[🚀 Quick Start](#-quick-start)`
+
+4. **Completeness**: Include ALL major sections (##) and important subsections (###)
+
+5. **Hierarchy**: 
+   - Main sections (##): No indentation
+   - Subsections (###): Two-space indentation
+
+#### Example Structure:
+```markdown
+## 📑 Table of Contents
+
+- [🚀 Quick Start](#-quick-start)
+  - [Prerequisites](#prerequisites)
+  - [Running the App](#running-the-app)
+- [🏗️ Architecture](#️-architecture)
+- [📁 Project Structure](#-project-structure)
+```
+
+#### Enforcement:
+- **BEFORE finishing any README modification task**: Update the Table of Contents
+- **VERIFY**: All new sections are reflected in ToC
+- **TEST**: Click anchor links to ensure they work (in preview)
+- **CONSISTENCY**: Match exact emoji and spacing from section headers
+
+#### Why This Rule Exists:
+- Improves README navigation and discoverability
+- Helps users quickly find relevant information
+- Maintains professional documentation standards
+- Makes large READMEs more accessible
+
 ## DEVELOPMENT WORKFLOW REQUIREMENTS
 
 ### 12. UV PACKAGE MANAGER PREFERENCE
@@ -822,31 +947,37 @@ Cursor should:
 3. **FIX ALL BUILD ERRORS immediately** - never leave code in non-compiling state, fix all errors before reporting completion
 4. **Plan modular architecture** - design package structure for any file that might exceed 200 lines
 5. **Modularize immediately after working** - once code works, break it into focused modules
-6. **Start with cost optimization check** - always assess if a cheaper model could handle the task
-7. **NEVER commit changes automatically** - always let user control git operations
-8. **NEVER delete files without explicit permission** - always ask before suggesting any deletion commands
-9. **ALWAYS use `uv` commands** - never suggest manual virtual environment activation (for Python projects)
-10. Always suggest adding tests when new code is written
-11. Always ask about regression tests when fixing bugs
-12. Always consider integration impact when modifying pipeline code
-13. Always verify test coverage before suggesting code completion
-14. **Verify modularization impact** - ensure all imports still work after refactoring
-15. Remind about running tests before user commits changes
-16. Add all new documentation to existing README files, never create separate ones
-17. **Prefer FFmpeg over MoviePy** for video operations - suggest FFmpeg-based solutions first
-18. **Question MoviePy usage** - when MoviePy is used, ask if FFmpeg could handle the task instead
-19. **Document modularization decisions** - explain why code was organized in specific way
-20. **Report build status** - always inform user whether build succeeded or failed with specific errors
+6. **ONE VIEW STRUCT PER FILE** - organize multiple view components into folder structures with separate files
+7. **Start with cost optimization check** - always assess if a cheaper model could handle the task
+8. **NEVER commit changes automatically** - always let user control git operations
+9. **NEVER delete files without explicit permission** - always ask before suggesting any deletion commands
+10. **ALWAYS use `uv` commands** - never suggest manual virtual environment activation (for Python projects)
+11. Always suggest adding tests when new code is written
+12. Always ask about regression tests when fixing bugs
+13. Always consider integration impact when modifying pipeline code
+14. Always verify test coverage before suggesting code completion
+15. **Verify modularization impact** - ensure all imports still work after refactoring
+16. Remind about running tests before user commits changes
+17. Add all new documentation to existing README files, never create separate ones
+18. **Prefer FFmpeg over MoviePy** for video operations - suggest FFmpeg-based solutions first
+19. **Question MoviePy usage** - when MoviePy is used, ask if FFmpeg could handle the task instead
+20. **Document modularization decisions** - explain why code was organized in specific way
+21. **Report build status** - always inform user whether build succeeded or failed with specific errors
+22. **Extract view components to separate files** - when creating views with helper components, immediately organize into Components/ folder
+23. **Update README Table of Contents** - ALWAYS update the ToC when adding, removing, or renaming sections in README.md
 
 ## WHY THESE RULES EXIST
 
 The modularization success taught us:
 - **Modular code prevents maintenance nightmares**: 960-line files → manageable 200-line modules
+- **One view per file prevents component conflicts**: Duplicate struct names and import issues eliminated
 - **Tests catch integration issues**: Comprehensive testing during refactoring prevented regressions
 - **README awareness prevents wheel reinvention**: Understanding existing patterns saves time
+- **README Table of Contents improves navigation**: Large documentation becomes accessible and professional
 - **Immediate modularization prevents technical debt**: Refactoring working code is easier than refactoring broken code
 - **Package structure enables team collaboration**: Clear organization helps multiple developers
 - **Separation of concerns improves testability**: Individual components can be tested in isolation
+- **File-per-component improves reusability**: Components can be independently imported and reused across views
 
 The transcript JSON regression taught us:
 - Excellent unit tests ≠ working system
