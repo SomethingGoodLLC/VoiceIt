@@ -17,6 +17,7 @@ struct EvidenceRowView<T: EvidenceProtocol>: View {
                 .frame(width: 40, height: 40)
                 .background(Color.voiceitPurple.opacity(0.1))
                 .clipShape(Circle())
+                .accessibilityHidden(true)
             
             // Content
             VStack(alignment: .leading, spacing: 8) {
@@ -82,6 +83,64 @@ struct EvidenceRowView<T: EvidenceProtocol>: View {
             }
         }
         .padding(.vertical, 8)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityLabel)
+        .accessibilityHint(accessibilityHint)
+        .accessibilityAddTraits(evidence.isCritical ? [.isButton, .isSelected] : .isButton)
+        .accessibilityIdentifier("evidence-row-\(evidence.id.uuidString)")
+    }
+    
+    // MARK: - Accessibility
+    
+    private var accessibilityLabel: String {
+        var components: [String] = []
+        
+        // Type and title
+        components.append(evidence.displayTitle)
+        
+        // Critical status
+        if evidence.isCritical {
+            components.append("Critical evidence")
+        }
+        
+        // Timestamp
+        components.append("Recorded \(evidence.timestamp.smartFormatted)")
+        
+        // Notes
+        if !evidence.notes.isEmpty {
+            components.append("Note: \(evidence.notes)")
+        }
+        
+        // Location
+        if let location = evidence.locationSnapshot {
+            let locationText = location.shortAddress.isEmpty ? "Location recorded" : "Location: \(location.shortAddress)"
+            components.append(locationText)
+        }
+        
+        // Tags
+        if !evidence.tags.isEmpty {
+            components.append("Tags: \(evidence.tags.joined(separator: ", "))")
+        }
+        
+        // Type-specific details
+        if let voiceNote = evidence as? VoiceNote {
+            components.append("Audio duration: \(voiceNote.formattedDuration)")
+            if voiceNote.transcription != nil {
+                components.append("Transcription available")
+            }
+        } else if let photo = evidence as? PhotoEvidence {
+            components.append("Photo: \(photo.width) by \(photo.height) pixels, \(photo.formattedFileSize)")
+        } else if let video = evidence as? VideoEvidence {
+            components.append("Video: \(video.formattedDuration), \(video.formattedFileSize)")
+        } else if let textEntry = evidence as? TextEntry {
+            components.append("Text entry: \(textEntry.wordCount) words, approximately \(textEntry.estimatedReadingTime) minute read")
+        }
+        
+        return components.joined(separator: ". ")
+    }
+    
+    private var accessibilityHint: String {
+        return "Double tap to view details, swipe up or down for more actions"
     }
     
     // MARK: - Type-Specific Details

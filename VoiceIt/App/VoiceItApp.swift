@@ -19,6 +19,7 @@ struct VoiceItApp: App {
     private let stealthModeService: StealthModeService
     private let audioRecordingService: AudioRecordingService
     private let communityService: CommunityService
+    private let notificationService: NotificationService
     
     // MARK: - Initialization
     
@@ -68,6 +69,7 @@ struct VoiceItApp: App {
         stealthModeService = StealthModeService()
         audioRecordingService = AudioRecordingService()
         communityService = CommunityService()
+        notificationService = NotificationService()
         
         // Create required storage directories
         do {
@@ -93,6 +95,7 @@ struct VoiceItApp: App {
                 .environment(\.stealthModeService, stealthModeService)
                 .environment(\.audioRecordingService, audioRecordingService)
                 .environment(\.communityService, communityService)
+                .environment(\.notificationService, notificationService)
         }
     }
 }
@@ -113,6 +116,7 @@ extension EnvironmentValues {
     )
     @Entry var stealthModeService: StealthModeService = StealthModeService()
     @Entry var audioRecordingService: AudioRecordingService = AudioRecordingService()
+    @Entry var notificationService: NotificationService = NotificationService()
 }
 
 @available(iOS 18, *)

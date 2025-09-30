@@ -38,6 +38,28 @@ targets:
           UIImageName: shield.checkered
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: true
+        CFBundleIcons:
+          CFBundleAlternateIcons:
+            Calculator:
+              CFBundleIconFiles:
+                - Calculator
+              UIPrerenderedIcon: false
+            Weather:
+              CFBundleIconFiles:
+                - Weather
+              UIPrerenderedIcon: false
+            Notes:
+              CFBundleIconFiles:
+                - Notes
+              UIPrerenderedIcon: false
+            Wellness:
+              CFBundleIconFiles:
+                - Wellness
+              UIPrerenderedIcon: false
+          CFBundlePrimaryIcon:
+            CFBundleIconFiles:
+              - AppIcon
+            UIPrerenderedIcon: false
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationLandscapeLeft

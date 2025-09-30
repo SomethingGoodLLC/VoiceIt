@@ -118,6 +118,47 @@ final class EncryptionService: Sendable {
         throw EncryptionError.notImplemented
     }
     
+    // MARK: - Secure Delete
+    
+    /// Securely delete a file by overwriting it multiple times before deletion
+    func secureDelete(at path: URL) async throws {
+        let fileManager = FileManager.default
+        
+        guard fileManager.fileExists(atPath: path.path) else {
+            throw EncryptionError.invalidInput
+        }
+        
+        // Get file size
+        let attributes = try fileManager.attributesOfItem(atPath: path.path)
+        guard let fileSize = attributes[.size] as? Int else {
+            throw EncryptionError.invalidInput
+        }
+        
+        // Overwrite file 3 times with random data
+        for _ in 0..<3 {
+            var randomData = Data(count: fileSize)
+            randomData.withUnsafeMutableBytes { bufferPointer in
+                guard let baseAddress = bufferPointer.baseAddress else { return }
+                _ = SecRandomCopyBytes(kSecRandomDefault, fileSize, baseAddress)
+            }
+            
+            try randomData.write(to: path, options: .atomic)
+        }
+        
+        // Finally delete the file
+        try fileManager.removeItem(at: path)
+    }
+    
+    /// Securely delete data from memory (overwrite with zeros)
+    func secureErase(_ data: inout Data) {
+        let count = data.count
+        data.withUnsafeMutableBytes { bytes in
+            guard let baseAddress = bytes.baseAddress else { return }
+            memset(baseAddress, 0, count)
+        }
+        data = Data()
+    }
+    
     // MARK: - Hash Functions
     
     /// Generate SHA-256 hash of data

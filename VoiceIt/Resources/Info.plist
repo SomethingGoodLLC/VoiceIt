@@ -8,6 +8,57 @@
 	<string>Voice It</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundleAlternateIcons</key>
+		<dict>
+			<key>Calculator</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>Calculator</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+			<key>Notes</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>Notes</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+			<key>Weather</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>Weather</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+			<key>Wellness</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>Wellness</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+		</dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string>AppIcon</string>
+			</array>
+			<key>UIPrerenderedIcon</key>
+			<false/>
+		</dict>
+	</dict>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -66,4 +117,3 @@
 	</array>
 </dict>
 </plist>
-

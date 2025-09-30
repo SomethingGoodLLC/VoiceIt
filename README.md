@@ -18,6 +18,10 @@ A privacy-first iOS application built with Swift 6 and SwiftUI for documenting a
   - [Encryption](#encryption)
   - [Authentication](#authentication)
   - [Privacy](#privacy)
+- [♿ Accessibility](#-accessibility)
+  - [VoiceOver Support](#voiceover-support)
+  - [Dynamic Type](#dynamic-type)
+  - [Accessibility Features](#accessibility-features)
 - [🚀 Features](#-features)
   - [Evidence Management](#evidence-management)
   - [Timeline Features](#timeline-features)
@@ -53,6 +57,10 @@ A privacy-first iOS application built with Swift 6 and SwiftUI for documenting a
   - [High Priority](#high-priority)
   - [Medium Priority](#medium-priority)
   - [Low Priority](#low-priority)
+- [🌐 Future Backend Requirements](#-future-backend-requirements)
+  - [Community Features Backend](#community-features-backend)
+  - [Optional Cloud Sync](#optional-cloud-sync)
+  - [Professional Services Integration](#professional-services-integration)
 - [🤝 Contributing](#-contributing)
 - [📄 License](#-license)
 - [🆘 Emergency Resources](#-emergency-resources)
@@ -212,6 +220,58 @@ VoiceIt/
 - **No analytics or tracking**
 - Location tracking with explicit user consent
 - Export only when user initiates
+
+## ♿ Accessibility
+
+VoiceIt is designed to be fully accessible to all users, following Apple's Human Interface Guidelines.
+
+### VoiceOver Support
+
+**Comprehensive Screen Reader Support:**
+- All UI elements have descriptive labels and hints
+- Evidence rows announce complete information (type, timestamp, location, tags, notes)
+- Custom announcements for important actions ("Evidence saved", "Emergency activated")
+- Grouped elements for logical navigation
+- Custom swipe actions with clear labels
+
+**Key VoiceOver Features:**
+- Timeline evidence items: Full context including duration, file size, critical status
+- Panic button: "Press and hold for 3 seconds to activate emergency mode"
+- Settings toggles: Announce state changes ("Face ID enabled")
+- Emergency contacts: Relationship and auto-notify status read aloud
+
+### Dynamic Type
+
+**Full Dynamic Type Support:**
+- Text scales from Extra Small to AAAExtra Large
+- Layouts adapt to larger text sizes
+- Multi-line text wraps naturally
+- Minimum scale factor ensures readability
+- All fonts use system Dynamic Type sizes
+
+### Accessibility Features
+
+**Built-in Accessibility:**
+- ✅ VoiceOver labels on all interactive elements
+- ✅ Accessibility hints for complex gestures
+- ✅ Accessibility identifiers for UI testing
+- ✅ Dynamic Type support (XS to AAAExtra Large)
+- ✅ High contrast text and colors (WCAG AA compliant)
+- ✅ Reduced motion support
+- ✅ Semantic content attributes
+- ✅ Custom accessibility announcements
+- ✅ Grouped accessibility elements
+- ✅ Touch target sizes (minimum 44x44 points)
+
+**Privacy-Sensitive Content:**
+- Password fields marked as private
+- Evidence content can be hidden in sensitive contexts
+- Screenshot protection for sensitive screens
+
+**Testing:**
+- Enable VoiceOver: Settings → Accessibility → VoiceOver
+- Test Dynamic Type: Settings → Accessibility → Display & Text Size
+- See [ACCESSIBILITY.md](ACCESSIBILITY.md) for full testing guide
 
 ## 🚀 Features
 
@@ -672,12 +732,476 @@ The "Add Evidence" tab provides a clean, intuitive interface for documenting inc
 
 ### Low Priority
 - [ ] Add localization support
-- [ ] Implement accessibility features (VoiceOver, Dynamic Type)
+- [x] **Implement accessibility features** (VoiceOver, Dynamic Type)
+  - [x] VoiceOver labels and hints for all UI elements
+  - [x] Dynamic Type support (XS to AAAExtra Large)
+  - [x] Accessibility announcements for state changes
+  - [x] Semantic content attributes
+  - [x] Accessibility identifiers for testing
+  - [x] High contrast colors (WCAG AA compliant)
+  - [x] Touch target sizes (44x44 minimum)
+  - [x] Comprehensive accessibility documentation
 - [ ] Create app icon and launch screen
 - [ ] Add App Store assets
 - [ ] Additional decoy screens (Music, Maps, etc.)
 - [ ] Panic button gesture alternatives
 - [ ] Emergency contact import from Contacts app
+
+## 🌐 Future Backend Requirements
+
+Currently, VoiceIt operates **100% locally** with all data stored on-device. However, several features would benefit from optional backend infrastructure. This section outlines where and why backend services would be needed.
+
+### Community Features Backend
+
+**Current Status**: Mock data for demonstration  
+**Backend Required For**: Full community functionality
+
+#### 1. Support Groups Backend
+
+**Location**: `VoiceIt/Services/CommunityService.swift` (lines ~50-150)
+
+**Required Backend Services**:
+```
+Backend Endpoint Structure:
+
+POST   /api/v1/groups                    # Create support group
+GET    /api/v1/groups                    # List all groups
+GET    /api/v1/groups/:id                # Get group details
+GET    /api/v1/groups/:id/posts          # Get group posts
+POST   /api/v1/groups/:id/posts          # Create post (anonymous)
+POST   /api/v1/posts/:id/report          # Report inappropriate content
+GET    /api/v1/groups/:id/moderators     # Get moderator info
+```
+
+**Database Schema Needed**:
+```sql
+-- Support Groups
+CREATE TABLE support_groups (
+    id UUID PRIMARY KEY,
+    name VARCHAR(255),
+    description TEXT,
+    topic VARCHAR(100),
+    member_count INT,
+    moderator_name VARCHAR(255),
+    moderator_credentials VARCHAR(255),
+    created_at TIMESTAMP,
+    is_active BOOLEAN
+);
+
+-- Posts (Anonymous)
+CREATE TABLE group_posts (
+    id UUID PRIMARY KEY,
+    group_id UUID REFERENCES support_groups(id),
+    author_pseudonym VARCHAR(100), -- Auto-generated, no real identity
+    content TEXT,
+    created_at TIMESTAMP,
+    is_moderated BOOLEAN,
+    reported_count INT
+);
+
+-- Content Moderation
+CREATE TABLE post_reports (
+    id UUID PRIMARY KEY,
+    post_id UUID REFERENCES group_posts(id),
+    reason VARCHAR(255),
+    reported_at TIMESTAMP,
+    status VARCHAR(50) -- 'pending', 'reviewed', 'removed'
+);
+```
+
+**Privacy Requirements**:
+- Zero-knowledge architecture: Backend never knows real user identities
+- Pseudonyms generated client-side with no linkage to user accounts
+- E2E encryption for posts (optional)
+- No IP logging or tracking
+- Moderation done by certified professionals (LCSW, attorneys)
+
+**Technology Recommendations**:
+- **Backend**: Node.js/Express, Python/FastAPI, or Ruby/Rails
+- **Database**: PostgreSQL with row-level security
+- **Real-time**: WebSockets for live group updates
+- **Moderation**: Admin dashboard for moderators
+- **Hosting**: Privacy-focused providers (e.g., OVH, Hetzner)
+
+---
+
+#### 2. Therapy Sessions Backend
+
+**Location**: `VoiceIt/Services/CommunityService.swift` (lines ~150-250)
+
+**Required Backend Services**:
+```
+Backend Endpoint Structure:
+
+GET    /api/v1/therapists                # List available therapists
+GET    /api/v1/therapists/:id            # Get therapist details
+GET    /api/v1/therapists/:id/slots      # Get available time slots
+POST   /api/v1/sessions/book             # Book session (anonymous)
+GET    /api/v1/sessions/:id              # Get session details
+POST   /api/v1/sessions/:id/cancel       # Cancel session
+POST   /api/v1/sessions/:id/feedback     # Submit rating/feedback
+GET    /api/v1/sessions/upcoming         # Get user's upcoming sessions
+```
+
+**Database Schema Needed**:
+```sql
+-- Therapists
+CREATE TABLE therapists (
+    id UUID PRIMARY KEY,
+    name VARCHAR(255),
+    credentials VARCHAR(255), -- PhD, LMFT, PsyD, LCSW
+    specializations TEXT[],   -- Array of specialties
+    languages TEXT[],         -- Supported languages
+    bio TEXT,
+    rating DECIMAL(3,2),
+    review_count INT,
+    session_duration_minutes INT DEFAULT 30,
+    is_pro_bono BOOLEAN DEFAULT true,
+    is_active BOOLEAN,
+    created_at TIMESTAMP
+);
+
+-- Available Time Slots
+CREATE TABLE therapist_availability (
+    id UUID PRIMARY KEY,
+    therapist_id UUID REFERENCES therapists(id),
+    start_time TIMESTAMP,
+    end_time TIMESTAMP,
+    is_booked BOOLEAN DEFAULT false,
+    timezone VARCHAR(50)
+);
+
+-- Sessions (Anonymized)
+CREATE TABLE therapy_sessions (
+    id UUID PRIMARY KEY,
+    therapist_id UUID REFERENCES therapists(id),
+    anonymous_user_token VARCHAR(255), -- Hashed user identifier
+    scheduled_time TIMESTAMP,
+    duration_minutes INT,
+    status VARCHAR(50), -- 'scheduled', 'completed', 'cancelled', 'no-show'
+    video_room_id VARCHAR(255), -- For video conferencing
+    rating INT,
+    feedback TEXT,
+    created_at TIMESTAMP
+);
+```
+
+**Integration Requirements**:
+- **Video Conferencing**: Zoom API, Twilio Video, or Jitsi (open source)
+- **Scheduling**: Calendar integration (iCal export)
+- **Notifications**: Push notifications for reminders (via APNs)
+- **Payments**: If transitioning to paid model (Stripe)
+
+**Privacy Requirements**:
+- Session links are single-use and expire after session
+- No video/audio recording without explicit consent
+- End-to-end encryption for video (WebRTC)
+- Therapist-patient confidentiality maintained
+- HIPAA compliance if operating in US
+
+---
+
+#### 3. Legal Consultations Backend
+
+**Location**: `VoiceIt/Services/CommunityService.swift` (lines ~250-350)
+
+**Required Backend Services**:
+```
+Backend Endpoint Structure:
+
+GET    /api/v1/lawyers                   # List available lawyers
+GET    /api/v1/lawyers/:id               # Get lawyer details
+POST   /api/v1/consultations/request     # Request consultation
+GET    /api/v1/consultations/:id         # Get consultation details
+POST   /api/v1/consultations/:id/upload  # Upload documents (encrypted)
+GET    /api/v1/consultations/:id/files   # List shared files
+POST   /api/v1/messages                  # Send secure message
+GET    /api/v1/messages/:consultation_id # Get message thread
+```
+
+**Database Schema Needed**:
+```sql
+-- Lawyers
+CREATE TABLE lawyers (
+    id UUID PRIMARY KEY,
+    name VARCHAR(255),
+    bar_number VARCHAR(100),
+    state_jurisdiction VARCHAR(50),
+    practice_areas TEXT[], -- Domestic Violence, Family Law, etc.
+    bio TEXT,
+    rating DECIMAL(3,2),
+    review_count INT,
+    offers_free_consultation BOOLEAN DEFAULT true,
+    consultation_duration_minutes INT DEFAULT 30,
+    is_active BOOLEAN,
+    verified_at TIMESTAMP,
+    created_at TIMESTAMP
+);
+
+-- Consultations (Anonymized)
+CREATE TABLE legal_consultations (
+    id UUID PRIMARY KEY,
+    lawyer_id UUID REFERENCES lawyers(id),
+    anonymous_user_token VARCHAR(255),
+    scheduled_time TIMESTAMP,
+    status VARCHAR(50), -- 'requested', 'confirmed', 'completed', 'declined'
+    case_type VARCHAR(100),
+    brief_description TEXT, -- Encrypted
+    created_at TIMESTAMP
+);
+
+-- Secure Document Sharing
+CREATE TABLE shared_documents (
+    id UUID PRIMARY KEY,
+    consultation_id UUID REFERENCES legal_consultations(id),
+    file_name VARCHAR(255),
+    file_size_bytes BIGINT,
+    encrypted_url TEXT, -- S3 presigned URL or similar
+    uploaded_by VARCHAR(50), -- 'user' or 'lawyer'
+    uploaded_at TIMESTAMP,
+    expires_at TIMESTAMP -- Auto-delete after case closure
+);
+
+-- Secure Messaging
+CREATE TABLE consultation_messages (
+    id UUID PRIMARY KEY,
+    consultation_id UUID REFERENCES legal_consultations(id),
+    sender_type VARCHAR(50), -- 'user' or 'lawyer'
+    message_content TEXT, -- End-to-end encrypted
+    sent_at TIMESTAMP,
+    read_at TIMESTAMP
+);
+```
+
+**Security Requirements**:
+- End-to-end encryption for all messages and documents
+- Attorney-client privilege protection
+- Automatic document expiration (30-90 days)
+- Zero-knowledge file storage (client-side encryption)
+- Audit logs for compliance
+
+**Technology Recommendations**:
+- **File Storage**: S3-compatible with client-side encryption (MinIO, Backblaze B2)
+- **Encryption**: AES-256 with per-consultation keys
+- **Messaging**: Signal Protocol or similar E2E encryption
+- **Compliance**: SOC 2 compliance for legal industry
+
+---
+
+#### 4. Resource Library Backend
+
+**Location**: `VoiceIt/Services/CommunityService.swift` (lines ~350-450)
+
+**Required Backend Services**:
+```
+Backend Endpoint Structure:
+
+GET    /api/v1/articles                  # List articles
+GET    /api/v1/articles/:id              # Get article content
+GET    /api/v1/articles/search           # Search articles
+GET    /api/v1/downloads/:id             # Download checklist/guide
+POST   /api/v1/articles/:id/analytics    # Track article views (anonymous)
+```
+
+**Database Schema Needed**:
+```sql
+-- Articles
+CREATE TABLE community_articles (
+    id UUID PRIMARY KEY,
+    title VARCHAR(255),
+    subtitle VARCHAR(500),
+    author VARCHAR(255),
+    author_credentials VARCHAR(255),
+    content TEXT,
+    article_type VARCHAR(50), -- 'article', 'video', 'checklist', 'guide', 'story'
+    category VARCHAR(50), -- 'legal', 'safety', 'healing', 'financial', 'childcare'
+    reading_time_minutes INT,
+    view_count INT DEFAULT 0,
+    published_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    is_featured BOOLEAN,
+    tags TEXT[]
+);
+
+-- Downloadable Resources
+CREATE TABLE downloadable_resources (
+    id UUID PRIMARY KEY,
+    article_id UUID REFERENCES community_articles(id),
+    title VARCHAR(255),
+    file_type VARCHAR(50), -- 'pdf', 'docx', 'checklist'
+    file_url TEXT,
+    file_size_bytes BIGINT,
+    download_count INT DEFAULT 0
+);
+```
+
+**Technology**: Simple CMS or headless CMS (Strapi, Directus, or Ghost)
+
+---
+
+### Optional Cloud Sync
+
+**Current Status**: 100% local storage  
+**Backend Required For**: Cross-device sync and encrypted cloud backup
+
+**Why Users Might Want This**:
+- Backup evidence in case device is lost/destroyed
+- Access evidence from multiple devices
+- Transfer evidence when upgrading phones
+
+**Privacy-First Cloud Sync Architecture**:
+
+```
+Backend Endpoint Structure:
+
+POST   /api/v1/auth/register             # Register anonymous account
+POST   /api/v1/auth/login                # Login with device token
+POST   /api/v1/sync/upload               # Upload encrypted evidence
+GET    /api/v1/sync/download             # Download encrypted evidence
+DELETE /api/v1/sync/wipe                 # Remote wipe all data
+GET    /api/v1/sync/status               # Get sync status
+```
+
+**Database Schema**:
+```sql
+-- Anonymous User Accounts
+CREATE TABLE user_accounts (
+    id UUID PRIMARY KEY,
+    device_token VARCHAR(255) UNIQUE, -- Hashed device ID
+    encrypted_master_key TEXT, -- User's master key, encrypted with device password
+    storage_used_bytes BIGINT DEFAULT 0,
+    last_sync_at TIMESTAMP,
+    created_at TIMESTAMP
+);
+
+-- Encrypted Evidence Blobs
+CREATE TABLE encrypted_evidence (
+    id UUID PRIMARY KEY,
+    user_id UUID REFERENCES user_accounts(id),
+    evidence_id UUID, -- Client-side evidence ID
+    encrypted_blob BYTEA, -- Fully encrypted evidence
+    blob_size_bytes BIGINT,
+    evidence_type VARCHAR(50),
+    uploaded_at TIMESTAMP,
+    updated_at TIMESTAMP,
+    deleted_at TIMESTAMP -- Soft delete
+);
+```
+
+**Zero-Knowledge Requirements**:
+- Client encrypts all data before upload
+- Server never has decryption keys
+- Server only stores encrypted blobs
+- Metadata is also encrypted
+- User can remote wipe all data
+
+**Technology Recommendations**:
+- **Backend**: Go (for performance), Rust (for security)
+- **Storage**: Object storage with encryption at rest
+- **Database**: PostgreSQL with full disk encryption
+- **Hosting**: Privacy-focused (Switzerland, Iceland data centers)
+
+**Implementation Location**:
+- Create new `CloudSyncService.swift` in `VoiceIt/Services/`
+- Add settings in `SettingsView.swift` under Privacy section
+- Implement E2E encryption in `EncryptionService.swift`
+
+---
+
+### Professional Services Integration
+
+**Backend Required For**: Real therapist/lawyer provider networks
+
+#### Third-Party Integrations Needed
+
+1. **Therapist Network API**:
+   - Integration with platforms like BetterHelp API, TalkSpace API
+   - Verify therapist credentials via national databases
+   - Real-time availability calendars
+
+2. **Legal Network API**:
+   - Integration with LegalZoom, Avvo, or state bar associations
+   - Verify bar certifications
+   - Pro bono matching algorithms
+
+3. **Video Conferencing**:
+   - Zoom SDK, Twilio Video, or Jitsi
+   - HIPAA-compliant video for therapy sessions
+   - Recording controls with consent
+
+4. **Payment Processing** (If moving beyond free tier):
+   - Stripe for payments
+   - Sliding scale payment options
+   - Pro bono voucher system
+
+**Implementation Note**: These would require separate API contracts and likely backend middleware to coordinate between VoiceIt and third-party services.
+
+---
+
+### Deployment Architecture Recommendation
+
+```
+┌─────────────────────────────────────────────────┐
+│                 iOS App (VoiceIt)               │
+│            100% Local Evidence Storage          │
+└─────────────┬───────────────────────────────────┘
+              │
+              │ HTTPS/TLS 1.3
+              │
+┌─────────────▼───────────────────────────────────┐
+│           API Gateway (NGINX/Traefik)           │
+│          Rate Limiting + DDoS Protection        │
+└─────────────┬───────────────────────────────────┘
+              │
+    ┌─────────┴─────────┬──────────────┬──────────┐
+    │                   │              │          │
+┌───▼─────────┐  ┌──────▼──────┐  ┌───▼────┐  ┌─▼─────────┐
+│ Community   │  │  Sync       │  │ Search │  │ Analytics │
+│ Service     │  │  Service    │  │ Service│  │ Service   │
+│ (Node.js)   │  │  (Go)       │  │ (ES)   │  │ (Optional)│
+└─────┬───────┘  └──────┬──────┘  └────────┘  └───────────┘
+      │                 │
+┌─────▼─────────────────▼─────────────────────────┐
+│         PostgreSQL (Primary Database)           │
+│         - Encrypted at rest                     │
+│         - Row-level security                    │
+│         - Regular backups to cold storage       │
+└─────────────────────────────────────────────────┘
+                      │
+            ┌─────────┴──────────┐
+            │                    │
+      ┌─────▼─────┐      ┌──────▼──────┐
+      │  S3/MinIO │      │    Redis    │
+      │  Encrypted│      │   Cache     │
+      │   Storage │      │             │
+      └───────────┘      └─────────────┘
+```
+
+**Estimated Backend Costs** (for 10,000 active users):
+- **Infrastructure**: $200-500/month (Digital Ocean, Hetzner)
+- **Database**: $100/month (Managed PostgreSQL)
+- **Storage**: $50/month (Object storage for files)
+- **CDN**: $50/month (CloudFlare or similar)
+- **Total**: ~$400-700/month
+
+**Development Estimate**: 3-6 months for full community backend
+
+---
+
+### Privacy-First Backend Principles
+
+All backend services MUST follow these principles:
+
+1. **Zero-Knowledge Architecture**: Server never decrypts user evidence
+2. **No Analytics by Default**: No tracking, no user profiling
+3. **Minimal Data Collection**: Only collect what's absolutely necessary
+4. **Open Source**: Backend code should be open source for audit
+5. **GDPR/CCPA Compliant**: Right to deletion, data portability
+6. **Regular Security Audits**: Third-party penetration testing
+7. **Transparency Reports**: Publish data on any government requests
+8. **Data Residency**: Allow users to choose data location
+9. **No Third-Party Trackers**: No Google Analytics, Facebook pixels, etc.
+10. **Encryption Everywhere**: TLS 1.3, E2E encryption, encrypted backups
 
 ## 🤝 Contributing
 

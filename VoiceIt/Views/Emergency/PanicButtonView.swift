@@ -137,12 +137,18 @@ struct PanicButtonView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
+            .accessibilityLabel("Minimize panic button")
+            .accessibilityHint("Double tap to minimize the panic button")
         }
         .padding()
         .background(Color(uiColor: .systemBackground))
         .cornerRadius(16)
         .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 4)
         .position(position)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Emergency panic button")
+        .accessibilityHint("Press and hold for 3 seconds to activate emergency mode. Drag to reposition.")
+        .accessibilityAddTraits([.isButton, .startsMediaSession])
         .gesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { value in
