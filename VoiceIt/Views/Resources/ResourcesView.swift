@@ -9,109 +9,101 @@ struct ResourcesView: View {
     @Environment(\.locationService) private var locationService
     
     @State private var resources: [Resource] = []
-    @State private var selectedType: ResourceType?
     @State private var searchText = ""
     @State private var isLoading = false
+    @State private var selectedTab: ResourceTab = .map
     
     // MARK: - Body
     
     var body: some View {
         NavigationStack {
-            List {
-                // Quick access hotlines
-                Section("Emergency Hotlines") {
-                    ForEach(emergencyHotlines) { resource in
-                        ResourceRowView(resource: resource)
-                    }
+            VStack(spacing: 0) {
+                // Segmented control
+                Picker("View", selection: $selectedTab) {
+                    Label("Map", systemImage: "map.fill")
+                        .tag(ResourceTab.map)
+                    Label("List", systemImage: "list.bullet")
+                        .tag(ResourceTab.list)
+                    Label("Contacts", systemImage: "phone.fill")
+                        .tag(ResourceTab.contacts)
                 }
+                .pickerStyle(.segmented)
+                .padding()
                 
-                // Filter by type
-                Section("Browse by Type") {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
-                            filterButton(nil, label: "All")
-                            
-                            ForEach([
-                                ResourceType.shelter,
-                                .hotline,
-                                .legalAid,
-                                .counseling,
-                                .medical
-                            ], id: \.self) { type in
-                                filterButton(type, label: type.rawValue)
-                            }
-                        }
-                    }
-                }
-                
-                // Filtered resources
-                if !filteredResources.isEmpty {
-                    Section(selectedType?.rawValue ?? "All Resources") {
-                        ForEach(filteredResources) { resource in
-                            NavigationLink {
-                                ResourceDetailView(resource: resource)
-                            } label: {
-                                ResourceRowView(resource: resource)
-                            }
-                        }
+                // Tab content
+                Group {
+                    switch selectedTab {
+                    case .map:
+                        MapResourcesView(resources: resources)
+                    case .list:
+                        EnhancedListResourcesView(
+                            resources: resources,
+                            searchText: $searchText
+                        )
+                    case .contacts:
+                        QuickContactsView()
                     }
                 }
             }
             .navigationTitle("Resources")
             .searchable(text: $searchText, prompt: "Search resources")
+            .searchPresentationToolbarBehavior(.avoidHidingContent)
             .task {
                 await loadResources()
             }
             .refreshable {
-                await loadResources()
+                await refreshResources()
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button {
+                            Task {
+                                await refreshResources()
+                            }
+                        } label: {
+                            Label("Refresh Resources", systemImage: "arrow.clockwise")
+                        }
+                        
+                        Button {
+                            requestLocationIfNeeded()
+                        } label: {
+                            Label("Update Location", systemImage: "location.fill")
+                        }
+                        
+                        Divider()
+                        
+                        if let location = locationService.currentLocation {
+                            Text("Last updated: \(Date(), style: .relative)")
+                                .font(.caption)
+                        } else {
+                            Text("Location: Not available")
+                                .font(.caption)
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                }
             }
         }
-    }
-    
-    // MARK: - Filter Button
-    
-    private func filterButton(_ type: ResourceType?, label: String) -> some View {
-        Button {
-            withAnimation {
-                selectedType = type
-            }
-        } label: {
-            Text(label)
-                .font(.subheadline)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(selectedType == type ? Color.voiceitPurple : Color.gray.opacity(0.2))
-                .foregroundStyle(selectedType == type ? .white : .primary)
-                .clipShape(Capsule())
-        }
-    }
-    
-    // MARK: - Computed Properties
-    
-    private var emergencyHotlines: [Resource] {
-        resources.filter { $0.type == .hotline && $0.isAvailable24_7 }
-    }
-    
-    private var filteredResources: [Resource] {
-        var results = resources
-        
-        // Filter by type
-        if let type = selectedType {
-            results = results.filter { $0.type == type }
-        }
-        
-        // Filter by search
-        if !searchText.isEmpty {
-            results = resourceService.searchResources(query: searchText, in: results)
-        }
-        
-        return results
     }
     
     // MARK: - Load Resources
     
     private func loadResources() async {
         isLoading = true
+        
+        // Request location permission if needed
+        if locationService.authorizationStatus == .notDetermined {
+            locationService.requestPermission()
+        }
+        
+        // Start tracking if authorized
+        if !locationService.isTracking,
+           (locationService.authorizationStatus == .authorizedWhenInUse ||
+            locationService.authorizationStatus == .authorizedAlways) {
+            locationService.requestLocation()
+        }
         
         let userLocation = locationService.currentLocation
         let loadedResources = await resourceService.getResources(userLocation: userLocation)
@@ -121,6 +113,42 @@ struct ResourcesView: View {
             self.isLoading = false
         }
     }
+    
+    private func refreshResources() async {
+        // Clear cache to force fresh data
+        resourceService.clearCache()
+        
+        // Request new location
+        locationService.requestLocation()
+        
+        // Small delay to let location update
+        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+        
+        // Reload resources
+        await loadResources()
+    }
+    
+    private func requestLocationIfNeeded() {
+        switch locationService.authorizationStatus {
+        case .notDetermined:
+            locationService.requestPermission()
+        case .authorizedWhenInUse, .authorizedAlways:
+            locationService.requestLocation()
+        case .denied, .restricted:
+            // Show alert to user
+            break
+        @unknown default:
+            break
+        }
+    }
+}
+
+// MARK: - Resource Tab
+
+enum ResourceTab: String, CaseIterable {
+    case map = "Map"
+    case list = "List"
+    case contacts = "Contacts"
 }
 
 // MARK: - Resource Row View
