@@ -42,8 +42,8 @@ Press **⌘R** in Xcode to build and run!
 ```
 VoiceIt/
 ├── App/
-│   ├── VoiceItApp.swift              # App entry point
-│   └── ContentView.swift              # Main tab container
+│   ├── VoiceItApp.swift              # App entry point with service injection
+│   └── ContentView.swift              # Main tab container with panic button
 ├── Models/
 │   ├── Evidence/
 │   │   ├── EvidenceProtocol.swift     # Common evidence protocol
@@ -53,21 +53,22 @@ VoiceIt/
 │   │   └── TextEntry.swift            # Text notes with templates
 │   ├── EvidenceCategory.swift         # Evidence categorization
 │   ├── LocationSnapshot.swift         # GPS tracking data
-│   ├── EmergencyContact.swift         # Emergency contacts
+│   ├── EmergencyContact.swift         # Emergency contacts with auto-notify
 │   └── Resource.swift                 # Support resources
 ├── Services/
-│   ├── EncryptionService.swift        # End-to-end encryption
-│   ├── LocationService.swift          # GPS tracking
+│   ├── EncryptionService.swift        # End-to-end encryption (AES-GCM-256)
+│   ├── LocationService.swift          # Modern async/await GPS tracking
 │   ├── ExportService.swift            # PDF/JSON exports
-│   ├── EmergencyService.swift         # Panic button & 911
+│   ├── EmergencyService.swift         # Panic button, 911, SMS alerts
 │   ├── ResourceService.swift          # Find nearby resources
-│   ├── AuthenticationService.swift    # Biometric security
+│   ├── AuthenticationService.swift    # Biometric security (Face ID/Touch ID)
 │   ├── AudioRecordingService.swift    # Audio recording with waveform
 │   ├── TranscriptionService.swift     # Speech-to-text transcription
-│   └── FileStorageService.swift       # Encrypted file management
+│   ├── FileStorageService.swift       # Encrypted file management
+│   └── StealthModeService.swift       # Stealth mode with decoy screens
 ├── Views/
 │   ├── Onboarding/
-│   │   └── OnboardingView.swift       # Privacy onboarding
+│   │   └── OnboardingView.swift       # Privacy onboarding flow
 │   ├── Timeline/
 │   │   ├── TimelineView.swift         # Evidence timeline with stealth mode
 │   │   ├── EvidenceRowView.swift      # Timeline row item
@@ -78,20 +79,29 @@ VoiceIt/
 │   │   ├── VideoCaptureView.swift     # Video recording and capture
 │   │   ├── PhotoCaptureView.swift     # Photo camera and library
 │   │   └── TextEntryView.swift        # Text entry with templates
+│   ├── Emergency/
+│   │   ├── PanicButtonView.swift      # Floating panic button with haptics
+│   │   └── EmergencyContactsView.swift # Emergency contact management
+│   ├── Stealth/
+│   │   ├── StealthModeContainerView.swift      # Stealth mode wrapper
+│   │   ├── StealthModeSettingsView.swift       # Stealth mode configuration
+│   │   ├── CalculatorDecoyView.swift           # Calculator decoy screen
+│   │   ├── WeatherDecoyView.swift              # Weather decoy screen
+│   │   └── NotesDecoyView.swift                # Notes decoy screen
 │   ├── Resources/
 │   │   ├── ResourcesView.swift        # Support resources
 │   │   └── ResourceDetailView.swift   # Resource details
 │   └── Community/
 │       └── CommunityView.swift        # Community tab
 ├── Utilities/
-│   ├── KeychainManager.swift          # Keychain operations
-│   ├── Constants.swift                # App constants
+│   ├── KeychainManager.swift          # Secure keychain operations
+│   ├── Constants.swift                # App-wide constants
 │   └── Extensions/
-│       ├── Color+Theme.swift          # App colors
+│       ├── Color+Theme.swift          # App color theme
 │       ├── Date+Extensions.swift      # Date utilities
 │       └── View+ShakeGesture.swift    # Shake gesture detection
 └── Resources/
-    └── Info.plist                     # App configuration
+    └── Info.plist                     # App configuration with permissions
 ```
 
 ## 🎨 Design System
@@ -167,9 +177,51 @@ VoiceIt/
 - Accuracy indicators
 
 ### Emergency Features
-- 🚨 **Panic Button**: Quick 911 dial
-- 📞 **Emergency Contacts**: Pre-configured contacts
-- 📍 **Location Sharing**: Send location to trusted contacts
+- 🚨 **Panic Button**: Persistent floating button with 3-second hold-to-activate
+  - Draggable and minimizable for non-intrusive access
+  - Hold for 3 seconds with visual progress ring
+  - Countdown with "I'm Safe" cancel option
+  - Actions upon activation:
+    - Captures current GPS location
+    - Starts silent audio recording
+    - Sends SMS alerts to auto-notify emergency contacts
+    - Dials 911 after 3-second countdown
+    - Creates automatic evidence entry with timestamp
+  - Haptic-only feedback for silent operation
+  - Works even when app is in stealth mode
+  
+- 📞 **Emergency Contacts Management**: Complete contact management system
+  - Add unlimited trusted contacts with relationship types
+  - Mark primary contact for priority calling
+  - Auto-notify flag for automatic SMS alerts
+  - Test mode to verify setup without alerting contacts
+  - Quick call and message actions via swipe gestures
+  - Tracks last contacted timestamp
+  - Supports email and notes for additional context
+  
+- 🕶️ **Stealth Mode**: Advanced privacy protection with decoy screens
+  - Three realistic decoy screens:
+    - Calculator: Fully functional calculator app
+    - Weather: Realistic weather display
+    - Notes: Convincing notes app interface
+  - Shake device to instantly activate stealth mode
+  - Swipe down from top of decoy screen to unlock
+  - Biometric (Face ID/Touch ID) or passcode authentication required
+  - Auto-hide after configurable inactivity period (1-30 minutes)
+  - Automatic activation on app switcher detection (optional)
+  - Seamless transition animations
+  - All evidence remains encrypted and hidden
+  
+- 📍 **Location Tracking**: Privacy-preserving GPS tracking
+  - Modern async/await CLLocationManager integration
+  - Only captures location when:
+    - Evidence is created
+    - Emergency is activated
+    - User explicitly requests it
+  - Reverse geocoding for human-readable addresses
+  - Low power mode option
+  - Per-evidence location toggle
+  - Accuracy indicators and timestamp tracking
 
 ### Export Options
 - 📄 **PDF Export**: Legal-ready documentation with formatted evidence
@@ -250,21 +302,63 @@ struct ContentView: View {
 - Export generation end-to-end
 
 ### Manual Testing Checklist
+
+#### Core Functionality
 - [ ] Onboarding flow completes
-- [ ] Biometric authentication works
-- [ ] Evidence creation (all 4 types)
+- [ ] Biometric authentication works (Face ID/Touch ID)
+- [ ] Evidence creation (all 4 types: voice, photo, video, text)
 - [ ] Timeline displays evidence correctly
 - [ ] Timeline pull-to-refresh works
 - [ ] Timeline swipe actions (share/delete) work
-- [ ] Stealth mode activates and hides content
-- [ ] Shake gesture exits stealth mode
 - [ ] Export banner displays correct item count
 - [ ] Export options sheet presents correctly
 - [ ] Evidence filtering works for all types
-- [ ] Emergency button dials 911
 - [ ] Resources list loads
 - [ ] Location permission handling
-- [ ] Auto-lock activates
+
+#### Safety Features
+- [ ] **Panic Button**:
+  - [ ] Button is draggable and stays on screen
+  - [ ] Minimize/expand button works
+  - [ ] Hold for 3 seconds shows progress ring
+  - [ ] Haptic feedback occurs during hold
+  - [ ] Countdown sheet appears after activation
+  - [ ] "I'm Safe" cancel button works
+  - [ ] Location captured on activation
+  - [ ] Silent recording starts
+  - [ ] Emergency contacts receive SMS alerts
+  - [ ] 911 dial occurs after countdown
+  
+- [ ] **Emergency Contacts**:
+  - [ ] Add new contact works
+  - [ ] Edit existing contact works
+  - [ ] Delete contact works
+  - [ ] Reorder contacts by dragging
+  - [ ] Primary contact badge displays
+  - [ ] Auto-notify flag works
+  - [ ] Test mode sends test messages
+  - [ ] Swipe to call works
+  - [ ] Phone number validation works
+  
+- [ ] **Stealth Mode**:
+  - [ ] Shake gesture activates stealth mode
+  - [ ] Calculator decoy screen appears and functions
+  - [ ] Weather decoy screen appears
+  - [ ] Notes decoy screen appears
+  - [ ] Swipe down from top shows unlock prompt
+  - [ ] Face ID/Touch ID authentication required
+  - [ ] Unlock returns to actual app
+  - [ ] Auto-hide after inactivity works
+  - [ ] Settings allow decoy screen selection
+  - [ ] Auto-hide timer configuration works
+  
+- [ ] **Location Tracking**:
+  - [ ] Location captured with evidence
+  - [ ] Reverse geocoding provides address
+  - [ ] Location permission prompt appears
+  - [ ] "When in use" permission works
+  - [ ] GPS coordinates accurate
+  - [ ] Location toggle per evidence works
 
 ## 🐛 Troubleshooting
 
@@ -403,6 +497,10 @@ The "Add Evidence" tab provides a clean, intuitive interface for documenting inc
 - [x] Add camera capture functionality
 - [x] Implement video recording
 - [x] Create evidence categorization system
+- [x] **Panic button with hold-to-activate**
+- [x] **Emergency contacts management**
+- [x] **Stealth mode with decoy screens**
+- [x] **Modern async/await location tracking**
 - [ ] Implement PDF export generation
 
 ### Medium Priority
@@ -410,14 +508,19 @@ The "Add Evidence" tab provides a clean, intuitive interface for documenting inc
 - [ ] Add data export encryption
 - [ ] Implement auto-lock timer
 - [ ] Add nearby resources API integration
-- [ ] Create emergency contact quick dial
+- [ ] Background location tracking for emergencies
+- [ ] Silent video recording option
+- [ ] Custom emergency message templates
+- [ ] Emergency contact groups
 
 ### Low Priority
 - [ ] Add localization support
-- [ ] Implement accessibility features
+- [ ] Implement accessibility features (VoiceOver, Dynamic Type)
 - [ ] Create app icon and launch screen
 - [ ] Add App Store assets
-- [ ] Documentation improvements
+- [ ] Additional decoy screens (Music, Maps, etc.)
+- [ ] Panic button gesture alternatives
+- [ ] Emergency contact import from Contacts app
 
 ## 🤝 Contributing
 

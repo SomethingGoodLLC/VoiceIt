@@ -17,3 +17,14 @@ extension UIWindow {
         super.motionEnded(motion, with: event)
     }
 }
+
+// MARK: - View Extension for Shake Gesture
+
+extension View {
+    /// Adds a shake gesture handler to the view
+    func onShake(perform action: @escaping () -> Void) -> some View {
+        self.onReceive(NotificationCenter.default.publisher(for: UIDevice.deviceDidShakeNotification)) { _ in
+            action()
+        }
+    }
+}

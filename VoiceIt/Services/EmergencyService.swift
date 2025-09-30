@@ -9,9 +9,17 @@ final class EmergencyService: Sendable {
     
     private let emergencyNumber = "911" // US emergency number
     
+    /// Whether to automatically call 911 when panic button is activated
+    @MainActor
+    var shouldCall911: Bool {
+        get { UserDefaults.standard.bool(forKey: "shouldCall911") }
+        set { UserDefaults.standard.set(newValue, forKey: "shouldCall911") }
+    }
+    
     // MARK: - Emergency Calling
     
     /// Initiate emergency call to 911
+    @MainActor
     func call911() {
         guard let url = URL(string: "tel://\(emergencyNumber)") else { return }
         
@@ -21,6 +29,7 @@ final class EmergencyService: Sendable {
     }
     
     /// Call emergency contact
+    @MainActor
     func callContact(_ contact: EmergencyContact) {
         let phoneNumber = contact.phoneNumber.filter { $0.isNumber }
         guard let url = URL(string: "tel://\(phoneNumber)") else { return }
@@ -33,12 +42,30 @@ final class EmergencyService: Sendable {
     // MARK: - SMS/Message
     
     /// Send SMS to emergency contact
+    @MainActor
     func sendSMS(to contact: EmergencyContact, message: String) {
         let phoneNumber = contact.phoneNumber.filter { $0.isNumber }
-        guard let url = URL(string: "sms:\(phoneNumber)&body=\(message.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")") else { return }
+        
+        // Encode message for URL
+        guard let encodedMessage = message.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
+            print("⚠️ Failed to encode message")
+            return
+        }
+        
+        // Use correct SMS URL format: sms:phoneNumber&body=message (no ? needed)
+        let smsURL = "sms:\(phoneNumber)&body=\(encodedMessage)"
+        print("📱 Opening SMS URL: \(smsURL)")
+        
+        guard let url = URL(string: smsURL) else {
+            print("⚠️ Failed to create URL from: \(smsURL)")
+            return
+        }
         
         if UIApplication.shared.canOpenURL(url) {
             UIApplication.shared.open(url)
+            print("✅ SMS URL opened successfully")
+        } else {
+            print("❌ Cannot open SMS URL")
         }
     }
     
@@ -59,6 +86,7 @@ final class EmergencyService: Sendable {
     }
     
     /// Share location with emergency contact
+    @MainActor
     func shareLocation(with contact: EmergencyContact, location: LocationSnapshot) {
         let message = generateEmergencyMessage(location: location)
         sendSMS(to: contact, message: message)
@@ -72,11 +100,18 @@ final class EmergencyService: Sendable {
         emergencyContacts: [EmergencyContact],
         location: LocationSnapshot?
     ) {
-        // Call 911 first
-        call911()
+        // Call 911 if enabled in settings
+        if shouldCall911 {
+            print("📞 Calling 911 (enabled in settings)")
+            call911()
+        } else {
+            print("⏭️ Skipping 911 call (disabled in settings)")
+        }
         
         // Notify auto-notify contacts
         let autoNotifyContacts = emergencyContacts.filter { $0.autoNotify }
+        
+        print("📱 Notifying \(autoNotifyContacts.count) auto-notify contacts")
         
         for contact in autoNotifyContacts {
             if let location = location {
@@ -97,6 +132,7 @@ final class EmergencyService: Sendable {
     }
     
     /// Check if device can make phone calls
+    @MainActor
     func canMakePhoneCalls() -> Bool {
         guard let url = URL(string: "tel://") else { return false }
         return UIApplication.shared.canOpenURL(url)

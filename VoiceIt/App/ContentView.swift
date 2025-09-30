@@ -7,8 +7,13 @@ struct ContentView: View {
     @State private var selectedTab = 0
     @State private var isAuthenticated = false
     @State private var showingOnboarding = true
+    @State private var showPanicButton = true
     
     @Environment(\.authenticationService) private var authService
+    @Environment(\.stealthModeService) private var stealthService
+    @Environment(\.emergencyService) private var emergencyService
+    @Environment(\.locationService) private var locationService
+    @Environment(\.audioRecordingService) private var audioRecordingService
     
     // MARK: - Body
     
@@ -17,8 +22,32 @@ struct ContentView: View {
             if !isAuthenticated {
                 OnboardingView(isAuthenticated: $isAuthenticated, showingOnboarding: $showingOnboarding)
             } else {
-                mainTabView
+                StealthModeContainerView(stealthService: stealthService) {
+                    mainContentWithPanicButton
+                }
             }
+        }
+    }
+    
+    // MARK: - Main Content with Panic Button
+    
+    private var mainContentWithPanicButton: some View {
+        ZStack {
+            mainTabView
+            
+            // Panic button overlay
+            if showPanicButton {
+                PanicButtonView(
+                    stealthService: stealthService,
+                    emergencyService: emergencyService,
+                    locationService: locationService,
+                    audioRecordingService: audioRecordingService
+                )
+            }
+        }
+        .onShake {
+            // Quick hide on shake gesture
+            stealthService.quickHide()
         }
     }
     
@@ -44,11 +73,50 @@ struct ContentView: View {
                 }
                 .tag(2)
             
-            CommunityView()
-                .tabItem {
-                    Label("Community", systemImage: "person.2.fill")
+            NavigationStack {
+                List {
+                    Section {
+                        NavigationLink {
+                            EmergencyContactsView()
+                        } label: {
+                            Label("Emergency Contacts", systemImage: "person.crop.circle.badge.exclamationmark")
+                                .foregroundColor(.red)
+                        }
+                        
+                        NavigationLink {
+                            StealthModeSettingsView(stealthService: stealthService)
+                        } label: {
+                            Label("Stealth Mode Settings", systemImage: "eye.slash.fill")
+                        }
+                    } header: {
+                        Text("Safety Features")
+                    }
+                    
+                    Section {
+                        Toggle("Show Panic Button", isOn: $showPanicButton)
+                        
+                        Toggle("Call 911 on Panic", isOn: Binding(
+                            get: { emergencyService.shouldCall911 },
+                            set: { emergencyService.shouldCall911 = $0 }
+                        ))
+                    } header: {
+                        Text("Emergency")
+                    } footer: {
+                        Text("When disabled, panic button will only send SMS alerts to emergency contacts without calling 911.")
+                    }
+                    
+                    Section {
+                        CommunityView()
+                    } header: {
+                        Text("Community")
+                    }
                 }
-                .tag(3)
+                .navigationTitle("More")
+            }
+            .tabItem {
+                Label("More", systemImage: "ellipsis.circle.fill")
+            }
+            .tag(3)
         }
         .tint(.voiceitPurple)
     }

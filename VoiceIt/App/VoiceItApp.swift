@@ -16,6 +16,8 @@ struct VoiceItApp: App {
     private let resourceService: ResourceService
     private let authenticationService: AuthenticationService
     private let fileStorageService: FileStorageService
+    private let stealthModeService: StealthModeService
+    private let audioRecordingService: AudioRecordingService
     
     // MARK: - Initialization
     
@@ -55,6 +57,8 @@ struct VoiceItApp: App {
         resourceService = ResourceService()
         authenticationService = AuthenticationService()
         fileStorageService = FileStorageService(encryptionService: encryptionService)
+        stealthModeService = StealthModeService()
+        audioRecordingService = AudioRecordingService()
         
         // Create required storage directories
         do {
@@ -77,6 +81,8 @@ struct VoiceItApp: App {
                 .environment(\.resourceService, resourceService)
                 .environment(\.authenticationService, authenticationService)
                 .environment(\.fileStorageService, fileStorageService)
+                .environment(\.stealthModeService, stealthModeService)
+                .environment(\.audioRecordingService, audioRecordingService)
         }
     }
 }
@@ -91,4 +97,6 @@ extension EnvironmentValues {
     @Entry var resourceService: ResourceService = ResourceService()
     @Entry var authenticationService: AuthenticationService = AuthenticationService()
     @Entry var fileStorageService: FileStorageService = FileStorageService(encryptionService: EncryptionService())
+    @Entry var stealthModeService: StealthModeService = StealthModeService()
+    @Entry var audioRecordingService: AudioRecordingService = AudioRecordingService()
 }
