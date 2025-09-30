@@ -5,7 +5,7 @@ struct OnboardingView: View {
     // MARK: - Properties
     
     @Binding var isAuthenticated: Bool
-    @Binding var showingOnboarding: Bool
+    @Binding var hasCompletedOnboarding: Bool
     
     @State private var currentPage = 0
     @State private var showingAuthSetup = false
@@ -60,7 +60,7 @@ struct OnboardingView: View {
             }
         }
         .sheet(isPresented: $showingAuthSetup) {
-            AuthenticationSetupView(isAuthenticated: $isAuthenticated, showingOnboarding: $showingOnboarding)
+            AuthenticationSetupView(isAuthenticated: $isAuthenticated, hasCompletedOnboarding: $hasCompletedOnboarding)
         }
     }
     
@@ -226,7 +226,7 @@ struct OnboardingView: View {
 
 struct AuthenticationSetupView: View {
     @Binding var isAuthenticated: Bool
-    @Binding var showingOnboarding: Bool
+    @Binding var hasCompletedOnboarding: Bool
     
     @Environment(\.dismiss) private var dismiss
     @Environment(\.authenticationService) private var authService
@@ -257,7 +257,7 @@ struct AuthenticationSetupView: View {
                                 do {
                                     try await authService.authenticate()
                                     isAuthenticated = true
-                                    showingOnboarding = false
+                                    hasCompletedOnboarding = true
                                     dismiss()
                                 } catch {
                                     errorMessage = "Authentication failed"
@@ -277,7 +277,7 @@ struct AuthenticationSetupView: View {
                     Button {
                         // Skip for now (not recommended)
                         isAuthenticated = true
-                        showingOnboarding = false
+                        hasCompletedOnboarding = true
                         dismiss()
                     } label: {
                         Text("Skip (Not Recommended)")
@@ -299,5 +299,5 @@ struct AuthenticationSetupView: View {
 }
 
 #Preview {
-    OnboardingView(isAuthenticated: .constant(false), showingOnboarding: .constant(true))
+    OnboardingView(isAuthenticated: .constant(false), hasCompletedOnboarding: .constant(false))
 }

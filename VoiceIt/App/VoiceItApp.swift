@@ -1,4 +1,4 @@
-import SwiftUI
+@preconcurrency import SwiftUI
 import SwiftData
 
 @main
@@ -52,11 +52,11 @@ struct VoiceItApp: App {
         // Initialize services
         encryptionService = EncryptionService()
         locationService = LocationService()
-        exportService = ExportService(encryptionService: encryptionService)
         emergencyService = EmergencyService()
         resourceService = ResourceService()
         authenticationService = AuthenticationService()
         fileStorageService = FileStorageService(encryptionService: encryptionService)
+        exportService = ExportService(encryptionService: encryptionService, fileStorageService: fileStorageService)
         stealthModeService = StealthModeService()
         audioRecordingService = AudioRecordingService()
         
@@ -92,11 +92,15 @@ struct VoiceItApp: App {
 extension EnvironmentValues {
     @Entry var encryptionService: EncryptionService = EncryptionService()
     @Entry var locationService: LocationService = LocationService()
-    @Entry var exportService: ExportService = ExportService(encryptionService: EncryptionService())
     @Entry var emergencyService: EmergencyService = EmergencyService()
     @Entry var resourceService: ResourceService = ResourceService()
     @Entry var authenticationService: AuthenticationService = AuthenticationService()
+    // Modern Swift 6: Can't use closures in @Entry, set actual instance in app init
     @Entry var fileStorageService: FileStorageService = FileStorageService(encryptionService: EncryptionService())
+    @Entry var exportService: ExportService = ExportService(
+        encryptionService: EncryptionService(),
+        fileStorageService: FileStorageService(encryptionService: EncryptionService())
+    )
     @Entry var stealthModeService: StealthModeService = StealthModeService()
     @Entry var audioRecordingService: AudioRecordingService = AudioRecordingService()
 }

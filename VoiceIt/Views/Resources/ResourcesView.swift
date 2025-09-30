@@ -73,7 +73,7 @@ struct ResourcesView: View {
                         
                         Divider()
                         
-                        if let location = locationService.currentLocation {
+                        if locationService.currentLocation != nil {
                             Text("Last updated: \(Date(), style: .relative)")
                                 .font(.caption)
                         } else {
@@ -194,7 +194,7 @@ struct ResourceRowView: View {
                 }
                 
                 // Quick actions
-                if let phoneNumber = resource.phoneNumber {
+                if resource.phoneNumber != nil {
                     Button {
                         resourceService.callResource(resource)
                     } label: {

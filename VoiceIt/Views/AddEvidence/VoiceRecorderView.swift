@@ -323,7 +323,7 @@ struct VoiceRecorderView: View {
     
     private func stopRecording() {
         Task {
-            await audioService.stopRecording()
+            _ = await audioService.stopRecording()
             transcriptionService.stopLiveTranscription()
         }
     }
@@ -345,7 +345,7 @@ struct VoiceRecorderView: View {
     private func cancelRecording() {
         Task {
             if audioService.isRecording {
-                await audioService.stopRecording()
+                _ = await audioService.stopRecording()
                 transcriptionService.stopLiveTranscription()
             }
             

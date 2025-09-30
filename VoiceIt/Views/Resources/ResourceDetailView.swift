@@ -118,7 +118,7 @@ struct ResourceDetailView: View {
                 }
             }
             
-            if let websiteURL = resource.websiteURL {
+            if resource.websiteURL != nil {
                 Button {
                     resourceService.openWebsite(resource)
                 } label: {

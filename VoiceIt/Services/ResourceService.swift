@@ -3,13 +3,17 @@ import CoreLocation
 import UIKit
 
 /// Service for finding and managing support resources (shelters, hotlines, legal aid)
-final class ResourceService: @unchecked Sendable {
+@MainActor
+final class ResourceService {
     // MARK: - Properties
     
-    /// Cached resources (thread-safe via actor isolation in production)
+    /// Cached resources
     private var cachedResources: [Resource]?
     private var lastCacheUpdate: Date?
     private let cacheExpirationInterval: TimeInterval = 604800 // 7 days
+    
+    /// Init can be called from nonisolated context since Resource instances don't require MainActor
+    nonisolated(unsafe) init() {}
     
     /// Default resources (national hotlines and local resources)
     private let defaultResources: [Resource] = [

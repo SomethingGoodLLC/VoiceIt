@@ -3,6 +3,8 @@ import SwiftData
 import CoreHaptics
 
 /// Persistent floating panic button with hold-to-activate functionality
+/// Modern Swift 6: @MainActor ensures all Timer closures run on main thread without Sendable issues
+@MainActor
 struct PanicButtonView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var stealthService: StealthModeService
@@ -10,14 +12,20 @@ struct PanicButtonView: View {
     @State private var locationService: LocationService
     @State private var audioRecordingService: AudioRecordingService
     
+    // Persistent button state (saved across app launches)
+    @AppStorage("sosButtonIsMinimized") private var isMinimized = false
+    @AppStorage("sosButtonPositionX") private var positionX: Double = 0
+    @AppStorage("sosButtonPositionY") private var positionY: Double = 0
+    @AppStorage("hasSeenSOSHelp") private var hasSeenSOSHelp = false
+    
     // Button state
-    @State private var isMinimized = false
     @State private var isHolding = false
     @State private var holdProgress: Double = 0
     @State private var position: CGPoint = .zero
     @State private var showCancelSheet = false
     @State private var countdownSeconds = 3
     @State private var isActivated = false
+    @State private var showHelpTooltip = false
     
     // Haptics
     @State private var hapticEngine: CHHapticEngine?
@@ -47,14 +55,28 @@ struct PanicButtonView: View {
             if !isMinimized {
                 // Full button
                 fullButton
+                    .overlay(alignment: .topTrailing) {
+                        if showHelpTooltip {
+                            helpTooltip
+                        }
+                    }
             } else {
                 // Minimized button
                 minimizedButton
             }
         }
         .onAppear {
-            setupInitialPosition()
+            loadSavedPosition()
             setupHaptics()
+            
+            // Show help tooltip on first launch
+            if !hasSeenSOSHelp {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    withAnimation(.spring()) {
+                        showHelpTooltip = true
+                    }
+                }
+            }
         }
         .sheet(isPresented: $showCancelSheet) {
             cancelSheet
@@ -130,6 +152,13 @@ struct PanicButtonView: View {
                     if dragDistance > 10 {
                         // User is dragging - move the button
                         position = value.location
+                        // Dismiss help tooltip if showing
+                        if showHelpTooltip {
+                            withAnimation {
+                                showHelpTooltip = false
+                                hasSeenSOSHelp = true
+                            }
+                        }
                         // Cancel hold if we were holding
                         if isHolding {
                             print("❌ Hold cancelled - dragging")
@@ -154,7 +183,8 @@ struct PanicButtonView: View {
                             stopHolding()
                         }
                     } else {
-                        // Was a drag
+                        // Was a drag - save position
+                        savePosition()
                         if isHolding {
                             print("❌ Hold cancelled - was dragging")
                             stopHolding()
@@ -182,6 +212,45 @@ struct PanicButtonView: View {
         }
         .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 2)
         .position(CGPoint(x: UIScreen.main.bounds.width - 30, y: 100))
+    }
+    
+    private var helpTooltip: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: "info.circle.fill")
+                    .foregroundColor(.voiceitPurple)
+                Text("Emergency SOS")
+                    .font(.caption.bold())
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                Button {
+                    withAnimation {
+                        showHelpTooltip = false
+                        hasSeenSOSHelp = true
+                    }
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.secondary)
+                        .font(.caption)
+                }
+            }
+            
+            Text("• Hold to activate emergency\n• Drag to move\n• Tap ↓ to minimize")
+                .font(.caption2)
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(uiColor: .systemBackground))
+                .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 2)
+        )
+        .frame(maxWidth: 200)
+        .offset(x: 100, y: -80)
+        .transition(.scale.combined(with: .opacity))
     }
     
     private var cancelSheet: some View {
@@ -232,10 +301,23 @@ struct PanicButtonView: View {
     
     // MARK: - Actions
     
-    private func setupInitialPosition() {
+    private func loadSavedPosition() {
         let screenWidth = UIScreen.main.bounds.width
-        let screenHeight = UIScreen.main.bounds.height
-        position = CGPoint(x: screenWidth - 60, y: screenHeight - 150)
+        
+        // Load saved position if available, otherwise use default
+        if positionX == 0 && positionY == 0 {
+            // First launch - use default position (top right)
+            position = CGPoint(x: screenWidth - 60, y: 120)
+            savePosition() // Save default position
+        } else {
+            // Load saved position
+            position = CGPoint(x: positionX, y: positionY)
+        }
+    }
+    
+    private func savePosition() {
+        positionX = position.x
+        positionY = position.y
     }
     
     private func setupHaptics() {
@@ -255,9 +337,9 @@ struct PanicButtonView: View {
         
         print("⏱️ Starting hold timer...")
         
-        // Start progress timer
+        // Start progress timer - MainActor.assumeIsolated makes Timer closure safe
         holdTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { _ in
-            Task { @MainActor in
+            MainActor.assumeIsolated {
                 self.holdProgress += 0.05 / self.holdDuration
                 
                 // Haptic feedback every 0.5 seconds
@@ -319,9 +401,9 @@ struct PanicButtonView: View {
         
         print("⏰ Starting countdown timer...")
         
-        // Countdown timer - run on main thread
-        await MainActor.run {
-            countdownTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak countdownTimer] _ in
+        // Countdown timer - MainActor.assumeIsolated makes Timer closure safe
+        countdownTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            MainActor.assumeIsolated {
                 print("⏱️ Countdown tick: \(self.countdownSeconds)")
                 
                 self.countdownSeconds -= 1
@@ -329,19 +411,18 @@ struct PanicButtonView: View {
                 
                 if self.countdownSeconds <= 0 {
                     print("🎯 Countdown reached 0! Executing emergency...")
-                    countdownTimer?.invalidate()
+                    self.countdownTimer?.invalidate()
                     self.countdownTimer = nil
                     
-                    Task { @MainActor in
+                    Task {
                         await self.executeEmergency()
                     }
                 }
             }
-            print("✅ Timer scheduled")
         }
+        print("✅ Timer scheduled")
     }
     
-    @MainActor
     private func executeEmergency() async {
         print("🚨 Executing emergency!")
         

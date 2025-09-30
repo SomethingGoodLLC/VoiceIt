@@ -65,26 +65,29 @@ final class FileStorageService: @unchecked Sendable {
         // Ensure directories exist
         try Constants.Storage.createDirectories()
         
+        // Normalize image orientation (fix upside-down/rotated images)
+        let normalizedImage = image.normalizedOrientation()
+        
         // Convert to data
         let imageData: Data
         switch format.lowercased() {
         case "heic", "heif":
-            guard let data = image.heicData(compressionQuality: 0.8) else {
+            guard let data = normalizedImage.heicData(compressionQuality: 0.8) else {
                 throw FileStorageError.imageConversionFailed
             }
             imageData = data
         case "jpeg", "jpg":
-            guard let data = image.jpegData(compressionQuality: 0.8) else {
+            guard let data = normalizedImage.jpegData(compressionQuality: 0.8) else {
                 throw FileStorageError.imageConversionFailed
             }
             imageData = data
         case "png":
-            guard let data = image.pngData() else {
+            guard let data = normalizedImage.pngData() else {
                 throw FileStorageError.imageConversionFailed
             }
             imageData = data
         default:
-            guard let data = image.heicData(compressionQuality: 0.8) else {
+            guard let data = normalizedImage.heicData(compressionQuality: 0.8) else {
                 throw FileStorageError.imageConversionFailed
             }
             imageData = data
@@ -116,7 +119,7 @@ final class FileStorageService: @unchecked Sendable {
         // Clean up temp files
         try? fileManager.removeItem(at: tempURL)
         
-        return (finalFileName, fileSize, Int(image.size.width), Int(image.size.height))
+        return (finalFileName, fileSize, Int(normalizedImage.size.width), Int(normalizedImage.size.height))
     }
     
     /// Load and decrypt image
@@ -295,9 +298,26 @@ enum FileStorageError: LocalizedError {
     }
 }
 
-// MARK: - UIImage HEIC Extension
+// MARK: - UIImage Extensions
 
 extension UIImage {
+    /// Normalize image orientation by redrawing it
+    /// Fixes upside-down and rotated images from camera/photo library
+    func normalizedOrientation() -> UIImage {
+        // If already up, no need to redraw
+        if imageOrientation == .up {
+            return self
+        }
+        
+        // Redraw image with correct orientation
+        UIGraphicsBeginImageContextWithOptions(size, false, scale)
+        draw(in: CGRect(origin: .zero, size: size))
+        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return normalizedImage ?? self
+    }
+    
     func heicData(compressionQuality: CGFloat = 0.8) -> Data? {
         guard let mutableData = CFDataCreateMutable(nil, 0),
               let destination = CGImageDestinationCreateWithData(mutableData, "public.heic" as CFString, 1, nil),

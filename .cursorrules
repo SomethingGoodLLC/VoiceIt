@@ -70,34 +70,155 @@ cd /path/to/project && xcodebuild -project ProjectName.xcodeproj -scheme SchemeN
 
 ## CRITICAL iOS/SWIFTUI DEVELOPMENT LESSONS (FROM 12+ HOUR DEBUG SESSION)
 
-### 1. THREADING AND @MAINACTOR PITFALLS
+### 1. MODERN SWIFT 6 CONCURRENCY (SEPTEMBER 2025 BEST PRACTICES)
 
-#### ❌ NEVER DO THIS - Causes Deadlocks:
+#### ✅ PREFERRED: Avoid `@unchecked Sendable` - Use @MainActor Instead
+**Modern approach: Use `@MainActor` for SwiftUI views and view models**
+
 ```swift
+// ✅ BEST: MainActor for SwiftUI views with Timer closures
 @MainActor
-class UserManager {
-    func someMethod() async {
-        await MainActor.run {  // DEADLOCK! Already on MainActor!
-            doSomething()
+struct PanicButtonView: View {
+    @State private var countdown = 3
+    @State private var timer: Timer?
+    
+    private func startTimer() {
+        // Timer runs on main RunLoop - use MainActor.assumeIsolated
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak timer] _ in
+            MainActor.assumeIsolated {
+                self.countdown -= 1
+                if self.countdown <= 0 {
+                    timer?.invalidate()
+                    self.timer = nil
+                }
+            }
         }
     }
 }
 ```
 
-#### ✅ CORRECT APPROACH:
+#### ✅ CORRECT: Services Working with SwiftData Models
+**SwiftData models MUST be accessed on MainActor**
+
 ```swift
-class UserManager: ObservableObject {
-    @Published var property: Type  // UI properties
-    
-    func someMethod() async {
-        // Do async work
-        let result = await fetchData()
-        
-        // Update UI on main thread
-        await MainActor.run {
-            self.property = result
-        }
+// ✅ Service methods that work with SwiftData models
+final class ExportService {
+    // Mark methods that touch SwiftData models as @MainActor
+    @MainActor
+    func generatePDF(evidence: [any EvidenceProtocol]) async throws -> URL {
+        // Safe to access SwiftData models here
     }
+    
+    // Non-isolated helper methods don't need @MainActor
+    private func createPDF(data: Data) -> URL {
+        // Pure computation, no SwiftData access
+    }
+}
+```
+
+#### ❌ AVOID: `@unchecked Sendable` Unless Absolutely Necessary
+```swift
+// ❌ OLD APPROACH - avoid if possible
+final class ExportService: @unchecked Sendable {
+    // ...
+}
+
+// ✅ NEW APPROACH - use @MainActor isolation
+final class ExportService {
+    @MainActor
+    func generatePDF(...) async throws -> URL {
+        // ...
+    }
+}
+```
+
+#### ✅ IMAGES: Always Normalize Orientation
+**UIImage from camera/photos often has wrong EXIF orientation**
+
+```swift
+extension UIImage {
+    /// Normalize image orientation by redrawing it
+    /// Fixes upside-down and rotated images from camera/photo library
+    func normalizedOrientation() -> UIImage {
+        if imageOrientation == .up { return self }
+        UIGraphicsBeginImageContextWithOptions(size, false, scale)
+        draw(in: CGRect(origin: .zero, size: size))
+        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return normalizedImage ?? self
+    }
+}
+
+// Use it:
+let normalizedImage = originalImage.normalizedOrientation()
+```
+
+#### ✅ RTF/WORD DOCUMENT EXPORT: Optimize Image Size
+**RTF hex encoding makes files HUGE - compress aggressively**
+
+```swift
+// ✅ Compress images for RTF embedding
+func convertImageToRTF(_ image: UIImage, maxWidth: CGFloat) -> String? {
+    // 1. Resize to max 250px (smaller than PDF exports)
+    let targetWidth = min(maxWidth, 250)
+    
+    // 2. Use JPEG with low quality (0.3) instead of PNG
+    guard let jpegData = resizedImage.jpegData(compressionQuality: 0.3) else {
+        return nil
+    }
+    
+    // 3. Convert to hex for RTF (jpegblip, not pngblip)
+    let hexString = jpegData.map { String(format: "%02x", $0) }.joined()
+    
+    return "{\\pict\\jpegblip\\picw...\(hexString)}"
+}
+```
+
+#### ✅ LEGAL DOCUMENT EXPORTS: Critical Evidence Highlighting
+**Make critical evidence stand out in PDF and Word exports**
+
+```swift
+// In PDF generation:
+if evidence.isCritical {
+    // Red banner
+    context.setFillColor(UIColor.systemRed.cgColor)
+    context.fill(CGRect(x: margin, y: y, width: pageWidth - 2*margin, height: 30))
+    
+    // White text
+    draw("⚠️ CRITICAL EVIDENCE", at: CGPoint(x: margin + 10, y: y + 5), 
+         font: .boldSystemFont(ofSize: 14), color: .white)
+}
+
+// In RTF generation:
+if item.isCritical {
+    rtf += "\\pard\\box\\brdrs\\brdrw20\\brsp20\\brdrcf2\\shading1000\\par\n"
+    rtf += "{\\f1\\fs24\\cf2 ⚠️ CRITICAL EVIDENCE}\\par\n"
+    rtf += "\\pard\\par\n"
+}
+```
+
+#### ✅ LOCATION DATA: Comprehensive Details for Legal Accuracy
+**Include all location metadata for legal proceedings**
+
+```swift
+if options.includeLocation, let loc = evidence.locationSnapshot {
+    // Include:
+    // - GPS coordinates
+    // - Full address (if available)
+    // - Accuracy radius and quality rating
+    // - Altitude (if significant)
+    // - Timestamp of location capture
+    
+    draw("LOCATION DATA:", bold: true)
+    draw("Coordinates: \(loc.coordinatesString)")
+    if !loc.fullAddress.isEmpty {
+        draw("Address: \(loc.fullAddress)")
+    }
+    draw("Accuracy: ±\(Int(loc.horizontalAccuracy))m (\(loc.accuracyQuality.rawValue))")
+    if let altitude = loc.altitude, altitude != 0 {
+        draw("Altitude: \(Int(altitude))m above sea level")
+    }
+    draw("Captured: \(loc.timestamp.formatted(...))")
 }
 ```
 
@@ -743,9 +864,19 @@ The FileStorageService build failure taught us:
 - **Parameter order matters** - match initializer signatures exactly
 - **Build verification catches issues early** - saves hours of debugging later
 
+The Swift 6 concurrency refactoring taught us:
+- **Prefer @MainActor over @unchecked Sendable** - modern Swift 6 approach for UI code
+- **Use MainActor.assumeIsolated for Timers** - Timer closures run on main RunLoop
+- **SwiftData requires MainActor** - models must be accessed on main thread
+- **Normalize image orientation** - camera/photo library images need EXIF correction
+- **RTF images need aggressive compression** - hex encoding makes files massive
+- **Critical evidence needs visual distinction** - red banners in legal documents
+- **Location data must be comprehensive** - GPS, address, accuracy, altitude for legal use
+
 REMEMBER: 
 - **Modularization is not optional** - it's the foundation of maintainable software
 - **Tests are not optional** - they are the foundation of reliable software
 - **README awareness is not optional** - it's the foundation of efficient development
 - **Cost efficiency is not optional** - always use the right tool for the job
-- **BUILD VERIFICATION IS NOT OPTIONAL** - code must compile before task completion 
+- **BUILD VERIFICATION IS NOT OPTIONAL** - code must compile before task completion
+- **MODERN SWIFT 6 CONCURRENCY IS MANDATORY** - avoid @unchecked Sendable, use @MainActor 

@@ -6,7 +6,7 @@ struct ContentView: View {
     
     @State private var selectedTab = 0
     @State private var isAuthenticated = false
-    @State private var showingOnboarding = true
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var showPanicButton = true
     
     @Environment(\.authenticationService) private var authService
@@ -19,12 +19,69 @@ struct ContentView: View {
     
     var body: some View {
         Group {
-            if !isAuthenticated {
-                OnboardingView(isAuthenticated: $isAuthenticated, showingOnboarding: $showingOnboarding)
+            if !hasCompletedOnboarding {
+                // Show onboarding only once
+                OnboardingView(isAuthenticated: $isAuthenticated, hasCompletedOnboarding: $hasCompletedOnboarding)
+            } else if !isAuthenticated {
+                // Show authentication if onboarding is done but not authenticated
+                authenticationPrompt
             } else {
+                // Show main app content
                 StealthModeContainerView(stealthService: stealthService) {
                     mainContentWithPanicButton
                 }
+            }
+        }
+    }
+    
+    // MARK: - Authentication Prompt
+    
+    private var authenticationPrompt: some View {
+        ZStack {
+            Color.voiceitGradient
+                .ignoresSafeArea()
+            
+            VStack(spacing: 30) {
+                Image(systemName: authService.biometricType.icon)
+                    .font(.system(size: 80))
+                    .foregroundStyle(.white)
+                
+                Text("Welcome Back")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.white)
+                
+                Text("Authenticate to access your evidence")
+                    .font(.title3)
+                    .foregroundStyle(.white.opacity(0.9))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+                
+                Button {
+                    Task {
+                        do {
+                            if authService.biometricType != .none {
+                                try await authService.authenticate()
+                                isAuthenticated = true
+                            } else {
+                                // No biometrics available, just let them in
+                                isAuthenticated = true
+                            }
+                        } catch {
+                            print("Authentication failed: \(error)")
+                        }
+                    }
+                } label: {
+                    Label(authService.biometricType != .none ? "Authenticate with \(authService.biometricType.displayName)" : "Continue",
+                          systemImage: authService.biometricType.icon)
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(.white.opacity(0.2))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .padding(.horizontal)
             }
         }
     }
