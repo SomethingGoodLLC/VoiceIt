@@ -1,0 +1,629 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0491DC9728EACA73F4520EBD /* CommunityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EED6F9CA67BF7380BF144 /* CommunityView.swift */; };
+		07CB9F3A94094767408FBF51 /* EvidenceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C920B807A19FDAE7C0146C /* EvidenceProtocol.swift */; };
+		0ABD17A519923361D5259C0B /* VoiceRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 549EAC6868BF53423FBDAA6A /* VoiceRecorderView.swift */; };
+		11060AD4A5B74C1251A384AC /* TextEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = E830E74E10058F471CB80ACC /* TextEntry.swift */; };
+		141925EA1D323F94F8429C85 /* TimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C82E53A51D445386782E277F /* TimelineView.swift */; };
+		1660F7D448781E495B8F981A /* PhotoCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652D13ADCE917AA247992677 /* PhotoCaptureView.swift */; };
+		2B35D7099CBDA2A500EEA572 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB51773AC5E683B49BA10158 /* OnboardingView.swift */; };
+		34CF67BF30CAC0075E48D372 /* EmergencyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 994294DA46F8D020FC1CF7C9 /* EmergencyService.swift */; };
+		3A17C16328A9EFBAB982042B /* VoiceItTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C9C852D9874714ACA9FC60 /* VoiceItTests.swift */; };
+		48344FDF7C73D4AEB530C3FB /* TextEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7D529F90C69EDEF6BBC7736 /* TextEntryView.swift */; };
+		4DBCA0358D2D984E1FDAD9ED /* Evidence.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDC336421DE5E3E57CDE7070 /* Evidence.swift */; };
+		4E97698D641A7CD57F7FEF0E /* AuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E8EFAE6F245697C7C1B364 /* AuthenticationService.swift */; };
+		66FC13DA7EFA1436253A716C /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CFC966BBA3EE84748E6FB76 /* LocationService.swift */; };
+		715B28614606B580D2BAB276 /* EvidenceRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AFD383CA09C700C24C2EEDB /* EvidenceRowView.swift */; };
+		79AE9CF95031219D67A5B23F /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45C01A74AE0F1DEA0B4B919 /* Constants.swift */; };
+		7DD294CDAECC5DC3FD6EC13F /* ResourceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B75616B1B58488242222264 /* ResourceDetailView.swift */; };
+		805B5F8AD948CB49A77CD0C6 /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2D5B1040617F27E4DA175D /* Date+Extensions.swift */; };
+		83CE63C597DC4C19F1FE89E7 /* VoiceItApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BACABB994CD3BB20AEAFC2F7 /* VoiceItApp.swift */; };
+		84252B186764658693C7FED0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69568CB2D1D9198A6182399B /* ContentView.swift */; };
+		9CE7F612F6FC32665A247BA8 /* AddEvidenceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D549CC5E3193031E7916425B /* AddEvidenceView.swift */; };
+		B51349E1F9255812EF154E00 /* Color+Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90591C235E9D5DE381929F5A /* Color+Theme.swift */; };
+		B59F76888DD6A5101918ADE3 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0022887170669A890973FE4E /* KeychainManager.swift */; };
+		C05A7757619C70E27A516839 /* VoiceNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0800E2CDE4DD1BA3D2B836A /* VoiceNote.swift */; };
+		C344D5BB91D6C110D3221063 /* VideoEvidence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48669A83C5BACFA2091FC6B9 /* VideoEvidence.swift */; };
+		C6F52E431153F2154445C571 /* EmergencyContact.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6644EA8D6D4197CCBCBE1595 /* EmergencyContact.swift */; };
+		CEB43B322C9860C451F3B93B /* ExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57E12407D22DB4F345F87F68 /* ExportService.swift */; };
+		D0D891CD1BB477A59DB8BFC5 /* EncryptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B45A65AAAA005E650B897729 /* EncryptionService.swift */; };
+		D686E39B3CB6377E5380D373 /* LocationSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642E51F55E45A6B42C1998E9 /* LocationSnapshot.swift */; };
+		E0AAD4E962D35728FDF1C1B6 /* PhotoEvidence.swift in Sources */ = {isa = PBXBuildFile; fileRef = F049833FE477C98BD296F9B7 /* PhotoEvidence.swift */; };
+		E63B93AD08A215B9FAF1AD61 /* Resource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 525E5CED2E7E606E9A659E6F /* Resource.swift */; };
+		EF15C60D2963336D3804DDA6 /* ResourceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A01193974D265C401A61DBFB /* ResourceService.swift */; };
+		EF6BB378325F43B7DB48072F /* ResourcesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B013FA312B24F90A735653B /* ResourcesView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		05404ACE812234B39173CAFE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D13C0A2178C8E1275EFB6A77 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C9D03060E779AE21BC4A594A;
+			remoteInfo = VoiceIt;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0022887170669A890973FE4E /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
+		0AFD383CA09C700C24C2EEDB /* EvidenceRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvidenceRowView.swift; sourceTree = "<group>"; };
+		0B013FA312B24F90A735653B /* ResourcesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourcesView.swift; sourceTree = "<group>"; };
+		0CFC966BBA3EE84748E6FB76 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
+		1B75616B1B58488242222264 /* ResourceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourceDetailView.swift; sourceTree = "<group>"; };
+		48669A83C5BACFA2091FC6B9 /* VideoEvidence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEvidence.swift; sourceTree = "<group>"; };
+		525E5CED2E7E606E9A659E6F /* Resource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Resource.swift; sourceTree = "<group>"; };
+		549EAC6868BF53423FBDAA6A /* VoiceRecorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceRecorderView.swift; sourceTree = "<group>"; };
+		57E12407D22DB4F345F87F68 /* ExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportService.swift; sourceTree = "<group>"; };
+		584EED6F9CA67BF7380BF144 /* CommunityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityView.swift; sourceTree = "<group>"; };
+		5A4C9CDB502D0CFCB35D53F0 /* VoiceIt.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VoiceIt.entitlements; sourceTree = "<group>"; };
+		642E51F55E45A6B42C1998E9 /* LocationSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSnapshot.swift; sourceTree = "<group>"; };
+		652D13ADCE917AA247992677 /* PhotoCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCaptureView.swift; sourceTree = "<group>"; };
+		6644EA8D6D4197CCBCBE1595 /* EmergencyContact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContact.swift; sourceTree = "<group>"; };
+		69568CB2D1D9198A6182399B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		69C920B807A19FDAE7C0146C /* EvidenceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvidenceProtocol.swift; sourceTree = "<group>"; };
+		90591C235E9D5DE381929F5A /* Color+Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Theme.swift"; sourceTree = "<group>"; };
+		97C9C852D9874714ACA9FC60 /* VoiceItTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceItTests.swift; sourceTree = "<group>"; };
+		994294DA46F8D020FC1CF7C9 /* EmergencyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyService.swift; sourceTree = "<group>"; };
+		A01193974D265C401A61DBFB /* ResourceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourceService.swift; sourceTree = "<group>"; };
+		A3E8EFAE6F245697C7C1B364 /* AuthenticationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationService.swift; sourceTree = "<group>"; };
+		B45A65AAAA005E650B897729 /* EncryptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionService.swift; sourceTree = "<group>"; };
+		B7D529F90C69EDEF6BBC7736 /* TextEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextEntryView.swift; sourceTree = "<group>"; };
+		BACABB994CD3BB20AEAFC2F7 /* VoiceItApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceItApp.swift; sourceTree = "<group>"; };
+		C56DD62E7B1EFD99B3E7962D /* VoiceItTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VoiceItTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C82E53A51D445386782E277F /* TimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineView.swift; sourceTree = "<group>"; };
+		CDC336421DE5E3E57CDE7070 /* Evidence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Evidence.swift; sourceTree = "<group>"; };
+		D549CC5E3193031E7916425B /* AddEvidenceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEvidenceView.swift; sourceTree = "<group>"; };
+		DA2D5B1040617F27E4DA175D /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
+		E830E74E10058F471CB80ACC /* TextEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextEntry.swift; sourceTree = "<group>"; };
+		EBDF9E126E14F247F4ECE8CF /* VoiceIt.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VoiceIt.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F049833FE477C98BD296F9B7 /* PhotoEvidence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoEvidence.swift; sourceTree = "<group>"; };
+		F0800E2CDE4DD1BA3D2B836A /* VoiceNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceNote.swift; sourceTree = "<group>"; };
+		F45C01A74AE0F1DEA0B4B919 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		FB51773AC5E683B49BA10158 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		09D0D73DF53D1D0B3E6E888A /* VoiceIt */ = {
+			isa = PBXGroup;
+			children = (
+				5A4C9CDB502D0CFCB35D53F0 /* VoiceIt.entitlements */,
+				58FE171F0BBF67B96FFD5862 /* App */,
+				84FD2DB27AC97F89A1BE634C /* Models */,
+				BCC9C0F34C236F3F67C212D1 /* Services */,
+				1825C8F0555CBA0D6EF13B23 /* Utilities */,
+				C197703AC4DD6FD78DA9FB7C /* Views */,
+			);
+			path = VoiceIt;
+			sourceTree = "<group>";
+		};
+		1825C8F0555CBA0D6EF13B23 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				F45C01A74AE0F1DEA0B4B919 /* Constants.swift */,
+				0022887170669A890973FE4E /* KeychainManager.swift */,
+				8233957F0CFED004DFE13F94 /* Extensions */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		3D69C7D876F28F06B939C7B5 /* VoiceItTests */ = {
+			isa = PBXGroup;
+			children = (
+				97C9C852D9874714ACA9FC60 /* VoiceItTests.swift */,
+			);
+			path = VoiceItTests;
+			sourceTree = "<group>";
+		};
+		3F4C0D937C66F95E83FAE9FA /* Evidence */ = {
+			isa = PBXGroup;
+			children = (
+				CDC336421DE5E3E57CDE7070 /* Evidence.swift */,
+				69C920B807A19FDAE7C0146C /* EvidenceProtocol.swift */,
+				F049833FE477C98BD296F9B7 /* PhotoEvidence.swift */,
+				E830E74E10058F471CB80ACC /* TextEntry.swift */,
+				48669A83C5BACFA2091FC6B9 /* VideoEvidence.swift */,
+				F0800E2CDE4DD1BA3D2B836A /* VoiceNote.swift */,
+			);
+			path = Evidence;
+			sourceTree = "<group>";
+		};
+		58FE171F0BBF67B96FFD5862 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				69568CB2D1D9198A6182399B /* ContentView.swift */,
+				BACABB994CD3BB20AEAFC2F7 /* VoiceItApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		7AA524869FA41B4CBA551D65 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				EBDF9E126E14F247F4ECE8CF /* VoiceIt.app */,
+				C56DD62E7B1EFD99B3E7962D /* VoiceItTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7C40255737A156E7AFF75CEE /* Timeline */ = {
+			isa = PBXGroup;
+			children = (
+				0AFD383CA09C700C24C2EEDB /* EvidenceRowView.swift */,
+				C82E53A51D445386782E277F /* TimelineView.swift */,
+			);
+			path = Timeline;
+			sourceTree = "<group>";
+		};
+		8233957F0CFED004DFE13F94 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				90591C235E9D5DE381929F5A /* Color+Theme.swift */,
+				DA2D5B1040617F27E4DA175D /* Date+Extensions.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		84FD2DB27AC97F89A1BE634C /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				6644EA8D6D4197CCBCBE1595 /* EmergencyContact.swift */,
+				642E51F55E45A6B42C1998E9 /* LocationSnapshot.swift */,
+				525E5CED2E7E606E9A659E6F /* Resource.swift */,
+				3F4C0D937C66F95E83FAE9FA /* Evidence */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		9F96DF52B5C88BAE19F444F7 /* AddEvidence */ = {
+			isa = PBXGroup;
+			children = (
+				D549CC5E3193031E7916425B /* AddEvidenceView.swift */,
+				652D13ADCE917AA247992677 /* PhotoCaptureView.swift */,
+				B7D529F90C69EDEF6BBC7736 /* TextEntryView.swift */,
+				549EAC6868BF53423FBDAA6A /* VoiceRecorderView.swift */,
+			);
+			path = AddEvidence;
+			sourceTree = "<group>";
+		};
+		BCC9C0F34C236F3F67C212D1 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A3E8EFAE6F245697C7C1B364 /* AuthenticationService.swift */,
+				994294DA46F8D020FC1CF7C9 /* EmergencyService.swift */,
+				B45A65AAAA005E650B897729 /* EncryptionService.swift */,
+				57E12407D22DB4F345F87F68 /* ExportService.swift */,
+				0CFC966BBA3EE84748E6FB76 /* LocationService.swift */,
+				A01193974D265C401A61DBFB /* ResourceService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		C197703AC4DD6FD78DA9FB7C /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				9F96DF52B5C88BAE19F444F7 /* AddEvidence */,
+				E2C971FFF0C7727463FD07BC /* Community */,
+				DC3502599DB1DB12E37C1027 /* Onboarding */,
+				D2824F08557136764FA55E3A /* Resources */,
+				7C40255737A156E7AFF75CEE /* Timeline */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		D2824F08557136764FA55E3A /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				1B75616B1B58488242222264 /* ResourceDetailView.swift */,
+				0B013FA312B24F90A735653B /* ResourcesView.swift */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		D3A26C5238FD37BAD96B771D = {
+			isa = PBXGroup;
+			children = (
+				09D0D73DF53D1D0B3E6E888A /* VoiceIt */,
+				3D69C7D876F28F06B939C7B5 /* VoiceItTests */,
+				7AA524869FA41B4CBA551D65 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DC3502599DB1DB12E37C1027 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				FB51773AC5E683B49BA10158 /* OnboardingView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		E2C971FFF0C7727463FD07BC /* Community */ = {
+			isa = PBXGroup;
+			children = (
+				584EED6F9CA67BF7380BF144 /* CommunityView.swift */,
+			);
+			path = Community;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0DAC00749BCD386EDA3D7D12 /* VoiceItTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 44FBF62AD4B1879CCC268C8B /* Build configuration list for PBXNativeTarget "VoiceItTests" */;
+			buildPhases = (
+				9C46FC77767F4E49018AC447 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EE2B86347FFC1D019B0BFA04 /* PBXTargetDependency */,
+			);
+			name = VoiceItTests;
+			packageProductDependencies = (
+			);
+			productName = VoiceItTests;
+			productReference = C56DD62E7B1EFD99B3E7962D /* VoiceItTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C9D03060E779AE21BC4A594A /* VoiceIt */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CCA00F99E497220E6ABB4173 /* Build configuration list for PBXNativeTarget "VoiceIt" */;
+			buildPhases = (
+				5E63F22AA506315F154DC12D /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VoiceIt;
+			packageProductDependencies = (
+			);
+			productName = VoiceIt;
+			productReference = EBDF9E126E14F247F4ECE8CF /* VoiceIt.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D13C0A2178C8E1275EFB6A77 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					C9D03060E779AE21BC4A594A = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 7B48E5008C02938E34A9570A /* Build configuration list for PBXProject "VoiceIt" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = D3A26C5238FD37BAD96B771D;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C9D03060E779AE21BC4A594A /* VoiceIt */,
+				0DAC00749BCD386EDA3D7D12 /* VoiceItTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5E63F22AA506315F154DC12D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9CE7F612F6FC32665A247BA8 /* AddEvidenceView.swift in Sources */,
+				4E97698D641A7CD57F7FEF0E /* AuthenticationService.swift in Sources */,
+				B51349E1F9255812EF154E00 /* Color+Theme.swift in Sources */,
+				0491DC9728EACA73F4520EBD /* CommunityView.swift in Sources */,
+				79AE9CF95031219D67A5B23F /* Constants.swift in Sources */,
+				84252B186764658693C7FED0 /* ContentView.swift in Sources */,
+				805B5F8AD948CB49A77CD0C6 /* Date+Extensions.swift in Sources */,
+				C6F52E431153F2154445C571 /* EmergencyContact.swift in Sources */,
+				34CF67BF30CAC0075E48D372 /* EmergencyService.swift in Sources */,
+				D0D891CD1BB477A59DB8BFC5 /* EncryptionService.swift in Sources */,
+				4DBCA0358D2D984E1FDAD9ED /* Evidence.swift in Sources */,
+				07CB9F3A94094767408FBF51 /* EvidenceProtocol.swift in Sources */,
+				715B28614606B580D2BAB276 /* EvidenceRowView.swift in Sources */,
+				CEB43B322C9860C451F3B93B /* ExportService.swift in Sources */,
+				B59F76888DD6A5101918ADE3 /* KeychainManager.swift in Sources */,
+				66FC13DA7EFA1436253A716C /* LocationService.swift in Sources */,
+				D686E39B3CB6377E5380D373 /* LocationSnapshot.swift in Sources */,
+				2B35D7099CBDA2A500EEA572 /* OnboardingView.swift in Sources */,
+				1660F7D448781E495B8F981A /* PhotoCaptureView.swift in Sources */,
+				E0AAD4E962D35728FDF1C1B6 /* PhotoEvidence.swift in Sources */,
+				E63B93AD08A215B9FAF1AD61 /* Resource.swift in Sources */,
+				7DD294CDAECC5DC3FD6EC13F /* ResourceDetailView.swift in Sources */,
+				EF15C60D2963336D3804DDA6 /* ResourceService.swift in Sources */,
+				EF6BB378325F43B7DB48072F /* ResourcesView.swift in Sources */,
+				11060AD4A5B74C1251A384AC /* TextEntry.swift in Sources */,
+				48344FDF7C73D4AEB530C3FB /* TextEntryView.swift in Sources */,
+				141925EA1D323F94F8429C85 /* TimelineView.swift in Sources */,
+				C344D5BB91D6C110D3221063 /* VideoEvidence.swift in Sources */,
+				83CE63C597DC4C19F1FE89E7 /* VoiceItApp.swift in Sources */,
+				C05A7757619C70E27A516839 /* VoiceNote.swift in Sources */,
+				0ABD17A519923361D5259C0B /* VoiceRecorderView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9C46FC77767F4E49018AC447 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3A17C16328A9EFBAB982042B /* VoiceItTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		EE2B86347FFC1D019B0BFA04 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C9D03060E779AE21BC4A594A /* VoiceIt */;
+			targetProxy = 05404ACE812234B39173CAFE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		12D37180BB83806705902640 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = VoiceIt/VoiceIt.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = VoiceIt/Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.voiceit.app;
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		1DE4C524A4DB334A0DC304EA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = VoiceIt/VoiceIt.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = VoiceIt/Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.voiceit.app;
+				SDKROOT = iphoneos;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		35A255CE0B83C01E078CB04B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = VoiceIt/Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = VoiceIt;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		5560869CDE5542E491BAE479 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.voiceit.VoiceItTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VoiceIt.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VoiceIt";
+			};
+			name = Release;
+		};
+		7F2DB5593711674069EEB2C9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.voiceit.VoiceItTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VoiceIt.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VoiceIt";
+			};
+			name = Debug;
+		};
+		843BEE4C6731B5796DA94182 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = VoiceIt/Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = VoiceIt;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		44FBF62AD4B1879CCC268C8B /* Build configuration list for PBXNativeTarget "VoiceItTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7F2DB5593711674069EEB2C9 /* Debug */,
+				5560869CDE5542E491BAE479 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		7B48E5008C02938E34A9570A /* Build configuration list for PBXProject "VoiceIt" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				35A255CE0B83C01E078CB04B /* Debug */,
+				843BEE4C6731B5796DA94182 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CCA00F99E497220E6ABB4173 /* Build configuration list for PBXNativeTarget "VoiceIt" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DE4C524A4DB334A0DC304EA /* Debug */,
+				12D37180BB83806705902640 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D13C0A2178C8E1275EFB6A77 /* Project object */;
+}
