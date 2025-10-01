@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		00CDC914F7AD92D7D69693F5 /* TranscriptionSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 470401C6BE5B7010BEA0EEB0 /* TranscriptionSettingsView.swift */; };
 		0491DC9728EACA73F4520EBD /* CommunityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EED6F9CA67BF7380BF144 /* CommunityView.swift */; };
 		07CB9F3A94094767408FBF51 /* EvidenceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C920B807A19FDAE7C0146C /* EvidenceProtocol.swift */; };
 		08464BAF0FDD594916AFC0B3 /* EmergencyContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA15B0130BD7C639A00E40C2 /* EmergencyContactsView.swift */; };
@@ -30,6 +31,7 @@
 		46084F0F3BDB2756B32652B4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 311FD6B7A4E8653DCCB304D6 /* Assets.xcassets */; };
 		47521C1B35B72644BB6208EA /* CreatePostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BE82F5286826EE1553F55E5 /* CreatePostView.swift */; };
 		48344FDF7C73D4AEB530C3FB /* TextEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7D529F90C69EDEF6BBC7736 /* TextEntryView.swift */; };
+		495855B1DDEB10B945A1D58E /* WhisperModelService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62A1B24A7918520E5864BBE6 /* WhisperModelService.swift */; };
 		4B943A6FB7BFECA5C555E9AA /* View+ScreenshotProtection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E547672588057ED0F0C06236 /* View+ScreenshotProtection.swift */; };
 		4BF0728093B6FD763E2BD399 /* QuickContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AB6DBE2109DB85A5CCA0685 /* QuickContactsView.swift */; };
 		4DBCA0358D2D984E1FDAD9ED /* Evidence.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDC336421DE5E3E57CDE7070 /* Evidence.swift */; };
@@ -63,6 +65,7 @@
 		AAA1B6916C02AFE1CB2A12E8 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7546BE3E552FBCF2080DF6C7 /* NotificationService.swift */; };
 		B51349E1F9255812EF154E00 /* Color+Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90591C235E9D5DE381929F5A /* Color+Theme.swift */; };
 		B59F76888DD6A5101918ADE3 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0022887170669A890973FE4E /* KeychainManager.swift */; };
+		BAA234CAE20052E924D53CDD /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = 3297F86FE982F86FB377D041 /* WhisperKit */; };
 		BBA53F5F242EBB25935D8856 /* FilterChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DDA5D344563DA667053292A /* FilterChip.swift */; };
 		BE1C5C0D64818D71A371C589 /* EvidenceCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F26502DF6148A3EF9070C7D /* EvidenceCategory.swift */; };
 		C05A7757619C70E27A516839 /* VoiceNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0800E2CDE4DD1BA3D2B836A /* VoiceNote.swift */; };
@@ -73,12 +76,14 @@
 		CA95BD799CFACF421446BFF0 /* MapResourcesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AACA4EB4296111FD248288D /* MapResourcesView.swift */; };
 		CBCFF2DFA47AA587BA11BCDE /* SupportGroupDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2235EA64BF2FD93CA574E6B9 /* SupportGroupDetailView.swift */; };
 		CEB43B322C9860C451F3B93B /* ExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57E12407D22DB4F345F87F68 /* ExportService.swift */; };
+		D01F44831D0087906DA32AD0 /* ModelDownloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77584FFBC9F4F68E1BBA22CF /* ModelDownloadView.swift */; };
 		D0D891CD1BB477A59DB8BFC5 /* EncryptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B45A65AAAA005E650B897729 /* EncryptionService.swift */; };
 		D5D8C61FA0FEE456ED236BF8 /* TherapistDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 953C29BAA1BA048E7970D579 /* TherapistDetailView.swift */; };
 		D686E39B3CB6377E5380D373 /* LocationSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642E51F55E45A6B42C1998E9 /* LocationSnapshot.swift */; };
 		D87F74DCAEFA6FB9F4CD580D /* SupportContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5910A0E01E620B1E25660934 /* SupportContactView.swift */; };
 		DB2DBB7224DF68C3AF2DABEB /* LawyersListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AB22EADD47EA424CD0CFB5E /* LawyersListView.swift */; };
 		DE1C92B806C8DC6FF77A8897 /* PrivacyPolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF2D21FF8E0B0499C75D4D1 /* PrivacyPolicyView.swift */; };
+		DFB38F041715C6057DCF2F30 /* TranscriptionSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4D7EFAD079397162450B181 /* TranscriptionSetupView.swift */; };
 		E0AAD4E962D35728FDF1C1B6 /* PhotoEvidence.swift in Sources */ = {isa = PBXBuildFile; fileRef = F049833FE477C98BD296F9B7 /* PhotoEvidence.swift */; };
 		E63B93AD08A215B9FAF1AD61 /* Resource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 525E5CED2E7E606E9A659E6F /* Resource.swift */; };
 		E91009486003C8D8BAA0A9C9 /* SupportGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82DA87486C231B9AFB6DC245 /* SupportGroup.swift */; };
@@ -124,6 +129,7 @@
 		418294FE8FB54E3936EB3179 /* EnhancedResourceRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnhancedResourceRow.swift; sourceTree = "<group>"; };
 		43066BFF09B0607CA690B5D9 /* AudioRecordingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecordingService.swift; sourceTree = "<group>"; };
 		438CF73C574CAFE0DC0F6166 /* ResourceLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourceLibraryView.swift; sourceTree = "<group>"; };
+		470401C6BE5B7010BEA0EEB0 /* TranscriptionSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionSettingsView.swift; sourceTree = "<group>"; };
 		48669A83C5BACFA2091FC6B9 /* VideoEvidence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEvidence.swift; sourceTree = "<group>"; };
 		4BE82F5286826EE1553F55E5 /* CreatePostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePostView.swift; sourceTree = "<group>"; };
 		4F26502DF6148A3EF9070C7D /* EvidenceCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvidenceCategory.swift; sourceTree = "<group>"; };
@@ -134,6 +140,7 @@
 		5910A0E01E620B1E25660934 /* SupportContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportContactView.swift; sourceTree = "<group>"; };
 		5A4C9CDB502D0CFCB35D53F0 /* VoiceIt.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VoiceIt.entitlements; sourceTree = "<group>"; };
 		5AB6DBE2109DB85A5CCA0685 /* QuickContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickContactsView.swift; sourceTree = "<group>"; };
+		62A1B24A7918520E5864BBE6 /* WhisperModelService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperModelService.swift; sourceTree = "<group>"; };
 		642E51F55E45A6B42C1998E9 /* LocationSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSnapshot.swift; sourceTree = "<group>"; };
 		652D13ADCE917AA247992677 /* PhotoCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCaptureView.swift; sourceTree = "<group>"; };
 		6644EA8D6D4197CCBCBE1595 /* EmergencyContact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContact.swift; sourceTree = "<group>"; };
@@ -143,6 +150,7 @@
 		6D3C74DCEB6484D07398AF0E /* ResourceCategoryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourceCategoryButton.swift; sourceTree = "<group>"; };
 		7546BE3E552FBCF2080DF6C7 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		7606EA33BCE97604468E483E /* Lawyer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lawyer.swift; sourceTree = "<group>"; };
+		77584FFBC9F4F68E1BBA22CF /* ModelDownloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelDownloadView.swift; sourceTree = "<group>"; };
 		7C2742932089A14E801E752E /* WeatherDecoyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherDecoyView.swift; sourceTree = "<group>"; };
 		7E53CE4324A503195C1FBAA1 /* UserContactRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserContactRow.swift; sourceTree = "<group>"; };
 		80268412DD63D44310AABB0B /* ExportOptionsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportOptionsSheet.swift; sourceTree = "<group>"; };
@@ -160,6 +168,7 @@
 		A27F2043E903E710D9A9D8D6 /* ResourceMapCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourceMapCard.swift; sourceTree = "<group>"; };
 		A3E8EFAE6F245697C7C1B364 /* AuthenticationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationService.swift; sourceTree = "<group>"; };
 		A4BBB27B833DD479A9DB45F8 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A4D7EFAD079397162450B181 /* TranscriptionSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionSetupView.swift; sourceTree = "<group>"; };
 		A5662D56C131897A1836194E /* StealthModeContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StealthModeContainerView.swift; sourceTree = "<group>"; };
 		ABF2D21FF8E0B0499C75D4D1 /* PrivacyPolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyView.swift; sourceTree = "<group>"; };
 		B10028782F0520FF8F7B3491 /* TranscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionService.swift; sourceTree = "<group>"; };
@@ -170,7 +179,7 @@
 		C20AB9523B8AEDA641C1E40C /* StealthModeSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StealthModeSettingsView.swift; sourceTree = "<group>"; };
 		C254C4009DB93C85720B8DC8 /* CommunityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityService.swift; sourceTree = "<group>"; };
 		C3C1EBFC0599DA596BAF5006 /* TherapyListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapyListView.swift; sourceTree = "<group>"; };
-		C56DD62E7B1EFD99B3E7962D /* VoiceItTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = file; name = VoiceItTests.xctest; path = VoiceIt.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C56DD62E7B1EFD99B3E7962D /* VoiceItTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VoiceItTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C694B7F01B3B5C198172DF9A /* NationalHotlineRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NationalHotlineRow.swift; sourceTree = "<group>"; };
 		C82E53A51D445386782E277F /* TimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineView.swift; sourceTree = "<group>"; };
 		C964608A521F0EEBFB1B1833 /* PasscodeSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasscodeSetupView.swift; sourceTree = "<group>"; };
@@ -185,7 +194,7 @@
 		E830E74E10058F471CB80ACC /* TextEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextEntry.swift; sourceTree = "<group>"; };
 		E84CFED287FB314E8FE37902 /* NotesDecoyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesDecoyView.swift; sourceTree = "<group>"; };
 		EA15B0130BD7C639A00E40C2 /* EmergencyContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContactsView.swift; sourceTree = "<group>"; };
-		EBDF9E126E14F247F4ECE8CF /* VoiceIt.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoiceIt.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EBDF9E126E14F247F4ECE8CF /* VoiceIt.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VoiceIt.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF55C37B7523FC885653BAAA /* SimpleFilterChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleFilterChip.swift; sourceTree = "<group>"; };
 		F049833FE477C98BD296F9B7 /* PhotoEvidence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoEvidence.swift; sourceTree = "<group>"; };
 		F072312D5481A60AE01DD081 /* AccessibleSettingsRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibleSettingsRow.swift; sourceTree = "<group>"; };
@@ -194,6 +203,17 @@
 		F87D2ACA57E684508AA3F653 /* PanicButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanicButtonView.swift; sourceTree = "<group>"; };
 		FB51773AC5E683B49BA10158 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		91BCC9F59DD23290235EE688 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BAA234CAE20052E924D53CDD /* WhisperKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		0822D729281B0D61D1571CEF /* Therapy */ = {
@@ -259,11 +279,14 @@
 			isa = PBXGroup;
 			children = (
 				178FB6DE5847C6ACF8C4DE9B /* AppIconPickerView.swift */,
+				77584FFBC9F4F68E1BBA22CF /* ModelDownloadView.swift */,
 				C964608A521F0EEBFB1B1833 /* PasscodeSetupView.swift */,
 				ABF2D21FF8E0B0499C75D4D1 /* PrivacyPolicyView.swift */,
 				A4BBB27B833DD479A9DB45F8 /* SettingsView.swift */,
 				5910A0E01E620B1E25660934 /* SupportContactView.swift */,
 				D3AFC2010488989D52666555 /* TermsOfServiceView.swift */,
+				470401C6BE5B7010BEA0EEB0 /* TranscriptionSettingsView.swift */,
+				A4D7EFAD079397162450B181 /* TranscriptionSetupView.swift */,
 				6EC0A0D384428D9E91C22993 /* Components */,
 			);
 			path = Settings;
@@ -417,6 +440,7 @@
 				A01193974D265C401A61DBFB /* ResourceService.swift */,
 				C0931E061B9577CFE310D32C /* StealthModeService.swift */,
 				B10028782F0520FF8F7B3491 /* TranscriptionService.swift */,
+				62A1B24A7918520E5864BBE6 /* WhisperModelService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -525,6 +549,7 @@
 			buildPhases = (
 				5E63F22AA506315F154DC12D /* Sources */,
 				B445A9C5A41C0B476D0A5228 /* Resources */,
+				91BCC9F59DD23290235EE688 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -532,6 +557,7 @@
 			);
 			name = VoiceIt;
 			packageProductDependencies = (
+				3297F86FE982F86FB377D041 /* WhisperKit */,
 			);
 			productName = VoiceIt;
 			productReference = EBDF9E126E14F247F4ECE8CF /* VoiceIt.app */;
@@ -547,6 +573,7 @@
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					C9D03060E779AE21BC4A594A = {
+						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -561,6 +588,10 @@
 			);
 			mainGroup = D3A26C5238FD37BAD96B771D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				9D60CFF95B301D4D65C57520 /* XCRemoteSwiftPackageReference "WhisperKit" */,
+			);
+			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -624,6 +655,7 @@
 				66FC13DA7EFA1436253A716C /* LocationService.swift in Sources */,
 				D686E39B3CB6377E5380D373 /* LocationSnapshot.swift in Sources */,
 				CA95BD799CFACF421446BFF0 /* MapResourcesView.swift in Sources */,
+				D01F44831D0087906DA32AD0 /* ModelDownloadView.swift in Sources */,
 				7F91A8706A872BE30EFD31C4 /* NationalHotlineRow.swift in Sources */,
 				3EF780150E9D72A09F7AA3CA /* NotesDecoyView.swift in Sources */,
 				AAA1B6916C02AFE1CB2A12E8 /* NotificationService.swift in Sources */,
@@ -659,6 +691,8 @@
 				5F23DFE6D4A6410EDFEA84E7 /* TherapyListView.swift in Sources */,
 				141925EA1D323F94F8429C85 /* TimelineView.swift in Sources */,
 				512C111D943F0BB976FA2737 /* TranscriptionService.swift in Sources */,
+				00CDC914F7AD92D7D69693F5 /* TranscriptionSettingsView.swift in Sources */,
+				DFB38F041715C6057DCF2F30 /* TranscriptionSetupView.swift in Sources */,
 				C1E6EB90D34F0CFE844C0C02 /* UserContactRow.swift in Sources */,
 				1F1549AA3E8AC7AF44320131 /* VideoCaptureView.swift in Sources */,
 				C344D5BB91D6C110D3221063 /* VideoEvidence.swift in Sources */,
@@ -669,6 +703,7 @@
 				C05A7757619C70E27A516839 /* VoiceNote.swift in Sources */,
 				0ABD17A519923361D5259C0B /* VoiceRecorderView.swift in Sources */,
 				FC6A8EDBEFB480FE569BF625 /* WeatherDecoyView.swift in Sources */,
+				495855B1DDEB10B945A1D58E /* WhisperModelService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -699,7 +734,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6DR6N9843T;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = VoiceIt/Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -723,7 +758,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6DR6N9843T;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = VoiceIt/Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -933,6 +968,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		9D60CFF95B301D4D65C57520 /* XCRemoteSwiftPackageReference "WhisperKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/argmaxinc/WhisperKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3297F86FE982F86FB377D041 /* WhisperKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9D60CFF95B301D4D65C57520 /* XCRemoteSwiftPackageReference "WhisperKit" */;
+			productName = WhisperKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D13C0A2178C8E1275EFB6A77 /* Project object */;
 }

@@ -25,6 +25,7 @@ struct VoiceRecorderView: View {
     @State private var showingError = false
     @State private var errorMessage = ""
     @State private var isSaving = false
+    @State private var showingTranscriptionSetup = false
     
     // MARK: - Body
     
@@ -80,6 +81,32 @@ struct VoiceRecorderView: View {
             }
             .onAppear {
                 fileStorageService = FileStorageService(encryptionService: encryptionService)
+                
+                // Show transcription setup on first use OR if model is missing
+                let setupCompleted = UserDefaults.standard.bool(forKey: "transcriptionSetupCompleted")
+                print("📋 VoiceRecorder onAppear - transcriptionSetupCompleted: \(setupCompleted)")
+                
+                if !setupCompleted {
+                    print("   → First time - showing transcription setup")
+                    showingTranscriptionSetup = true
+                } else {
+                    // Check if Whisper/Auto mode was chosen but model is missing
+                    let mode = transcriptionService.mode
+                    let modelDownloaded = transcriptionService.isWhisperModelDownloaded
+                    print("   → Setup completed previously. Mode: \(mode.displayName), Model downloaded: \(modelDownloaded)")
+                    
+                    if (mode == .whisper || mode == .auto) && !modelDownloaded {
+                        print("   → Whisper/Auto selected but model missing - re-prompting setup")
+                        // Reset flag to show setup again
+                        UserDefaults.standard.set(false, forKey: "transcriptionSetupCompleted")
+                        showingTranscriptionSetup = true
+                    } else {
+                        print("   → Setup valid, skipping")
+                    }
+                }
+            }
+            .sheet(isPresented: $showingTranscriptionSetup) {
+                TranscriptionSetupView()
             }
         }
     }
@@ -179,11 +206,62 @@ struct VoiceRecorderView: View {
     
     private var transcriptionSection: some View {
         VStack(alignment: .leading, spacing: 12) {
+            // Info banner when transcription is disabled
+            if !UserDefaults.standard.bool(forKey: "autoTranscribeRecordings") && enableTranscription {
+                HStack(spacing: 8) {
+                    Image(systemName: "info.circle.fill")
+                        .foregroundStyle(.blue)
+                    Text("Transcription is available. Enable in Settings.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(8)
+                .background(Color.blue.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            
             HStack {
                 Label("Live Transcription", systemImage: "waveform")
                     .font(.headline)
                 
                 Spacer()
+                
+                // Transcription mode badge with actual method indicator
+                VStack(spacing: 2) {
+                    Menu {
+                        ForEach(TranscriptionMode.allCases, id: \.self) { mode in
+                            Button {
+                                transcriptionService.mode = mode
+                            } label: {
+                                Label(mode.displayName, systemImage: mode.icon)
+                            }
+                        }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(transcriptionService.mode.badge)
+                            Text(transcriptionService.mode.displayName)
+                                .font(.caption)
+                            Image(systemName: "chevron.down")
+                                .font(.caption2)
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.voiceitPurple.opacity(0.1))
+                        .clipShape(Capsule())
+                    }
+                    .disabled(audioService.isRecording)
+                    
+                    // Show what will actually be used
+                    if transcriptionService.mode == .auto {
+                        Text(transcriptionService.isWhisperModelDownloaded ? "Using: Whisper 🔒" : "Using: Apple ☁️")
+                            .font(.system(size: 9))
+                            .foregroundStyle(transcriptionService.isWhisperModelDownloaded ? .green : .orange)
+                    } else if transcriptionService.mode == .whisper && !transcriptionService.isWhisperModelDownloaded {
+                        Text("Model not downloaded")
+                            .font(.system(size: 9))
+                            .foregroundStyle(.red)
+                    }
+                }
                 
                 if audioService.isRecording && !audioService.isPaused {
                     HStack(spacing: 4) {
@@ -305,11 +383,18 @@ struct VoiceRecorderView: View {
                 recordingURL = url
                 
                 // Start transcription if enabled
-                if enableTranscription {
+                // NOTE: Only use live transcription for Apple mode
+                // Whisper mode = privacy first, no Apple services at all!
+                if enableTranscription && transcriptionService.mode == .apple {
                     try await transcriptionService.startLiveTranscription { newTranscription in
                         Task { @MainActor in
                             transcription = newTranscription
                         }
+                    }
+                } else if enableTranscription {
+                    // For Whisper/Auto modes: show "Transcription will be generated when saving..."
+                    Task { @MainActor in
+                        transcription = "[Transcription will be generated when saving with Whisper]"
                     }
                 }
             } catch {
@@ -373,7 +458,38 @@ struct VoiceRecorderView: View {
                     locationSnapshot = await locationService.createSnapshot()
                 }
                 
-                // Save and encrypt audio file
+                // Transcribe with selected method (Whisper/Apple/Auto) BEFORE moving file
+                var finalTranscription = ""
+                var transcriptionMethod: String? = nil
+                
+                if enableTranscription {
+                    print("🎯 Transcribing with \(transcriptionService.mode.displayName) for final save...")
+                    do {
+                        // For Apple mode: use live transcription if available, otherwise re-transcribe
+                        if transcriptionService.mode == .apple && !transcription.isEmpty && !transcription.contains("[Transcription will be generated") {
+                            finalTranscription = transcription
+                            transcriptionMethod = TranscriptionMethod.apple.rawValue
+                            print("   ✅ Using live Apple transcription")
+                        } else {
+                            // For Whisper/Auto: always transcribe from file (no Apple services used)
+                            let result = try await transcriptionService.transcribeAudioFile(at: url)
+                            finalTranscription = result.text
+                            transcriptionMethod = result.method.rawValue
+                            print("   ✅ Final transcription method: \(result.method.rawValue)")
+                        }
+                    } catch {
+                        print("   ⚠️ Transcription failed: \(error)")
+                        // Only fall back to live transcription if it exists and was from Apple
+                        if transcriptionService.mode == .apple && !transcription.isEmpty {
+                            finalTranscription = transcription
+                            transcriptionMethod = TranscriptionMethod.apple.rawValue
+                        } else {
+                            transcriptionMethod = nil
+                        }
+                    }
+                }
+                
+                // Now save and encrypt audio file
                 guard let fileStorage = fileStorageService else {
                     throw FileStorageError.encryptionFailed
                 }
@@ -388,7 +504,8 @@ struct VoiceRecorderView: View {
                     isCritical: isCritical,
                     audioFilePath: filePath,
                     duration: duration,
-                    transcription: transcription.isEmpty ? nil : transcription,
+                    transcription: finalTranscription.isEmpty ? nil : finalTranscription,
+                    transcriptionMethod: transcriptionMethod,
                     audioFormat: "m4a",
                     fileSize: fileSize
                 )

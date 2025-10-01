@@ -24,6 +24,7 @@ struct SettingsView: View {
             List {
                 securitySection
                 stealthModeSection
+                transcriptionSection
                 privacySection
                 notificationSection
                 exportSection
@@ -130,6 +131,23 @@ struct SettingsView: View {
             Text("Stealth & Disguise")
         } footer: {
             Text("Change app appearance and enable quick hide features for safety.")
+        }
+    }
+    
+    // MARK: - Transcription Section
+    
+    private var transcriptionSection: some View {
+        Section {
+            NavigationLink {
+                TranscriptionSettingsView()
+            } label: {
+                Label("Transcription Settings", systemImage: "waveform")
+            }
+            
+        } header: {
+            Text("Voice Notes")
+        } footer: {
+            Text("Configure offline transcription with Whisper for 100% private voice recognition.")
         }
     }
     
