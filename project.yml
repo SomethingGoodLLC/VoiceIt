@@ -32,6 +32,9 @@ targets:
       - path: VoiceIt
         excludes:
           - "Resources/Info.plist"
+    resources:
+      - path: VoiceIt/Icons
+        buildPhase: resources
     dependencies:
       - package: WhisperKit
     info:

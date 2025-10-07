@@ -64,6 +64,8 @@ A privacy-first iOS application built with Swift 6 and SwiftUI for documenting a
 - [🤝 Contributing](#-contributing)
 - [📄 License](#-license)
 - [🆘 Emergency Resources](#-emergency-resources)
+- [📚 Appendix](#-appendix)
+  - [Evidence Preview & Change Tracking Implementation](#evidence-preview--change-tracking-implementation)
 
 ---
 
@@ -301,6 +303,11 @@ VoiceIt is designed to be fully accessible to all users, following Apple's Human
 
 ### Timeline Features
 - 📊 **Modern List UI**: Purple accent bars, SF Symbol badges, and relative timestamps
+- 🖼️ **Inline Photo Preview**: Tap photo evidence to expand full-size preview directly in timeline
+  - Smooth expand/collapse animation
+  - On-demand image loading (decryption only when needed)
+  - View notes and metadata inline
+  - Quick access to full details view
 - 🔄 **Pull-to-Refresh**: Swipe down to refresh the timeline
 - 👆 **Swipe Actions**: Share or delete evidence with swipe gestures
 - 🕶️ **Stealth Mode**: Hide app content with calculator decoy screen (shake device to exit)
@@ -1225,6 +1232,192 @@ TBD - Intended for use in sensitive situations. License will prioritize user pri
 - **Crisis Text Line**: Text HOME to 741741
 - **National Sexual Assault Hotline**: 1-800-656-4673
 - **National Suicide Prevention Lifeline**: 988
+
+---
+
+## 📚 Appendix
+
+### Evidence Preview & Change Tracking Implementation
+
+**Last Updated**: October 7, 2025
+
+This section documents the evidence preview and change tracking system that allows users to view detailed evidence previews and maintains a complete audit trail of all modifications.
+
+#### Overview
+
+Users can now:
+- **Click any evidence item** in the timeline to view full details
+- **Edit text entries** while preserving all previous versions
+- **View change history** for all evidence types
+- **See full-size photo previews** with metadata
+- **Track modifications** with timestamps and descriptions
+
+#### Key Features
+
+1. **Expandable Detail Views**
+   - Tap any evidence item to navigate to `EvidenceDetailView`
+   - Photos display full-size with decryption on-demand
+   - Text entries show complete content with word count
+   - Voice notes display transcription and audio information
+   - Video evidence shows thumbnails and metadata
+
+2. **Comprehensive Change Tracking**
+   - All modifications recorded with timestamps
+   - Before/after content comparison
+   - Optional change descriptions
+   - Visual timeline of changes
+   - Immutable history (cannot be deleted)
+
+3. **Text Entry Editing**
+   - Full-screen editor with live preview
+   - Side-by-side comparison of changes
+   - Word count tracking (additions/removals)
+   - Optional context descriptions
+   - Original content always preserved
+
+4. **Legal Integrity**
+   - Complete audit trail for legal documentation
+   - Tamper-evident history
+   - Timestamped modifications
+   - Encrypted along with evidence
+   - Automatic cascade delete with evidence
+
+#### Technical Implementation
+
+**New Models:**
+- `ChangeHistory.swift` - Tracks all evidence modifications
+  - Stores previous and new content
+  - Links to parent evidence via relationships
+  - Supports all evidence types
+
+**New Views:**
+- `EvidenceDetailView.swift` - Main detail view for all evidence types
+- `ChangeHistoryView.swift` - Visual timeline component
+- `EditTextEntrySheet.swift` - Text editing interface
+
+**Modified Models:**
+- All evidence models (`TextEntry`, `PhotoEvidence`, `VoiceNote`, `VideoEvidence`) now include:
+  - `changeHistory: [ChangeHistory]` relationship
+  - `updateNotes(_:)` method for tracking note changes
+  - `updateBodyText(_:description:)` method (TextEntry only)
+  - Automatic creation history entry on initialization
+
+**Modified Views:**
+- `TimelineView.swift` - Added `NavigationLink` to detail views
+
+#### Change Types Tracked
+
+- **Created**: Initial evidence creation
+- **Content Modified**: Text content changed (preserves original)
+- **Note Added**: First note added to evidence
+- **Note Modified**: Note updated
+- **Tag Added**: Tag added to evidence
+- **Tag Removed**: Tag removed from evidence
+- **Marked Critical**: Evidence flagged as critical
+- **Unmarked Critical**: Critical status removed
+
+#### Data Flow
+
+```swift
+// Creating evidence
+TextEntry(bodyText: "Initial content")
+  → Automatically adds "Created" change history entry
+
+// Editing text entry
+textEntry.updateBodyText("Updated content", description: "Added more details")
+  → Stores original: "Initial content"
+  → Stores new: "Updated content"
+  → Creates "Content Modified" history entry with timestamp
+
+// Viewing history
+EvidenceDetailView → ChangeHistoryView
+  → Displays all changes in chronological order
+  → Shows before/after comparison for modifications
+```
+
+#### Security & Privacy
+
+- All change history is **encrypted** with the evidence
+- History uses **cascade delete** (deleted with evidence)
+- No ability to modify or delete history (audit integrity)
+- Timestamps use device local time
+- Changes stored in **SwiftData** with evidence models
+
+#### File Organization
+
+```
+VoiceIt/
+├── Models/Evidence/
+│   ├── ChangeHistory.swift          [NEW]
+│   ├── TextEntry.swift              [MODIFIED]
+│   ├── PhotoEvidence.swift          [MODIFIED]
+│   ├── VoiceNote.swift              [MODIFIED]
+│   └── VideoEvidence.swift          [MODIFIED]
+└── Views/Timeline/
+    ├── EvidenceDetailView.swift     [NEW]
+    ├── TimelineView.swift           [MODIFIED]
+    └── Components/
+        ├── ChangeHistoryView.swift  [NEW]
+        └── EditTextEntrySheet.swift [NEW]
+```
+
+#### User Experience Flow
+
+1. **Viewing Evidence Details**:
+   - **Photos**: Tap to expand inline preview on timeline page (new!)
+     - View full-size image without navigation
+     - See notes and metadata
+     - Option to view full details if needed
+   - **Other evidence**: Tap to navigate to detail view
+   - See full content preview with metadata
+   - Scroll to view change history timeline
+   - Location and tags displayed if available
+
+2. **Editing Text Entries**:
+   - Tap "Edit" button in detail view
+   - Modify text in full-screen editor
+   - See real-time comparison of changes
+   - Add optional change description
+   - Save → Original preserved in history
+
+3. **Change History Timeline**:
+   - Visual timeline with color-coded icons
+   - Newest changes at top
+   - Before/after comparison for modifications
+   - Timestamps and optional descriptions
+   - Icons indicate change type
+
+#### Migration Notes
+
+⚠️ **Breaking Change**: Existing evidence will not have change history.
+
+- Old evidence shows only current state
+- New evidence created after this update has full tracking
+- Consider adding migration script to backfill creation history
+- No data loss - only missing historical change records
+
+#### Performance Considerations
+
+- Images loaded **on-demand** in detail view (not in timeline)
+- Change history **lazy loaded** via SwiftData relationships
+- No performance impact on timeline scrolling
+- Cascade delete prevents orphaned history records
+
+#### Build Status
+
+✅ **Build Successful** - October 7, 2025  
+✅ **No Linter Errors**  
+✅ **XcodeGen Integration** - Auto-includes new files  
+✅ **Swift 6 Concurrency** - Fully compliant
+
+#### Future Enhancements
+
+Potential improvements:
+- Edit notes/captions on photos and videos
+- Text diff highlighting in change comparison
+- Revert to previous version capability
+- Export change history in PDF/Word documents
+- Image comparison overlays (before/after edits)
 
 ---
 

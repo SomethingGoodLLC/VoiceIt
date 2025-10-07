@@ -13,6 +13,17 @@ struct TimelineView: View {
     
     @Environment(\.modelContext) private var modelContext
     
+    // Services
+    private let fileStorageService: FileStorageService
+    
+    // MARK: - Initialization
+    
+    init() {
+        // Initialize services
+        let encryptionService = EncryptionService()
+        self.fileStorageService = FileStorageService(encryptionService: encryptionService)
+    }
+    
     // State
     @State private var filterType: EvidenceFilterType = .all
     @State private var showingFilterSheet = false
@@ -23,6 +34,9 @@ struct TimelineView: View {
     @State private var showingDeleteConfirmation = false
     @State private var itemToShare: (any EvidenceProtocol)?
     @State private var showingShareSheet = false
+    @State private var expandedPhotoId: UUID?
+    @State private var loadedImages: [UUID: UIImage] = [:]
+    @State private var loadingImageIds: Set<UUID> = []
     
     // MARK: - Body
     
@@ -103,27 +117,69 @@ struct TimelineView: View {
             } else {
                 List {
                     ForEach(filteredEvidence, id: \.id) { evidence in
-                        timelineRow(for: evidence)
-                            .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 16))
-                            .listRowSeparator(.hidden)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                // Delete action
-                                Button(role: .destructive) {
-                                    itemToDelete = evidence
-                                    showingDeleteConfirmation = true
-                                } label: {
-                                    Label("Delete", systemImage: "trash.fill")
-                                }
-                                
-                                // Share action
+                        VStack(spacing: 0) {
+                            // Check if this is a photo evidence
+                            if let photo = evidence as? PhotoEvidence {
+                                // Photo evidence - expandable inline
                                 Button {
-                                    itemToShare = evidence
-                                    showingShareSheet = true
+                                    withAnimation(.spring(response: 0.3)) {
+                                        if expandedPhotoId == photo.id {
+                                            expandedPhotoId = nil
+                                        } else {
+                                            expandedPhotoId = photo.id
+                                            loadPhotoIfNeeded(photo)
+                                        }
+                                    }
                                 } label: {
-                                    Label("Share", systemImage: "square.and.arrow.up")
+                                    // Remove rounded background so the preview sits closer
+                                    timelineRowHeader(for: evidence)
                                 }
-                                .tint(.blue)
+                                .buttonStyle(PlainButtonStyle())
+                                
+                                // Expanded photo preview
+                                if expandedPhotoId == photo.id {
+                                    photoPreviewPane(for: photo)
+                                        .padding(.horizontal, 16) // Minimal horizontal padding
+                                        .transition(.asymmetric(
+                                            insertion: .scale.combined(with: .opacity),
+                                            removal: .scale.combined(with: .opacity)
+                                        ))
+                                }
+                            } else {
+                                // Other evidence types - navigate to detail view
+                                NavigationLink {
+                                    EvidenceDetailView(evidence: evidence, fileStorageService: fileStorageService)
+                                } label: {
+                                    timelineRow(for: evidence)
+                                }
+                                .buttonStyle(PlainButtonStyle())
                             }
+                        }
+                        .listRowInsets(EdgeInsets(
+                            top: 6,
+                            leading: 0,
+                            bottom: 0,
+                            trailing: 16
+                        ))
+                        .listRowSeparator(.hidden)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            // Delete action
+                            Button(role: .destructive) {
+                                itemToDelete = evidence
+                                showingDeleteConfirmation = true
+                            } label: {
+                                Label("Delete", systemImage: "trash.fill")
+                            }
+                            
+                            // Share action
+                            Button {
+                                itemToShare = evidence
+                                showingShareSheet = true
+                            } label: {
+                                Label("Share", systemImage: "square.and.arrow.up")
+                            }
+                            .tint(.blue)
+                        }
                     }
                 }
                 .listStyle(.plain)
@@ -136,17 +192,18 @@ struct TimelineView: View {
     
     // MARK: - Timeline Row with Purple Accent Bar
     
-    @ViewBuilder
-    private func timelineRow(for evidence: any EvidenceProtocol) -> some View {
+    // Header-only (no background) for reuse
+    private func timelineRowHeader(for evidence: any EvidenceProtocol) -> some View {
         HStack(alignment: .top, spacing: 0) {
             // Purple vertical accent bar
+            // Align all purple bars using a fixed leading inset
             RoundedRectangle(cornerRadius: 2)
                 .fill(Color.voiceitPurple)
                 .frame(width: 4)
-                .padding(.leading, 16)
+                .padding(.leading, 16) // single source of truth for bar alignment
             
             // Content
-            HStack(alignment: .top, spacing: 12) {
+            HStack(alignment: .top, spacing: 10) {
                 // SF Symbol badge
                 Image(systemName: evidence.displayIcon)
                     .font(.title3)
@@ -159,7 +216,7 @@ struct TimelineView: View {
                     .shadow(color: Color.voiceitPurple.opacity(0.3), radius: 4, y: 2)
                 
                 // Evidence details
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: (evidence is PhotoEvidence) ? 3 : 6) {
                     // Title and critical badge
                     HStack(alignment: .top) {
                         Text(evidence.displayTitle)
@@ -178,11 +235,11 @@ struct TimelineView: View {
                     
                     // Relative timestamp
                     Text(evidence.timestamp.relativeTime)
-                        .font(.subheadline)
+                        .font((evidence is PhotoEvidence) ? .caption : .subheadline)
                         .foregroundStyle(.secondary)
                     
-                    // Preview text
-                    if !evidence.notes.isEmpty {
+                    // Preview text (omit for photos to keep row compact)
+                    if !(evidence is PhotoEvidence) && !evidence.notes.isEmpty {
                         Text(evidence.notes)
                             .font(.callout)
                             .foregroundStyle(.secondary)
@@ -190,8 +247,10 @@ struct TimelineView: View {
                             .padding(.top, 2)
                     }
                     
-                    // Type-specific preview
-                    typeSpecificPreview(for: evidence)
+                    // Type-specific preview (omit for photos for tighter spacing)
+                    if !(evidence is PhotoEvidence) {
+                        typeSpecificPreview(for: evidence)
+                    }
                     
                     // Location badge
                     if let location = evidence.locationSnapshot {
@@ -211,15 +270,138 @@ struct TimelineView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.leading, 12)
-            .padding(.vertical, 8)
+            .padding(.leading, 10)
+            .padding(.top, 8)
+            .padding(.bottom, evidence is PhotoEvidence ? 0 : 8)
         }
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(.systemBackground))
-                .shadow(color: Color.black.opacity(0.05), radius: 5, y: 2)
-        )
-        .padding(.horizontal, 4)
+    }
+    
+    @ViewBuilder
+    private func timelineRow(for evidence: any EvidenceProtocol) -> some View {
+        timelineRowHeader(for: evidence)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(.systemBackground))
+                    .shadow(color: Color.black.opacity(0.05), radius: 5, y: 2)
+            )
+            .padding(.horizontal, 4)
+    }
+    
+    // MARK: - Photo Preview Pane
+    
+    @ViewBuilder
+    private func photoPreviewPane(for photo: PhotoEvidence) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Image preview - no spacing at all
+            if loadingImageIds.contains(photo.id) {
+                HStack {
+                    Spacer()
+                    VStack(spacing: 2) {
+                        ProgressView()
+                            .scaleEffect(1.2)
+                        Text("Loading photo...")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(height: 80)
+                    Spacer()
+                }
+            } else if let image = loadedImages[photo.id] {
+                VStack(spacing: 0) {
+                    // Full image - larger display
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxHeight: 350)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .shadow(color: Color.black.opacity(0.15), radius: 4, y: 2)
+                    
+                    // Image metadata
+                    HStack(spacing: 6) {
+                        Label("\(photo.width)×\(photo.height)", systemImage: "viewfinder")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                        
+                        Label(photo.formattedFileSize, systemImage: "doc")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                        
+                        if photo.hasMetadata {
+                            Label("Metadata", systemImage: "info.circle")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                        
+                        Spacer()
+                    }
+                    .padding(.top, 4)
+                    
+                    // Notes if available
+                    if !photo.notes.isEmpty {
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text("Notes")
+                                .font(.caption2)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(.secondary)
+
+                            Text(photo.notes)
+                                .font(.caption)
+                                .lineLimit(2)
+                                .padding(4)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .fill(Color(.systemGray6))
+                                )
+                        }
+                        .padding(.top, 4)
+                    }
+                    
+                    // View full details button
+                    NavigationLink {
+                        EvidenceDetailView(evidence: photo, fileStorageService: fileStorageService)
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "arrow.right.circle")
+                            Text("View Full Details")
+                                .fontWeight(.medium)
+                        }
+                        .font(.caption2)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(Color.voiceitPurple)
+                        )
+                    }
+                    .padding(.top, 4)
+                }
+            } else {
+                // Error state
+                HStack {
+                    Spacer()
+                    VStack(spacing: 4) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.title3)
+                            .foregroundStyle(.red)
+                        Text("Failed to load image")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Button("Retry") {
+                            loadPhotoIfNeeded(photo)
+                        }
+                        .font(.caption2)
+                        .foregroundStyle(Color.voiceitPurple)
+                    }
+                    .frame(height: 100)
+                    Spacer()
+                }
+            }
+        }
+        .padding(.top, 0)
+        .padding(.leading, 0)
+        .padding(.trailing, 0)
     }
     
     // MARK: - Type-Specific Preview
@@ -409,6 +591,31 @@ struct TimelineView: View {
         // Small delay for visual feedback
         try? await Task.sleep(for: .milliseconds(500))
         isRefreshing = false
+    }
+    
+    private func loadPhotoIfNeeded(_ photo: PhotoEvidence) {
+        // Don't reload if already loaded
+        guard loadedImages[photo.id] == nil else { return }
+        
+        // Don't load if already loading
+        guard !loadingImageIds.contains(photo.id) else { return }
+        
+        loadingImageIds.insert(photo.id)
+        
+        Task {
+            do {
+                let image = try await fileStorageService.loadImage(photo.imageFilePath)
+                await MainActor.run {
+                    loadedImages[photo.id] = image
+                    loadingImageIds.remove(photo.id)
+                }
+            } catch {
+                print("❌ Failed to load image: \(error.localizedDescription)")
+                await MainActor.run {
+                    loadingImageIds.remove(photo.id)
+                }
+            }
+        }
     }
     
     private func deleteEvidence(_ evidence: any EvidenceProtocol) {
