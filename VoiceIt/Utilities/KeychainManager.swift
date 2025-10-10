@@ -104,6 +104,14 @@ final class KeychainManager: @unchecked Sendable {
             try? delete(key: key)
         }
     }
+    
+    // MARK: - String Helpers
+    
+    /// Retrieve string from keychain
+    func retrieveString(key: KeychainKey) -> String? {
+        guard let data = try? retrieve(key: key) else { return nil }
+        return String(data: data, encoding: .utf8)
+    }
 }
 
 // MARK: - Keychain Key
@@ -112,6 +120,7 @@ enum KeychainKey: String, CaseIterable {
     case masterEncryptionKey = "com.voiceit.encryption.masterKey"
     case appPasscode = "com.voiceit.auth.passcode"
     case biometricEnabled = "com.voiceit.auth.biometric"
+    case authToken = "com.voiceit.api.authToken"
 }
 
 // MARK: - Keychain Error

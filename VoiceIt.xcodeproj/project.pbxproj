@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -12,6 +12,7 @@
 		07CB9F3A94094767408FBF51 /* EvidenceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C920B807A19FDAE7C0146C /* EvidenceProtocol.swift */; };
 		08464BAF0FDD594916AFC0B3 /* EmergencyContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA15B0130BD7C639A00E40C2 /* EmergencyContactsView.swift */; };
 		0ABD17A519923361D5259C0B /* VoiceRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 549EAC6868BF53423FBDAA6A /* VoiceRecorderView.swift */; };
+		0CFC8F15ACB38F46A29B8434 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D0F189F671DB489315D92E2 /* APIService.swift */; };
 		0FC3A4734AED59BCC0961FCF /* ChangeHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6E19B62446CDC76253C49B0 /* ChangeHistory.swift */; };
 		11060AD4A5B74C1251A384AC /* TextEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = E830E74E10058F471CB80ACC /* TextEntry.swift */; };
 		141925EA1D323F94F8429C85 /* TimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C82E53A51D445386782E277F /* TimelineView.swift */; };
@@ -40,12 +41,14 @@
 		4E97698D641A7CD57F7FEF0E /* AuthenticationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E8EFAE6F245697C7C1B364 /* AuthenticationService.swift */; };
 		512C111D943F0BB976FA2737 /* TranscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10028782F0520FF8F7B3491 /* TranscriptionService.swift */; };
 		51D5829FD2AB7C9252900565 /* Calculator@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 386D1AACA209948D3904E92E /* Calculator@2x.png */; };
+		58C0717E8B3F984D4BC755FA /* TimelineSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EE979675F511B3CC614F2BC /* TimelineSyncService.swift */; };
 		58DE30A839D9B60D77912E72 /* Weather@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1AE3957150D0E19458369C97 /* Weather@2x.png */; };
 		5EE91282C079D45CFA9AA2E6 /* View+Accessibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEA8AF96952CF949AD1E0141 /* View+Accessibility.swift */; };
 		5F23DFE6D4A6410EDFEA84E7 /* TherapyListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3C1EBFC0599DA596BAF5006 /* TherapyListView.swift */; };
 		656872F38A4F6327383F7FA1 /* SimpleFilterChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF55C37B7523FC885653BAAA /* SimpleFilterChip.swift */; };
 		66FC13DA7EFA1436253A716C /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CFC966BBA3EE84748E6FB76 /* LocationService.swift */; };
 		6AC4831899EB9AD68EB4121E /* StealthModeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0931E061B9577CFE310D32C /* StealthModeService.swift */; };
+		6C5900E7CBF01ED1DE587E7D /* AccountManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D79A1DBEA90AC72AA9A83C2 /* AccountManagementView.swift */; };
 		6D26A327F43A6486D2182B77 /* PasscodeSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C964608A521F0EEBFB1B1833 /* PasscodeSetupView.swift */; };
 		6F4A3B46ED8C3C537DD6F71F /* Wellness@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EB5BD148C2A1AD84FD041BB1 /* Wellness@3x.png */; };
 		715B28614606B580D2BAB276 /* EvidenceRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AFD383CA09C700C24C2EEDB /* EvidenceRowView.swift */; };
@@ -142,12 +145,14 @@
 		311FD6B7A4E8653DCCB304D6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		34FB52711B1825492D8DB22D /* ArticleDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleDetailView.swift; sourceTree = "<group>"; };
 		386D1AACA209948D3904E92E /* Calculator@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Calculator@2x.png"; sourceTree = "<group>"; };
+		3EE979675F511B3CC614F2BC /* TimelineSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineSyncService.swift; sourceTree = "<group>"; };
 		418294FE8FB54E3936EB3179 /* EnhancedResourceRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnhancedResourceRow.swift; sourceTree = "<group>"; };
 		43066BFF09B0607CA690B5D9 /* AudioRecordingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecordingService.swift; sourceTree = "<group>"; };
 		438CF73C574CAFE0DC0F6166 /* ResourceLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourceLibraryView.swift; sourceTree = "<group>"; };
 		470401C6BE5B7010BEA0EEB0 /* TranscriptionSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionSettingsView.swift; sourceTree = "<group>"; };
 		48669A83C5BACFA2091FC6B9 /* VideoEvidence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEvidence.swift; sourceTree = "<group>"; };
 		4BE82F5286826EE1553F55E5 /* CreatePostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePostView.swift; sourceTree = "<group>"; };
+		4D79A1DBEA90AC72AA9A83C2 /* AccountManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountManagementView.swift; sourceTree = "<group>"; };
 		4F26502DF6148A3EF9070C7D /* EvidenceCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvidenceCategory.swift; sourceTree = "<group>"; };
 		5093F74A8AA2C89E9C4C68A7 /* EvidenceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvidenceDetailView.swift; sourceTree = "<group>"; };
 		525E5CED2E7E606E9A659E6F /* Resource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Resource.swift; sourceTree = "<group>"; };
@@ -173,6 +178,7 @@
 		80268412DD63D44310AABB0B /* ExportOptionsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportOptionsSheet.swift; sourceTree = "<group>"; };
 		82DA87486C231B9AFB6DC245 /* SupportGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportGroup.swift; sourceTree = "<group>"; };
 		89ED760769A5A074DCD3944D /* EnhancedListResourcesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnhancedListResourcesView.swift; sourceTree = "<group>"; };
+		8D0F189F671DB489315D92E2 /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
 		90591C235E9D5DE381929F5A /* Color+Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Theme.swift"; sourceTree = "<group>"; };
 		953C29BAA1BA048E7970D579 /* TherapistDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapistDetailView.swift; sourceTree = "<group>"; };
 		97C9C852D9874714ACA9FC60 /* VoiceItTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceItTests.swift; sourceTree = "<group>"; };
@@ -199,7 +205,7 @@
 		C254C4009DB93C85720B8DC8 /* CommunityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityService.swift; sourceTree = "<group>"; };
 		C3C1EBFC0599DA596BAF5006 /* TherapyListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapyListView.swift; sourceTree = "<group>"; };
 		C4AB1A622901DFE88E824C7C /* Wellness@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Wellness@2x.png"; sourceTree = "<group>"; };
-		C56DD62E7B1EFD99B3E7962D /* VoiceItTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VoiceItTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C56DD62E7B1EFD99B3E7962D /* VoiceIt.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VoiceIt.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5DAF7B9778A99B0143BC8CE /* Calculator@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Calculator@3x.png"; sourceTree = "<group>"; };
 		C694B7F01B3B5C198172DF9A /* NationalHotlineRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NationalHotlineRow.swift; sourceTree = "<group>"; };
 		C82E53A51D445386782E277F /* TimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineView.swift; sourceTree = "<group>"; };
@@ -218,7 +224,7 @@
 		E84CFED287FB314E8FE37902 /* NotesDecoyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesDecoyView.swift; sourceTree = "<group>"; };
 		EA15B0130BD7C639A00E40C2 /* EmergencyContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyContactsView.swift; sourceTree = "<group>"; };
 		EB5BD148C2A1AD84FD041BB1 /* Wellness@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Wellness@3x.png"; sourceTree = "<group>"; };
-		EBDF9E126E14F247F4ECE8CF /* VoiceIt.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VoiceIt.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EBDF9E126E14F247F4ECE8CF /* VoiceIt.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoiceIt.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF55C37B7523FC885653BAAA /* SimpleFilterChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleFilterChip.swift; sourceTree = "<group>"; };
 		F049833FE477C98BD296F9B7 /* PhotoEvidence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoEvidence.swift; sourceTree = "<group>"; };
 		F072312D5481A60AE01DD081 /* AccessibleSettingsRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibleSettingsRow.swift; sourceTree = "<group>"; };
@@ -318,6 +324,7 @@
 		2FA2C92EA4357D4B6A6F3604 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				4D79A1DBEA90AC72AA9A83C2 /* AccountManagementView.swift */,
 				178FB6DE5847C6ACF8C4DE9B /* AppIconPickerView.swift */,
 				77584FFBC9F4F68E1BBA22CF /* ModelDownloadView.swift */,
 				C964608A521F0EEBFB1B1833 /* PasscodeSetupView.swift */,
@@ -395,7 +402,7 @@
 			isa = PBXGroup;
 			children = (
 				EBDF9E126E14F247F4ECE8CF /* VoiceIt.app */,
-				C56DD62E7B1EFD99B3E7962D /* VoiceItTests.xctest */,
+				C56DD62E7B1EFD99B3E7962D /* VoiceIt.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -478,6 +485,7 @@
 		BCC9C0F34C236F3F67C212D1 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				8D0F189F671DB489315D92E2 /* APIService.swift */,
 				D2DC771A0CE65FD2B708AEE4 /* AppIconService.swift */,
 				43066BFF09B0607CA690B5D9 /* AudioRecordingService.swift */,
 				A3E8EFAE6F245697C7C1B364 /* AuthenticationService.swift */,
@@ -491,6 +499,7 @@
 				7546BE3E552FBCF2080DF6C7 /* NotificationService.swift */,
 				A01193974D265C401A61DBFB /* ResourceService.swift */,
 				C0931E061B9577CFE310D32C /* StealthModeService.swift */,
+				3EE979675F511B3CC614F2BC /* TimelineSyncService.swift */,
 				B10028782F0520FF8F7B3491 /* TranscriptionService.swift */,
 				62A1B24A7918520E5864BBE6 /* WhisperModelService.swift */,
 			);
@@ -592,7 +601,7 @@
 			packageProductDependencies = (
 			);
 			productName = VoiceItTests;
-			productReference = C56DD62E7B1EFD99B3E7962D /* VoiceItTests.xctest */;
+			productReference = C56DD62E7B1EFD99B3E7962D /* VoiceIt.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		C9D03060E779AE21BC4A594A /* VoiceIt */ = {
@@ -643,7 +652,6 @@
 			packageReferences = (
 				9D60CFF95B301D4D65C57520 /* XCRemoteSwiftPackageReference "WhisperKit" */,
 			);
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -677,7 +685,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0CFC8F15ACB38F46A29B8434 /* APIService.swift in Sources */,
 				F75D0BB86D4B6D55EB598A56 /* AccessibleSettingsRow.swift in Sources */,
+				6C5900E7CBF01ED1DE587E7D /* AccountManagementView.swift in Sources */,
 				9CE7F612F6FC32665A247BA8 /* AddEvidenceView.swift in Sources */,
 				A002ED92F33A1BFB536575DB /* AppIconPickerView.swift in Sources */,
 				A9BA5FFDB0F6FBA04EF39580 /* AppIconService.swift in Sources */,
@@ -753,6 +763,7 @@
 				98D7450623856E37B453D74B /* Therapist.swift in Sources */,
 				D5D8C61FA0FEE456ED236BF8 /* TherapistDetailView.swift in Sources */,
 				5F23DFE6D4A6410EDFEA84E7 /* TherapyListView.swift in Sources */,
+				58C0717E8B3F984D4BC755FA /* TimelineSyncService.swift in Sources */,
 				141925EA1D323F94F8429C85 /* TimelineView.swift in Sources */,
 				512C111D943F0BB976FA2737 /* TranscriptionService.swift in Sources */,
 				00CDC914F7AD92D7D69693F5 /* TranscriptionSettingsView.swift in Sources */,
@@ -843,6 +854,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -899,6 +911,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = VoiceIt;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = complete;
@@ -944,6 +957,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -993,6 +1007,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = VoiceIt;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_STRICT_CONCURRENCY = complete;

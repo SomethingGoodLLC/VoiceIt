@@ -53,6 +53,12 @@ A privacy-first iOS application built with Swift 6 and SwiftUI for documenting a
   - [Video Recording](#video-recording)
   - [Text Entry](#text-entry)
   - [Shared Features](#shared-features-all-evidence-types)
+- [☁️ Backend Integration (Optional Cloud Sync)](#️-backend-integration-optional-cloud-sync)
+  - [Current Status](#current-status)
+  - [What's Implemented](#whats-implemented)
+  - [How to Use](#how-to-use)
+  - [API Endpoints](#api-endpoints)
+  - [Privacy & Security](#privacy--security-1)
 - [📝 TODO](#-todo)
   - [High Priority](#high-priority)
   - [Medium Priority](#medium-priority)
@@ -693,6 +699,232 @@ The "Add Evidence" tab provides a clean, intuitive interface for documenting inc
 - **Encrypted Storage**: AES-GCM-256 encryption before saving
 - **Haptic Feedback**: Success vibration on save
 - **Error Handling**: Clear error messages with recovery options
+
+## ☁️ Backend Integration (Optional Cloud Sync)
+
+The app now supports **optional** backend integration with `https://voiceitnow.org` for account creation and future cloud sync capabilities.
+
+### Current Status
+
+**⚠️ Authentication Only (January 2025)**
+
+✅ **Working Now:**
+- User signup and login
+- Token-based authentication
+- Secure token storage in Keychain
+- Account management UI
+
+🚧 **Coming Soon:**
+- Cloud evidence sync (backend endpoints pending)
+- Cross-device synchronization
+- Cloud backup
+
+The sync functionality displays a "Coming Soon" badge in Settings until backend timeline endpoints are implemented.
+
+### What's Implemented
+
+#### 1. APIService (`Services/APIService.swift`)
+Complete API client for backend communication:
+
+**Authentication:**
+```swift
+// Sign up
+let response = try await APIService.shared.signUp(
+    email: "user@example.com",
+    password: "password123",
+    name: "Jane Doe"
+)
+
+// Login
+let response = try await APIService.shared.login(
+    email: "user@example.com",
+    password: "password123"
+)
+
+// Logout
+APIService.shared.logout()
+```
+
+**Features:**
+- Automatic token storage in iOS Keychain (encrypted)
+- User session management
+- Token verification
+- Password reset requests
+- Swift 6 concurrency compliant
+
+#### 2. TimelineSyncService (`Services/TimelineSyncService.swift`)
+Service ready for syncing evidence to backend once endpoints are available:
+
+```swift
+// Sync all evidence (when endpoints ready)
+try await TimelineSyncService.shared.syncAllEvidence(modelContext: modelContext)
+
+// Sync single item
+try await TimelineSyncService.shared.syncEvidence(evidence)
+```
+
+**Features:**
+- Optional sync (disabled by default)
+- Syncs all evidence types (text, voice, photo, video)
+- Preserves metadata (tags, critical flag, timestamps)
+- SwiftData-safe with @MainActor
+- Last sync timestamp tracking
+
+#### 3. AccountManagementView (`Views/Settings/AccountManagementView.swift`)
+Beautiful SwiftUI interface for account management:
+
+**Login Screen:**
+- Email and password fields
+- "Forgot Password" option
+- Switch to signup
+- "Skip for Now" option
+
+**Signup Screen:**
+- Name (optional), email, password
+- Password confirmation with live validation
+- Privacy reassurance message
+
+**Logged In Screen:**
+- User account information
+- Sync toggle (disabled with "Coming Soon" badge)
+- Logout button
+
+#### 4. Settings Integration
+New "Cloud Sync (Optional)" section with:
+- "Coming Soon" badge
+- Authentication status indicator
+- Quick access to account management
+
+### How to Use
+
+#### For Users
+
+**Accessing Account Management:**
+1. Open **Settings** tab
+2. Tap **"Cloud Sync (Optional)"** → **"Sign In / Sign Up"**
+
+**Creating an Account:**
+1. Enter email and password (6+ characters)
+2. Optionally add your name
+3. Tap "Create Account"
+4. Token automatically saved to Keychain
+
+**Logging In:**
+1. Enter email and password
+2. Tap "Log In"
+3. Stay signed in across app restarts
+
+**Logging Out:**
+1. In account settings, tap "Log Out"
+2. Token cleared from Keychain
+3. App continues working in local-only mode
+
+#### For Developers
+
+**Accessing Services:**
+```swift
+import SwiftUI
+
+struct MyView: View {
+    @Environment(\.apiService) private var apiService
+    @Environment(\.timelineSyncService) private var syncService
+    
+    var body: some View {
+        // Use services
+    }
+}
+```
+
+**Check Auth Status:**
+```swift
+if APIService.shared.isAuthenticated {
+    print("Logged in as: \(APIService.shared.currentUser?.email ?? "")")
+}
+```
+
+### API Endpoints
+
+#### Currently Implemented on Backend
+
+**Authentication:**
+- `POST /api/auth/signup` - Create new account
+- `POST /api/auth/login` - Sign in
+- `POST /api/auth/logout` - Sign out
+- `POST /api/auth/verify` - Verify token
+- `POST /api/auth/forgot-password` - Request password reset
+
+**Waitlist:**
+- `POST /api/app/waitlist` - Join waitlist
+
+#### Needed for Cloud Sync (Coming Soon)
+
+**Timeline Endpoints:**
+```
+GET  /api/timeline/entries
+POST /api/timeline/entries
+```
+
+**Expected Request/Response:**
+```swift
+// POST /api/timeline/entries
+{
+  "type": "voice|text|photo|video",
+  "content": "Evidence content or transcription",
+  "timestamp": "2025-01-08T10:30:00Z",
+  "metadata": {
+    "isCritical": "true",
+    "tags": "physical,verbal",
+    "duration": "45.2"
+  }
+}
+
+// Response
+{
+  "success": true,
+  "entry": {
+    "id": "uuid",
+    "userId": "user-uuid",
+    "type": "voice",
+    "content": "...",
+    "timestamp": "...",
+    "metadata": {...},
+    "createdAt": "..."
+  }
+}
+```
+
+### Privacy & Security
+
+#### What Stays Local (Always)
+- ✅ All evidence data encrypted on device
+- ✅ Biometric authentication (Face ID/Touch ID)
+- ✅ Passcode stored in Keychain (local only)
+- ✅ Location data and encryption keys
+- ✅ Actual media files (photos, videos, audio)
+
+#### What Syncs to Backend (When Available)
+When sync is enabled:
+- Evidence metadata (type, timestamp, tags, critical flag)
+- Text content from entries (encrypted in transit)
+- Transcriptions from voice notes
+- Evidence notes and descriptions
+
+**Note:** Actual media files are **not uploaded** in current implementation.
+
+#### Security Features
+- 🔒 Auth tokens stored in iOS Keychain (encrypted)
+- 🔒 HTTPS/TLS for all API requests
+- 🔒 Token-based authentication (Bearer token)
+- 🔒 30-second request timeout
+- 🔒 Sync is **opt-in** (disabled by default)
+- 🔒 User can log out anytime (token cleared immediately)
+- 🔒 App works 100% offline without backend
+
+#### Architecture Benefits
+- **Local-First**: App fully functional without internet
+- **Privacy-First**: Cloud sync is optional, not required
+- **Modular**: Backend integration cleanly separated
+- **Secure**: No user data sent without explicit consent
 
 ## 📝 TODO
 

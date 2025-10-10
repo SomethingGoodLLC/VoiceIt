@@ -92,6 +92,29 @@ enum Constants {
         static let retryDelay: TimeInterval = 2
     }
     
+    // MARK: - API Configuration
+    
+    enum API {
+        static let baseURL = "https://voiceitnow.org"
+        
+        // Endpoints
+        enum Endpoints {
+            // Authentication
+            static let signup = "/api/auth/signup"
+            static let login = "/api/auth/login"
+            static let logout = "/api/auth/logout"
+            static let verifyToken = "/api/auth/verify"
+            static let forgotPassword = "/api/auth/forgot-password"
+            static let resetPassword = "/api/auth/reset-password"
+            
+            // Timeline
+            static let timelineEntries = "/api/timeline/entries"
+            
+            // Waitlist
+            static let waitlist = "/api/app/waitlist"
+        }
+    }
+    
     // MARK: - Hotlines (National - US)
     
     enum Hotlines {

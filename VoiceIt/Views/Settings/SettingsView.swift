@@ -6,6 +6,7 @@ struct SettingsView: View {
     
     @Environment(\.authenticationService) private var authService
     @Environment(\.stealthModeService) private var stealthService
+    @Environment(\.apiService) private var apiService
     @State private var appIconService = AppIconService()
     @State private var notificationService = NotificationService()
     @State private var hapticService = HapticService.shared
@@ -16,12 +17,14 @@ struct SettingsView: View {
     @State private var showingAppIconPicker = false
     @State private var showingAbout = false
     @State private var showingResetConfirmation = false
+    @State private var showingAccountManagement = false
     
     // MARK: - Body
     
     var body: some View {
         NavigationStack {
             List {
+                accountSection
                 securitySection
                 stealthModeSection
                 transcriptionSection
@@ -37,6 +40,9 @@ struct SettingsView: View {
             .sheet(isPresented: $showingAppIconPicker) {
                 AppIconPickerView(service: appIconService)
             }
+            .sheet(isPresented: $showingAccountManagement) {
+                AccountManagementView()
+            }
             .alert("Reset All Data", isPresented: $showingResetConfirmation) {
                 Button("Cancel", role: .cancel) {}
                 Button("Reset", role: .destructive) {
@@ -45,6 +51,44 @@ struct SettingsView: View {
             } message: {
                 Text("This will permanently delete all evidence and settings. This action cannot be undone.")
             }
+        }
+    }
+    
+    // MARK: - Account Section
+    
+    private var accountSection: some View {
+        Section {
+            Button {
+                showingAccountManagement = true
+            } label: {
+                HStack {
+                    Label(apiService.isAuthenticated ? "Account Settings" : "Sign In / Sign Up", 
+                          systemImage: apiService.isAuthenticated ? "person.circle.fill" : "cloud.fill")
+                    
+                    Spacer()
+                    
+                    if apiService.isAuthenticated {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(.green)
+                    }
+                }
+            }
+        } header: {
+            HStack {
+                Text("Cloud Sync (Optional)")
+                Spacer()
+                Text("Coming Soon")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(.orange.opacity(0.2))
+                    .cornerRadius(4)
+            }
+        } footer: {
+            Text(apiService.isAuthenticated ? 
+                 "Connected. Cloud sync will be available once backend is ready." : 
+                 "Sign in now to prepare for cloud backup and sync (coming soon).")
         }
     }
     
