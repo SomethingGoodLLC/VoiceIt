@@ -673,18 +673,315 @@ final class ExportService {
         try? FileManager.default.removeItem(at: url)
         return encURL
     }
+    
+    // MARK: - ZIP Archive Export
+    
+    /// Generate complete ZIP archive with all media files and documentation
+    @MainActor
+    func generateZIPArchive(evidence: [any EvidenceProtocol], options: ExportOptions = .defaultOptions) async throws -> URL {
+        let filtered = filterEvidence(evidence, with: options)
+        let sorted = filtered.sorted { $0.timestamp < $1.timestamp }
+        let docID = UUID().uuidString.prefix(8).uppercased()
+        
+        // Create temporary directory for archive contents
+        let archiveDir = FileManager.default.temporaryDirectory.appendingPathComponent("VoiceIt_Export_\(docID)")
+        try FileManager.default.createDirectory(at: archiveDir, withIntermediateDirectories: true)
+        
+        // Create subdirectories
+        let audioDir = archiveDir.appendingPathComponent("Audio")
+        let photosDir = archiveDir.appendingPathComponent("Photos")
+        let videosDir = archiveDir.appendingPathComponent("Videos")
+        let docsDir = archiveDir.appendingPathComponent("Documents")
+        
+        try FileManager.default.createDirectory(at: audioDir, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: photosDir, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: videosDir, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: docsDir, withIntermediateDirectories: true)
+        
+        // Generate index PDF
+        let pdfURL = try await generatePDF(evidence: filtered, options: options)
+        let indexPDFPath = docsDir.appendingPathComponent("Evidence_Index_\(docID).pdf")
+        try FileManager.default.copyItem(at: pdfURL, to: indexPDFPath)
+        
+        // Export media files with metadata
+        var fileIndex: [[String: String]] = []
+        
+        for (index, item) in sorted.enumerated() {
+            let evidenceNumber = String(format: "%03d", index + 1)
+            
+            // Export audio files
+            if let voiceNote = item as? VoiceNote, options.includeVoiceNotes {
+                let audioURL = try await fileStorageService.loadAudioFile(voiceNote.audioFilePath)
+                let audioFileName = "Audio_\(evidenceNumber)_\(voiceNote.timestamp.formatted(date: .abbreviated, time: .omitted).replacingOccurrences(of: "/", with: "-")).m4a"
+                let audioDestPath = audioDir.appendingPathComponent(audioFileName)
+                try FileManager.default.copyItem(at: audioURL, to: audioDestPath)
+                
+                fileIndex.append([
+                    "number": evidenceNumber,
+                    "type": "Voice Note",
+                    "timestamp": voiceNote.timestamp.ISO8601Format(),
+                    "duration": String(format: "%.1f", voiceNote.duration),
+                    "file": "Audio/\(audioFileName)",
+                    "transcription": voiceNote.transcription ?? "None",
+                    "critical": voiceNote.isCritical ? "YES" : "NO"
+                ])
+                
+                // Clean up temp decrypted file
+                try? FileManager.default.removeItem(at: audioURL)
+            }
+            
+            // Export photos
+            if let photo = item as? PhotoEvidence, options.includePhotos && options.includeImages {
+                let image = try await fileStorageService.loadImage(photo.imageFilePath)
+                let photoFileName = "Photo_\(evidenceNumber)_\(photo.timestamp.formatted(date: .abbreviated, time: .omitted).replacingOccurrences(of: "/", with: "-")).jpg"
+                let photoDestPath = photosDir.appendingPathComponent(photoFileName)
+                
+                if let imageData = image.jpegData(compressionQuality: 0.9) {
+                    try imageData.write(to: photoDestPath)
+                    
+                    fileIndex.append([
+                        "number": evidenceNumber,
+                        "type": "Photo",
+                        "timestamp": photo.timestamp.ISO8601Format(),
+                        "resolution": "\(photo.width)x\(photo.height)",
+                        "file": "Photos/\(photoFileName)",
+                        "critical": photo.isCritical ? "YES" : "NO"
+                    ])
+                }
+            }
+            
+            // Export video thumbnails (videos themselves can be too large)
+            if let video = item as? VideoEvidence, options.includeVideos, let thumbPath = video.thumbnailFilePath {
+                let thumbnail = try await fileStorageService.loadImage(thumbPath)
+                let thumbFileName = "Video_Thumbnail_\(evidenceNumber)_\(video.timestamp.formatted(date: .abbreviated, time: .omitted).replacingOccurrences(of: "/", with: "-")).jpg"
+                let thumbDestPath = videosDir.appendingPathComponent(thumbFileName)
+                
+                if let imageData = thumbnail.jpegData(compressionQuality: 0.8) {
+                    try imageData.write(to: thumbDestPath)
+                    
+                    fileIndex.append([
+                        "number": evidenceNumber,
+                        "type": "Video",
+                        "timestamp": video.timestamp.ISO8601Format(),
+                        "duration": String(format: "%.1f", video.duration),
+                        "resolution": video.resolution,
+                        "file": "Videos/\(thumbFileName) (thumbnail only)",
+                        "critical": video.isCritical ? "YES" : "NO"
+                    ])
+                }
+            }
+            
+            // Export text entries (create text files)
+            if let textEntry = item as? TextEntry, options.includeTextEntries {
+                let textFileName = "Text_\(evidenceNumber)_\(textEntry.timestamp.formatted(date: .abbreviated, time: .omitted).replacingOccurrences(of: "/", with: "-")).txt"
+                let textDestPath = docsDir.appendingPathComponent(textFileName)
+                
+                var textContent = "VOICE IT - TEXT ENTRY\n"
+                textContent += "Evidence #\(evidenceNumber)\n"
+                textContent += "Timestamp: \(textEntry.timestamp.formatted(date: .long, time: .complete))\n"
+                textContent += "Critical: \(textEntry.isCritical ? "YES" : "NO")\n"
+                textContent += "\n---\n\n"
+                textContent += textEntry.bodyText
+                
+                if !textEntry.notes.isEmpty {
+                    textContent += "\n\n---\nNOTES:\n\(textEntry.notes)"
+                }
+                
+                try textContent.write(to: textDestPath, atomically: true, encoding: .utf8)
+                
+                fileIndex.append([
+                    "number": evidenceNumber,
+                    "type": "Text Entry",
+                    "timestamp": textEntry.timestamp.ISO8601Format(),
+                    "words": "\(textEntry.wordCount)",
+                    "file": "Documents/\(textFileName)",
+                    "critical": textEntry.isCritical ? "YES" : "NO"
+                ])
+            }
+        }
+        
+        // Create file index CSV
+        let indexCSV = createFileIndexCSV(fileIndex: fileIndex)
+        let indexCSVPath = docsDir.appendingPathComponent("File_Index.csv")
+        try indexCSV.write(to: indexCSVPath, atomically: true, encoding: .utf8)
+        
+        // Create README
+        let readme = createReadmeFile(documentID: String(docID), evidenceCount: sorted.count)
+        let readmePath = archiveDir.appendingPathComponent("README.txt")
+        try readme.write(to: readmePath, atomically: true, encoding: .utf8)
+        
+        // Create ZIP archive
+        let zipName = "VoiceIt_Complete_Export_\(docID).zip"
+        let zipURL = FileManager.default.temporaryDirectory.appendingPathComponent(zipName)
+        
+        // Remove existing ZIP if it exists
+        if FileManager.default.fileExists(atPath: zipURL.path) {
+            try FileManager.default.removeItem(at: zipURL)
+        }
+        
+        // Compress directory to ZIP
+        try await compressDirectory(archiveDir, to: zipURL)
+        
+        // Clean up temporary directory
+        try? FileManager.default.removeItem(at: archiveDir)
+        try? FileManager.default.removeItem(at: pdfURL) // Clean up temp PDF
+        
+        return zipURL
+    }
+    
+    private func createFileIndexCSV(fileIndex: [[String: String]]) -> String {
+        var csv = "Evidence Number,Type,Timestamp,File,Critical,Additional Info\n"
+        
+        for item in fileIndex {
+            let number = item["number"] ?? ""
+            let type = item["type"] ?? ""
+            let timestamp = item["timestamp"] ?? ""
+            let file = item["file"] ?? ""
+            let critical = item["critical"] ?? ""
+            
+            var additionalInfo = ""
+            if let duration = item["duration"] {
+                additionalInfo = "Duration: \(duration)s"
+            } else if let resolution = item["resolution"] {
+                additionalInfo = "Resolution: \(resolution)"
+            } else if let words = item["words"] {
+                additionalInfo = "Words: \(words)"
+            }
+            
+            if let transcription = item["transcription"], transcription != "None" {
+                additionalInfo += " | Transcription available"
+            }
+            
+            csv += "\"\(number)\",\"\(type)\",\"\(timestamp)\",\"\(file)\",\"\(critical)\",\"\(additionalInfo)\"\n"
+        }
+        
+        return csv
+    }
+    
+    private func createReadmeFile(documentID: String, evidenceCount: Int) -> String {
+        var readme = """
+        ╔══════════════════════════════════════════════════════════════╗
+        ║                  VOICE IT - EVIDENCE EXPORT                  ║
+        ║                    Complete Archive Package                   ║
+        ╚══════════════════════════════════════════════════════════════╝
+        
+        Document ID: \(documentID)
+        Generated: \(Date().formatted(date: .long, time: .complete))
+        Total Evidence Items: \(evidenceCount)
+        
+        ══════════════════════════════════════════════════════════════
+        CONTENTS
+        ══════════════════════════════════════════════════════════════
+        
+        📁 Audio/
+           Contains all voice recordings in M4A format
+           Files are named: Audio_XXX_YYYY-MM-DD.m4a
+        
+        📁 Photos/
+           Contains all photographic evidence in JPG format
+           Files are named: Photo_XXX_YYYY-MM-DD.jpg
+        
+        📁 Videos/
+           Contains video thumbnails in JPG format
+           Note: Full videos not included due to size constraints
+           Files are named: Video_Thumbnail_XXX_YYYY-MM-DD.jpg
+        
+        📁 Documents/
+           - Evidence_Index_\(documentID).pdf
+             Complete legal document with all evidence details
+           
+           - File_Index.csv
+             Spreadsheet-compatible index of all files
+           
+           - Text_XXX_YYYY-MM-DD.txt
+             Individual text entry documents
+        
+        ══════════════════════════════════════════════════════════════
+        FILE NAMING CONVENTION
+        ══════════════════════════════════════════════════════════════
+        
+        XXX = Evidence number (001, 002, 003, etc.)
+        YYYY-MM-DD = Date of evidence collection
+        
+        Evidence is numbered chronologically by timestamp.
+        
+        ══════════════════════════════════════════════════════════════
+        LEGAL NOTICE
+        ══════════════════════════════════════════════════════════════
+        
+        This archive contains evidence collected and encrypted using
+        Voice It, a privacy-first evidence documentation system.
+        
+        All evidence includes:
+        - Original timestamps
+        - Cryptographic verification
+        - Optional location data
+        - Change history tracking
+        - Critical evidence flagging
+        
+        For legal proceedings, refer to Evidence_Index_\(documentID).pdf
+        for the complete formatted documentation.
+        
+        ══════════════════════════════════════════════════════════════
+        SECURITY & PRIVACY
+        ══════════════════════════════════════════════════════════════
+        
+        ⚠️  IMPORTANT: This archive contains decrypted evidence files.
+        
+        - Store this archive securely
+        - Use password protection when sharing
+        - Delete when no longer needed
+        - Do not upload to unsecured cloud services
+        
+        Voice It is designed to protect domestic violence survivors
+        and other vulnerable individuals. Please handle this data
+        with appropriate care and confidentiality.
+        
+        ══════════════════════════════════════════════════════════════
+        
+        For questions or support: https://voiceit.app/support
+        
+        """
+        
+        return readme
+    }
+    
+    @MainActor
+    private func compressDirectory(_ sourceURL: URL, to destinationURL: URL) async throws {
+        // Use NSFileCoordinator for safe file operations
+        // This creates a ZIP automatically when using .forUploading option
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            let coordinator = NSFileCoordinator()
+            var coordinatorError: NSError?
+            
+            coordinator.coordinate(readingItemAt: sourceURL, options: [.forUploading], error: &coordinatorError) { zipURL in
+                do {
+                    try FileManager.default.copyItem(at: zipURL, to: destinationURL)
+                    continuation.resume()
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+            
+            if let error = coordinatorError {
+                continuation.resume(throwing: error)
+            }
+        }
+    }
 }
 
 enum ExportError: LocalizedError {
     case noEvidence
     case pdfGenerationFailed
     case pdfEncryptionFailed
+    case zipCreationFailed
     
     var errorDescription: String? {
         switch self {
         case .noEvidence: return "No evidence to export"
         case .pdfGenerationFailed: return "Failed to generate PDF"
         case .pdfEncryptionFailed: return "Failed to encrypt PDF"
+        case .zipCreationFailed: return "Failed to create ZIP archive"
         }
     }
 }

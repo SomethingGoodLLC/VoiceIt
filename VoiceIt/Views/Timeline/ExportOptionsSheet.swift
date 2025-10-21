@@ -267,6 +267,8 @@ struct ExportOptionsSheet: View {
                 url = try await exportService.generateWordDocument(evidence: evidenceCopy, options: options)
             case .json:
                 url = try await exportService.generateJSON(evidence: evidenceCopy, options: options)
+            case .zip:
+                url = try await exportService.generateZIPArchive(evidence: evidenceCopy, options: options)
             case .encrypted:
                 url = try await exportService.generateJSON(evidence: evidenceCopy, options: options)
             }
@@ -297,6 +299,7 @@ enum ExportFormat: String, CaseIterable {
     case pdf = "PDF Document"
     case word = "Word Document"
     case json = "JSON Data"
+    case zip = "Complete ZIP Archive"
     case encrypted = "Encrypted Archive"
     
     var icon: String {
@@ -307,6 +310,8 @@ enum ExportFormat: String, CaseIterable {
             return "doc.text.fill"
         case .json:
             return "curlybraces"
+        case .zip:
+            return "doc.zipper"
         case .encrypted:
             return "lock.shield.fill"
         }
@@ -320,6 +325,8 @@ enum ExportFormat: String, CaseIterable {
             return "Microsoft Word-compatible RTF document. Easy to edit and annotate."
         case .json:
             return "Machine-readable JSON format with all evidence data. Useful for data analysis."
+        case .zip:
+            return "Complete package with all audio files, photos, videos, and documents. Includes PDF index and file manifest."
         case .encrypted:
             return "Password-protected encrypted archive. Maximum security for sensitive evidence."
         }
@@ -333,6 +340,8 @@ enum ExportFormat: String, CaseIterable {
             return "rtf"
         case .json:
             return "json"
+        case .zip:
+            return "zip"
         case .encrypted:
             return "enc"
         }

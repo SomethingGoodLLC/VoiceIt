@@ -15,6 +15,9 @@ struct EvidenceDetailView: View {
     @State private var loadedImage: UIImage?
     @State private var isLoadingImage = false
     @State private var imageError: String?
+    @State private var audioPlayer = AudioPlayerService()
+    @State private var isLoadingAudio = false
+    @State private var audioError: String?
     
     // Services
     private let fileStorageService: FileStorageService
@@ -102,7 +105,13 @@ struct EvidenceDetailView: View {
         .task {
             if let photo = evidence as? PhotoEvidence {
                 await loadImage(for: photo)
+            } else if let voiceNote = evidence as? VoiceNote {
+                await loadAudio(for: voiceNote)
             }
+        }
+        .onDisappear {
+            // Clean up audio player when view disappears
+            audioPlayer.cleanup()
         }
     }
     
@@ -246,35 +255,52 @@ struct EvidenceDetailView: View {
     // MARK: - Voice Note Preview
     private func voiceNotePreview(for voiceNote: VoiceNote) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Audio info
-            HStack {
-                Image(systemName: "waveform")
-                    .font(.title)
-                    .foregroundStyle(Color.voiceitPurple)
-                
-                VStack(alignment: .leading) {
-                    Text("Audio Recording")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                    Text(voiceNote.formattedDuration)
+            // Audio player controls
+            if isLoadingAudio {
+                HStack {
+                    ProgressView()
+                    Text("Loading audio...")
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color(.systemGray6))
+                )
+            } else if let error = audioError {
+                VStack(spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.title)
+                        .foregroundStyle(.red)
+                    Text(error)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                
-                Spacer()
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color(.systemGray6))
+                )
+            } else {
+                audioPlayerView(for: voiceNote)
             }
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color(.systemGray6))
-            )
             
             // Transcription
             if let transcription = voiceNote.transcription {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Transcription")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    HStack {
+                        Text("Transcription")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        
+                        if let method = voiceNote.transcriptionMethod {
+                            Text("(\(method))")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                     
                     Text(transcription)
                         .font(.body)
@@ -287,6 +313,95 @@ struct EvidenceDetailView: View {
                 }
             }
         }
+    }
+    
+    // MARK: - Audio Player View
+    
+    private func audioPlayerView(for voiceNote: VoiceNote) -> some View {
+        VStack(spacing: 16) {
+            // Waveform icon and info
+            HStack {
+                Image(systemName: "waveform")
+                    .font(.title)
+                    .foregroundStyle(Color.voiceitPurple)
+                
+                VStack(alignment: .leading) {
+                    Text("Audio Recording")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    Text(voiceNote.formattedFileSize)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                
+                Spacer()
+            }
+            
+            // Time display
+            HStack {
+                Text(formatTime(audioPlayer.currentTime))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+                
+                Spacer()
+                
+                Text(formatTime(audioPlayer.duration))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+            }
+            
+            // Progress slider
+            Slider(value: Binding(
+                get: { audioPlayer.playbackProgress },
+                set: { audioPlayer.seek(toProgress: $0) }
+            ), in: 0...1)
+            .tint(Color.voiceitPurple)
+            
+            // Playback controls
+            HStack(spacing: 40) {
+                // Skip backward
+                Button {
+                    audioPlayer.skipBackward(15)
+                } label: {
+                    Image(systemName: "gobackward.15")
+                        .font(.title2)
+                        .foregroundStyle(Color.voiceitPurple)
+                }
+                
+                // Play/Pause
+                Button {
+                    audioPlayer.togglePlayback()
+                } label: {
+                    Image(systemName: audioPlayer.isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                        .font(.system(size: 50))
+                        .foregroundStyle(Color.voiceitPurple)
+                }
+                
+                // Skip forward
+                Button {
+                    audioPlayer.skipForward(15)
+                } label: {
+                    Image(systemName: "goforward.15")
+                        .font(.title2)
+                        .foregroundStyle(Color.voiceitPurple)
+                }
+            }
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color(.systemGray6))
+        )
+    }
+    
+    // MARK: - Helper Methods
+    
+    private func formatTime(_ time: TimeInterval) -> String {
+        let minutes = Int(time) / 60
+        let seconds = Int(time) % 60
+        return String(format: "%d:%02d", minutes, seconds)
     }
     
     // MARK: - Video Preview
@@ -455,7 +570,34 @@ struct EvidenceDetailView: View {
         }
     }
     
+    private func loadAudio(for voiceNote: VoiceNote) async {
+        isLoadingAudio = true
+        audioError = nil
+        
+        do {
+            // Load and decrypt audio file
+            let audioURL = try await fileStorageService.loadAudioFile(voiceNote.audioFilePath)
+            
+            // Load into player
+            try await audioPlayer.loadAudio(from: audioURL)
+            
+            await MainActor.run {
+                isLoadingAudio = false
+            }
+        } catch {
+            await MainActor.run {
+                audioError = "Failed to load audio: \(error.localizedDescription)"
+                isLoadingAudio = false
+            }
+        }
+    }
+    
     private func deleteEvidence() {
+        // Clean up audio player if playing a voice note
+        if evidence is VoiceNote {
+            audioPlayer.cleanup()
+        }
+        
         if let voiceNote = evidence as? VoiceNote {
             modelContext.delete(voiceNote)
         } else if let photo = evidence as? PhotoEvidence {
