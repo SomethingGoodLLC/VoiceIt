@@ -17,8 +17,18 @@ final class Lawyer {
     /// Bar association memberships
     var barAdmissions: [String]
     
-    /// Specializations
-    var specializations: [LegalSpecialization]
+    /// Specializations (stored as raw values)
+    private var specializationsRawValues: [String]
+    
+    /// Specializations computed property
+    var specializations: [LegalSpecialization] {
+        get {
+            specializationsRawValues.compactMap { LegalSpecialization(rawValue: $0) }
+        }
+        set {
+            specializationsRawValues = newValue.map { $0.rawValue }
+        }
+    }
     
     /// Professional bio
     var bio: String
@@ -41,8 +51,19 @@ final class Lawyer {
     /// Whether accepting new consultations
     var isAcceptingConsultations: Bool
     
-    /// Available time slots for booking
-    var availableSlots: [ConsultationTimeSlot]
+    /// Available time slots for booking (stored as JSON)
+    private var availableSlotsData: Data?
+    
+    /// Available time slots computed property
+    var availableSlots: [ConsultationTimeSlot] {
+        get {
+            guard let data = availableSlotsData else { return [] }
+            return (try? JSONDecoder().decode([ConsultationTimeSlot].self, from: data)) ?? []
+        }
+        set {
+            availableSlotsData = try? JSONEncoder().encode(newValue)
+        }
+    }
     
     init(
         id: UUID = UUID(),
@@ -63,7 +84,7 @@ final class Lawyer {
         self.name = name
         self.firm = firm
         self.barAdmissions = barAdmissions
-        self.specializations = specializations
+        self.specializationsRawValues = specializations.map { $0.rawValue }
         self.bio = bio
         self.yearsOfExperience = yearsOfExperience
         self.rating = rating
@@ -71,7 +92,7 @@ final class Lawyer {
         self.jurisdictions = jurisdictions
         self.photoURL = photoURL
         self.isAcceptingConsultations = isAcceptingConsultations
-        self.availableSlots = availableSlots
+        self.availableSlotsData = try? JSONEncoder().encode(availableSlots)
     }
 }
 

@@ -11,6 +11,7 @@ struct OnboardingView: View {
     @State private var showingAuthSetup = false
     @State private var showingEmergencyContactsSetup = false
     @State private var showingSafetyPlan = false
+    @State private var showingEmailSignup = false
     
     @Environment(\.authenticationService) private var authService
     @Environment(\.stealthModeService) private var stealthService
@@ -57,7 +58,8 @@ struct OnboardingView: View {
                             currentPage += 1
                         }
                     } else {
-                        showingAuthSetup = true
+                        // After last onboarding page, show email signup (REQUIRED)
+                        showingEmailSignup = true
                     }
                 } label: {
                     Text(currentPage < 6 ? "Continue" : "Get Started")
@@ -70,15 +72,12 @@ struct OnboardingView: View {
                 }
                 .padding()
                 
-                // Skip button for later pages
-                if currentPage >= 4 {
+                // Skip button for middle pages (4-5) only - NOT on the last page (6)
+                // Email signup is MANDATORY before proceeding
+                if currentPage >= 4 && currentPage < 6 {
                     Button("Skip for Now") {
-                        if currentPage < 6 {
-                            withAnimation {
-                                currentPage = 6
-                            }
-                        } else {
-                            showingAuthSetup = true
+                        withAnimation {
+                            currentPage = 6
                         }
                     }
                     .font(.footnote)
@@ -86,6 +85,14 @@ struct OnboardingView: View {
                     .padding(.bottom)
                 }
             }
+        }
+        .sheet(isPresented: $showingEmailSignup) {
+            EmailSignupView(
+                isAuthenticated: $isAuthenticated,
+                hasCompletedOnboarding: $hasCompletedOnboarding,
+                showingAuthSetup: $showingAuthSetup
+            )
+            .interactiveDismissDisabled() // CRITICAL: Email signup is MANDATORY - cannot be dismissed
         }
         .sheet(isPresented: $showingAuthSetup) {
             AuthenticationSetupView(isAuthenticated: $isAuthenticated, hasCompletedOnboarding: $hasCompletedOnboarding)
@@ -532,18 +539,6 @@ struct AuthenticationSetupView: View {
                     .clipShape(RoundedRectangle(cornerRadius: Constants.UI.cornerRadius))
                 }
             }
-            
-            // Skip button
-            Button {
-                isAuthenticated = true
-                hasCompletedOnboarding = true
-                dismiss()
-            } label: {
-                Text("Skip (Not Recommended)")
-                    .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.7))
-            }
-            .padding(.top, 8)
         }
     }
     
@@ -757,6 +752,289 @@ struct AuthenticationSetupView: View {
         } catch {
             errorMessage = "Failed to enable biometrics: \(error.localizedDescription)"
         }
+    }
+}
+
+// MARK: - Email Signup View (Required Step)
+
+struct EmailSignupView: View {
+    @Binding var isAuthenticated: Bool
+    @Binding var hasCompletedOnboarding: Bool
+    @Binding var showingAuthSetup: Bool
+    
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var isLoginMode = false // Switch between login and signup
+    @State private var email = ""
+    @State private var password = ""
+    @State private var confirmPassword = ""
+    @State private var name = ""
+    @State private var isLoading = false
+    @State private var errorMessage = ""
+    @FocusState private var focusedField: Field?
+    
+    private let apiService = APIService.shared
+    
+    enum Field {
+        case name, email, password, confirmPassword
+    }
+    
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.voiceitGradient
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 30) {
+                        // Header
+                        VStack(spacing: 16) {
+                            Image(systemName: isLoginMode ? "person.circle.fill" : "envelope.circle.fill")
+                                .font(.system(size: 60))
+                                .foregroundStyle(.white)
+                            
+                            Text(isLoginMode ? "Welcome Back" : "Create Your Account")
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .foregroundStyle(.white)
+                            
+                            Text(isLoginMode ? "Log in to access your account" : "Sign up to get started")
+                                .font(.subheadline)
+                                .foregroundStyle(.white.opacity(0.9))
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal)
+                            
+                            // Toggle between login and signup (TOP POSITION)
+                            Button {
+                                withAnimation {
+                                    isLoginMode.toggle()
+                                    confirmPassword = ""
+                                    errorMessage = ""
+                                }
+                            } label: {
+                                Text(isLoginMode ? "Don't have an account? Sign Up" : "Already have an account? Log In")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(.white)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
+                                    .background(.white.opacity(0.2))
+                                    .cornerRadius(8)
+                            }
+                            .padding(.top, 4)
+                        }
+                        .padding(.top, 20)
+                        
+                        // Form fields
+                        VStack(spacing: 16) {
+                            // Name field (optional) - only for signup
+                            if !isLoginMode {
+                                TextField("Name (optional)", text: $name)
+                                    .textContentType(.name)
+                                    .onboardingTextFieldStyle()
+                                    .focused($focusedField, equals: .name)
+                                    .submitLabel(.next)
+                                    .onSubmit { focusedField = .email }
+                            }
+                            
+                            // Email field
+                            TextField("Email", text: $email)
+                                .textContentType(isLoginMode ? .emailAddress : .emailAddress)
+                                .keyboardType(.emailAddress)
+                                .autocapitalization(.none)
+                                .onboardingTextFieldStyle()
+                                .focused($focusedField, equals: .email)
+                                .submitLabel(.next)
+                                .onSubmit { focusedField = .password }
+                            
+                            // Password field
+                            SecureField(isLoginMode ? "Password" : "Password (min 6 characters)", text: $password)
+                                .textContentType(isLoginMode ? .password : .newPassword)
+                                .onboardingTextFieldStyle()
+                                .focused($focusedField, equals: .password)
+                                .submitLabel(isLoginMode ? .done : .next)
+                                .onSubmit {
+                                    if isLoginMode {
+                                        handleAuth()
+                                    } else {
+                                        focusedField = .confirmPassword
+                                    }
+                                }
+                            
+                            // Confirm password field - only for signup
+                            if !isLoginMode {
+                                SecureField("Confirm Password", text: $confirmPassword)
+                                    .textContentType(.newPassword)
+                                    .onboardingTextFieldStyle()
+                                    .focused($focusedField, equals: .confirmPassword)
+                                    .submitLabel(.done)
+                                    .onSubmit { handleAuth() }
+                                
+                                // Password match indicator
+                                if !confirmPassword.isEmpty {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: password == confirmPassword ? "checkmark.circle.fill" : "xmark.circle.fill")
+                                            .foregroundStyle(password == confirmPassword ? .green : .red)
+                                        Text(password == confirmPassword ? "Passwords match" : "Passwords don't match")
+                                            .font(.caption)
+                                            .foregroundStyle(.white)
+                                    }
+                                }
+                            }
+                            
+                            // Requirements
+                            if !isLoginMode {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    requirementRow(met: !email.isEmpty && email.contains("@"), text: "Valid email address")
+                                    requirementRow(met: password.count >= 6, text: "At least 6 characters")
+                                    requirementRow(met: password == confirmPassword && !password.isEmpty, text: "Passwords match")
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                        
+                        // Privacy note
+                        if !isLoginMode {
+                            VStack(spacing: 12) {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "lock.shield.fill")
+                                        .foregroundStyle(.white.opacity(0.8))
+                                    Text("Your evidence stays encrypted on your device. Your email is only used for account management.")
+                                        .font(.caption)
+                                        .foregroundStyle(.white.opacity(0.8))
+                                }
+                                .padding()
+                                .background(.white.opacity(0.15))
+                                .cornerRadius(12)
+                            }
+                            .padding(.horizontal)
+                        }
+                        
+                        // Action button (Login or Create Account)
+                        Button {
+                            handleAuth()
+                        } label: {
+                            if isLoading {
+                                ProgressView()
+                                    .tint(.white)
+                            } else {
+                                Text(isLoginMode ? "Log In" : "Create Account")
+                                    .font(.headline)
+                            }
+                        }
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(isFormValid ? .white.opacity(0.25) : .white.opacity(0.1))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .disabled(!isFormValid || isLoading)
+                        .padding(.horizontal)
+                        
+                        // Error message
+                        if !errorMessage.isEmpty {
+                            Text(errorMessage)
+                                .foregroundStyle(.white)
+                                .font(.caption)
+                                .padding()
+                                .background(.red.opacity(0.3))
+                                .cornerRadius(12)
+                                .padding(.horizontal)
+                        }
+                    }
+                    .padding(.bottom, 30)
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+    
+    // MARK: - Helpers
+    
+    private var isFormValid: Bool {
+        let emailValid = !email.isEmpty && email.contains("@")
+        let passwordValid = password.count >= 6
+        
+        if isLoginMode {
+            // For login, just need email and password
+            return emailValid && !password.isEmpty
+        } else {
+            // For signup, need password confirmation too
+            return emailValid && passwordValid && password == confirmPassword
+        }
+    }
+    
+    private func requirementRow(met: Bool, text: String) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: met ? "checkmark.circle.fill" : "circle")
+                .foregroundStyle(met ? .green : .white.opacity(0.5))
+                .font(.caption)
+            Text(text)
+                .font(.caption)
+                .foregroundStyle(.white)
+        }
+    }
+    
+    // MARK: - Actions
+    
+    private func handleAuth() {
+        guard isFormValid else { return }
+        
+        Task {
+            isLoading = true
+            errorMessage = ""
+            
+            do {
+                let response: AuthResponse
+                
+                if isLoginMode {
+                    // Login existing user
+                    response = try await apiService.login(email: email, password: password)
+                } else {
+                    // Sign up new user
+                    response = try await apiService.signUp(
+                        email: email,
+                        password: password,
+                        name: name.isEmpty ? nil : name
+                    )
+                }
+                
+                if response.success {
+                    // Success - dismiss email signup and show authentication setup
+                    await MainActor.run {
+                        dismiss()
+                        // Small delay to allow sheet to dismiss
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            showingAuthSetup = true
+                        }
+                    }
+                } else {
+                    errorMessage = response.message ?? (isLoginMode ? "Login failed. Please try again." : "Signup failed. Please try again.")
+                }
+            } catch {
+                errorMessage = "Network error: \(error.localizedDescription)"
+            }
+            
+            isLoading = false
+        }
+    }
+}
+
+// MARK: - Text Field Style
+
+private struct OnboardingTextFieldStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding()
+            .background(.white.opacity(0.2))
+            .foregroundStyle(.white)
+            .cornerRadius(12)
+            .tint(.white)
+    }
+}
+
+private extension View {
+    func onboardingTextFieldStyle() -> some View {
+        modifier(OnboardingTextFieldStyle())
     }
 }
 

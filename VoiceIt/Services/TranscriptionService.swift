@@ -17,7 +17,7 @@ enum TranscriptionMode: String, CaseIterable, Codable {
         }
     }
     
-    var icon: String {
+    var icon: String { 
         switch self {
         case .apple: return "cloud"
         case .whisper: return "lock.fill"
@@ -113,9 +113,8 @@ final class TranscriptionService: @unchecked Sendable {
     
     /// Start live transcription from microphone
     func startLiveTranscription(onUpdate: @escaping @Sendable (String) -> Void) async throws {
-        // Cancel any existing task
-        recognitionTask?.cancel()
-        recognitionTask = nil
+        // Stop any existing transcription first to remove existing tap
+        stopLiveTranscription()
         
         // Configure audio session
         let audioSession = AVAudioSession.sharedInstance()
@@ -149,7 +148,7 @@ final class TranscriptionService: @unchecked Sendable {
             }
         }
         
-        // Configure audio tap
+        // Configure audio tap - CRITICAL: Remove any existing tap first (already done in stopLiveTranscription above)
         let recordingFormat = inputNode.outputFormat(forBus: 0)
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { buffer, _ in
             recognitionRequest.append(buffer)
@@ -162,8 +161,16 @@ final class TranscriptionService: @unchecked Sendable {
     
     /// Stop live transcription
     func stopLiveTranscription() {
-        audioEngine.stop()
-        audioEngine.inputNode.removeTap(onBus: 0)
+        // Stop audio engine if running
+        if audioEngine.isRunning {
+            audioEngine.stop()
+        }
+        
+        // Remove tap safely - only if engine has input node with tap installed
+        // This prevents crashes when called multiple times
+        if audioEngine.inputNode.numberOfInputs > 0 {
+            audioEngine.inputNode.removeTap(onBus: 0)
+        }
         
         recognitionRequest?.endAudio()
         recognitionRequest = nil

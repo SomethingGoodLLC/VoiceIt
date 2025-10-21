@@ -26,6 +26,7 @@ struct PanicButtonView: View {
     @State private var countdownSeconds = 3
     @State private var isActivated = false
     @State private var showHelpTooltip = false
+    @State private var showComingSoonAlert = false
     
     // Haptics
     @State private var hapticEngine: CHHapticEngine?
@@ -80,6 +81,11 @@ struct PanicButtonView: View {
         }
         .sheet(isPresented: $showCancelSheet) {
             cancelSheet
+        }
+        .alert("Feature Coming Soon", isPresented: $showComingSoonAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("Emergency alert functionality is currently in development. This feature will allow you to quickly alert your emergency contacts and start recording evidence in critical situations.")
         }
     }
     
@@ -374,21 +380,13 @@ struct PanicButtonView: View {
     
     private func activatePanic() {
         print("⚠️ Panic activated!")
-        isActivated = true
         stopHolding()
         
         // Strong haptic feedback
         playStrongHaptic()
         
-        // Show cancel sheet
-        showCancelSheet = true
-        countdownSeconds = 3
-        
-        print("📱 Starting emergency sequence...")
-        // Start countdown
-        Task {
-            await startEmergencySequence()
-        }
+        // Show coming soon alert instead of activating emergency
+        showComingSoonAlert = true
     }
     
     private func startEmergencySequence() async {

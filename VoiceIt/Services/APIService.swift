@@ -177,6 +177,40 @@ final class APIService: @unchecked Sendable {
         currentUser = nil
     }
     
+    // MARK: - Analytics
+    
+    /// Track app open event (fire and forget - doesn't throw errors)
+    func trackAppOpen() {
+        guard let token = authToken else { return }
+        
+        Task {
+            do {
+                let url = URL(string: "\(Constants.API.baseURL)\(Constants.API.Endpoints.trackAppOpen)")!
+                var request = URLRequest(url: url)
+                request.httpMethod = "POST"
+                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+                request.timeoutInterval = 10 // Short timeout for analytics
+                
+                let body: [String: Any] = [
+                    "timestamp": ISO8601DateFormatter().string(from: Date()),
+                    "platform": "ios",
+                    "app_version": Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "unknown"
+                ]
+                request.httpBody = try JSONSerialization.data(withJSONObject: body)
+                
+                let (_, response) = try await URLSession.shared.data(for: request)
+                
+                if let httpResponse = response as? HTTPURLResponse {
+                    print("📊 App open tracked: \(httpResponse.statusCode)")
+                }
+            } catch {
+                // Silently fail - analytics shouldn't block the app
+                print("⚠️ Failed to track app open: \(error.localizedDescription)")
+            }
+        }
+    }
+    
     // MARK: - Timeline
     
     /// Get all timeline entries from backend

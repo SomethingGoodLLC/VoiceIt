@@ -19,6 +19,11 @@ enum Constants {
             in: .userDomainMask
         )[0]
         
+        static let applicationSupportDirectory = FileManager.default.urls(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask
+        )[0]
+        
         static let evidenceDirectory = documentsDirectory.appendingPathComponent("Evidence")
         static let audioDirectory = evidenceDirectory.appendingPathComponent("Audio")
         static let photoDirectory = evidenceDirectory.appendingPathComponent("Photos")
@@ -104,11 +109,14 @@ enum Constants {
             static let login = "/api/auth/login"
             static let logout = "/api/auth/logout"
             static let verifyToken = "/api/auth/verify"
-            static let forgotPassword = "/api/auth/forgot-password"
+            static let forgotPassword = "/forgot-password"
             static let resetPassword = "/api/auth/reset-password"
             
             // Timeline
             static let timelineEntries = "/api/timeline/entries"
+            
+            // Analytics
+            static let trackAppOpen = "/api/analytics/app-open"
             
             // Waitlist
             static let waitlist = "/api/app/waitlist"
@@ -132,6 +140,7 @@ extension Constants.Storage {
     /// Create all required directories
     static func createDirectories() throws {
         let directories = [
+            applicationSupportDirectory, // Required for SwiftData/CoreData
             evidenceDirectory,
             audioDirectory,
             photoDirectory,

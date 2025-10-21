@@ -14,6 +14,9 @@ struct ContentView: View {
     @Environment(\.emergencyService) private var emergencyService
     @Environment(\.locationService) private var locationService
     @Environment(\.audioRecordingService) private var audioRecordingService
+    @Environment(\.scenePhase) private var scenePhase
+    
+    private let apiService = APIService.shared
     
     // MARK: - Body
     
@@ -36,6 +39,12 @@ struct ContentView: View {
                     // Normal app with tabs and panic button
                     mainContentWithPanicButton
                 }
+            }
+        }
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            // Track app open when user brings app to foreground
+            if newPhase == .active && isAuthenticated && apiService.isAuthenticated {
+                apiService.trackAppOpen()
             }
         }
     }

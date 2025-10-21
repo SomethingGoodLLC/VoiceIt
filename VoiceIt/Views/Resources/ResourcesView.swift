@@ -30,6 +30,11 @@ struct ResourcesView: View {
                 .pickerStyle(.segmented)
                 .padding()
                 
+                // Disclaimer banner
+                disclaimerBanner
+                    .padding(.horizontal)
+                    .padding(.bottom, 8)
+                
                 // Tab content
                 Group {
                     switch selectedTab {
@@ -86,6 +91,32 @@ struct ResourcesView: View {
                 }
             }
         }
+    }
+    
+    // MARK: - Disclaimer Banner
+    
+    private var disclaimerBanner: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "info.circle.fill")
+                .font(.title3)
+                .foregroundStyle(.orange)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Demo Resources")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.primary)
+                
+                Text("Sample data shown. Verify resources before use.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            Spacer()
+        }
+        .padding(12)
+        .background(Color.orange.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
     
     // MARK: - Load Resources

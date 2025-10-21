@@ -38,8 +38,19 @@ final class Therapist {
     /// Whether accepting new clients
     var isAcceptingClients: Bool
     
-    /// Available time slots for booking
-    var availableSlots: [TherapyTimeSlot]
+    /// Available time slots for booking (stored as JSON)
+    private var availableSlotsData: Data?
+    
+    /// Available time slots computed property
+    var availableSlots: [TherapyTimeSlot] {
+        get {
+            guard let data = availableSlotsData else { return [] }
+            return (try? JSONDecoder().decode([TherapyTimeSlot].self, from: data)) ?? []
+        }
+        set {
+            availableSlotsData = try? JSONEncoder().encode(newValue)
+        }
+    }
     
     init(
         id: UUID = UUID(),
@@ -66,7 +77,7 @@ final class Therapist {
         self.reviewCount = reviewCount
         self.photoURL = photoURL
         self.isAcceptingClients = isAcceptingClients
-        self.availableSlots = availableSlots
+        self.availableSlotsData = try? JSONEncoder().encode(availableSlots)
     }
 }
 

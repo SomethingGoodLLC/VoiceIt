@@ -205,7 +205,7 @@
 		C254C4009DB93C85720B8DC8 /* CommunityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityService.swift; sourceTree = "<group>"; };
 		C3C1EBFC0599DA596BAF5006 /* TherapyListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapyListView.swift; sourceTree = "<group>"; };
 		C4AB1A622901DFE88E824C7C /* Wellness@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Wellness@2x.png"; sourceTree = "<group>"; };
-		C56DD62E7B1EFD99B3E7962D /* VoiceIt.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VoiceIt.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C56DD62E7B1EFD99B3E7962D /* VoiceItTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = file; name = VoiceItTests.xctest; path = VoiceIt.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5DAF7B9778A99B0143BC8CE /* Calculator@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Calculator@3x.png"; sourceTree = "<group>"; };
 		C694B7F01B3B5C198172DF9A /* NationalHotlineRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NationalHotlineRow.swift; sourceTree = "<group>"; };
 		C82E53A51D445386782E277F /* TimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineView.swift; sourceTree = "<group>"; };
@@ -402,7 +402,7 @@
 			isa = PBXGroup;
 			children = (
 				EBDF9E126E14F247F4ECE8CF /* VoiceIt.app */,
-				C56DD62E7B1EFD99B3E7962D /* VoiceIt.xctest */,
+				C56DD62E7B1EFD99B3E7962D /* VoiceItTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -601,7 +601,7 @@
 			packageProductDependencies = (
 			);
 			productName = VoiceItTests;
-			productReference = C56DD62E7B1EFD99B3E7962D /* VoiceIt.xctest */;
+			productReference = C56DD62E7B1EFD99B3E7962D /* VoiceItTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		C9D03060E779AE21BC4A594A /* VoiceIt */ = {
@@ -634,7 +634,6 @@
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					C9D03060E779AE21BC4A594A = {
-						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -809,7 +808,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 6DR6N9843T;
 				INFOPLIST_FILE = VoiceIt/Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -833,7 +832,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 6DR6N9843T;
 				INFOPLIST_FILE = VoiceIt/Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -854,7 +853,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -911,7 +909,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = VoiceIt;
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_STRICT_CONCURRENCY = complete;
@@ -957,7 +954,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -1007,7 +1003,6 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = VoiceIt;
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_STRICT_CONCURRENCY = complete;

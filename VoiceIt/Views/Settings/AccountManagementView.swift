@@ -13,6 +13,8 @@ struct AccountManagementView: View {
     @State private var isLoading = false
     @State private var errorMessage = ""
     @State private var showingForgotPassword = false
+    @State private var isAuthenticated = false
+    @State private var loginFailed = false
     
     private let apiService = APIService.shared
     
@@ -50,16 +52,8 @@ struct AccountManagementView: View {
                         }
                         .padding(.top, 30)
                         
-                        // Content based on state
-                        if apiService.isAuthenticated {
-                            loggedInView
-                        } else {
-                            if viewMode == .login {
-                                loginView
-                            } else {
-                                signupView
-                            }
-                        }
+                        // Content - Always show logged in view since users must sign in during onboarding
+                        loggedInView
                         
                         // Error message
                         if !errorMessage.isEmpty {
@@ -86,6 +80,16 @@ struct AccountManagementView: View {
             }
             .sheet(isPresented: $showingForgotPassword) {
                 ForgotPasswordView()
+            }
+            .onAppear {
+                // Check authentication state when view appears
+                // Users should always be authenticated since it's required during onboarding
+                isAuthenticated = apiService.isAuthenticated
+                
+                // If somehow not authenticated, log them out to force re-onboarding
+                if !apiService.isAuthenticated {
+                    print("⚠️ User accessed Account Management without being authenticated. This should not happen.")
+                }
             }
         }
     }
@@ -123,13 +127,37 @@ struct AccountManagementView: View {
             .buttonStyle(.primary)
             .disabled(isLoading || email.isEmpty || password.isEmpty)
             
-            // Forgot password
-            Button {
-                showingForgotPassword = true
-            } label: {
-                Text("Forgot Password?")
-                    .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.8))
+            // Forgot password - more prominent after failed login
+            if loginFailed {
+                VStack(spacing: 8) {
+                    Text("Trouble logging in?")
+                        .font(.subheadline)
+                        .foregroundStyle(.white)
+                    
+                    Button {
+                        showingForgotPassword = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "envelope.fill")
+                            Text("Reset Your Password")
+                        }
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(.white.opacity(0.25))
+                        .cornerRadius(12)
+                    }
+                }
+                .padding(.top, 8)
+            } else {
+                Button {
+                    showingForgotPassword = true
+                } label: {
+                    Text("Forgot Password?")
+                        .font(.subheadline)
+                        .foregroundStyle(.white.opacity(0.8))
+                }
             }
             
             // Divider
@@ -151,22 +179,13 @@ struct AccountManagementView: View {
                 withAnimation {
                     viewMode = .signup
                     errorMessage = ""
+                    loginFailed = false
                 }
             } label: {
                 Text("Create New Account")
                     .font(.headline)
             }
             .buttonStyle(.secondary)
-            
-            // Skip button
-            Button {
-                dismiss()
-            } label: {
-                Text("Skip for Now")
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.6))
-            }
-            .padding(.top, 8)
         }
         .padding(.horizontal)
     }
@@ -251,6 +270,7 @@ struct AccountManagementView: View {
                 withAnimation {
                     viewMode = .login
                     errorMessage = ""
+                    loginFailed = false
                 }
             } label: {
                 Text("Already Have an Account?")
@@ -341,20 +361,29 @@ struct AccountManagementView: View {
     private func handleLogin() async {
         isLoading = true
         errorMessage = ""
+        loginFailed = false
         
         do {
             let response = try await apiService.login(email: email, password: password)
             
             if response.success {
-                // Success - dismiss view
+                // Success - update state and dismiss view
                 await MainActor.run {
+                    isAuthenticated = true
+                    loginFailed = false
                     dismiss()
                 }
             } else {
-                errorMessage = response.message ?? "Login failed"
+                await MainActor.run {
+                    errorMessage = response.message ?? "Login failed"
+                    loginFailed = true
+                }
             }
         } catch {
-            errorMessage = error.localizedDescription
+            await MainActor.run {
+                errorMessage = error.localizedDescription
+                loginFailed = true
+            }
         }
         
         isLoading = false
@@ -382,8 +411,9 @@ struct AccountManagementView: View {
             )
             
             if response.success {
-                // Success - dismiss view
+                // Success - update state and dismiss view
                 await MainActor.run {
+                    isAuthenticated = true
                     dismiss()
                 }
             } else {
@@ -403,6 +433,7 @@ struct AccountManagementView: View {
         password = ""
         confirmPassword = ""
         name = ""
+        isAuthenticated = false
         viewMode = .login
     }
 }
