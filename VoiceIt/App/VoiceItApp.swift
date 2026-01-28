@@ -22,6 +22,7 @@ struct VoiceItApp: App {
     private let notificationService: NotificationService
     private let apiService: APIService
     private let timelineSyncService: TimelineSyncService
+    @StateObject private var roadmapStore: RoadmapStore // StateObject for lifecycle
     
     // MARK: - Initialization
     
@@ -74,6 +75,7 @@ struct VoiceItApp: App {
         notificationService = NotificationService()
         apiService = APIService.shared
         timelineSyncService = TimelineSyncService.shared
+        _roadmapStore = StateObject(wrappedValue: RoadmapStore()) // Initialize StateObject
         
         // Create required storage directories
         do {
@@ -102,6 +104,7 @@ struct VoiceItApp: App {
                 .environment(\.notificationService, notificationService)
                 .environment(\.apiService, apiService)
                 .environment(\.timelineSyncService, timelineSyncService)
+                .environmentObject(roadmapStore)
         }
     }
 }
@@ -131,3 +134,4 @@ extension EnvironmentValues {
 extension EnvironmentValues {
     @Entry var communityService: CommunityService = CommunityService()
 }
+// Note: RoadmapStore is injected as @EnvironmentObject, not EnvironmentValues

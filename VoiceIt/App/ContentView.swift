@@ -4,6 +4,14 @@ import SwiftUI
 struct ContentView: View {
     // MARK: - Properties
     
+    // DEMO MODE: Set to true to bypass authentication for demos
+    // Set back to false before shipping!
+    #if DEBUG
+    private let demoMode = false
+    #else
+    private let demoMode = false
+    #endif
+    
     @State private var selectedTab = 0
     @State private var isAuthenticated = false
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
@@ -22,11 +30,11 @@ struct ContentView: View {
     
     var body: some View {
         Group {
-            if !hasCompletedOnboarding {
-                // Show onboarding only once
+            if !hasCompletedOnboarding && !demoMode {
+                // Show onboarding only once (skip in demo mode)
                 OnboardingView(isAuthenticated: $isAuthenticated, hasCompletedOnboarding: $hasCompletedOnboarding)
-            } else if !isAuthenticated {
-                // Show authentication if onboarding is done but not authenticated
+            } else if !isAuthenticated && !demoMode {
+                // Show authentication if onboarding is done but not authenticated (skip in demo mode)
                 authenticationPrompt
             } else {
                 // Show main app content with stealth mode wrapper
@@ -42,8 +50,8 @@ struct ContentView: View {
             }
         }
         .onChange(of: scenePhase) { oldPhase, newPhase in
-            // Track app open when user brings app to foreground
-            if newPhase == .active && isAuthenticated && apiService.isAuthenticated {
+            // Track app open when user brings app to foreground (skip in demo mode)
+            if newPhase == .active && (isAuthenticated || demoMode) && apiService.isAuthenticated && !demoMode {
                 apiService.trackAppOpen()
             }
         }

@@ -859,7 +859,7 @@ final class ExportService {
     }
     
     private func createReadmeFile(documentID: String, evidenceCount: Int) -> String {
-        var readme = """
+        let readme = """
         ╔══════════════════════════════════════════════════════════════╗
         ║                  VOICE IT - EVIDENCE EXPORT                  ║
         ║                    Complete Archive Package                   ║

@@ -46,7 +46,9 @@ struct ScreenshotDetectorView: UIViewRepresentable {
                 queue: .main
             ) { _ in
                 // Provide haptic feedback when screenshot is attempted
-                HapticService.shared.warning()
+                MainActor.assumeIsolated {
+                    HapticService.shared.warning()
+                }
             }
         }
         

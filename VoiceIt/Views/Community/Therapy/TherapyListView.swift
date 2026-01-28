@@ -6,6 +6,7 @@ struct TherapyListView: View {
     @Environment(\.communityService) private var communityService
     @State private var selectedSpecialization: String?
     @State private var selectedTherapist: Therapist?
+    @EnvironmentObject var roadmapStore: RoadmapStore
     
     var allSpecializations: [String] {
         var specs = Set<String>()
@@ -25,8 +26,8 @@ struct TherapyListView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                // Coming Soon Banner
-                comingSoonBanner
+                // Roadmap Banner
+                RoadmapPreviewBanner(featureId: "therapy-sessions")
                 
                 // Info Banner
                 infoBanner
@@ -60,28 +61,7 @@ struct TherapyListView: View {
         }
     }
     
-    private var comingSoonBanner: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "sparkles")
-                .font(.title2)
-                .foregroundStyle(.orange)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Feature Coming Soon")
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                
-                Text("Demo data shown below. Real therapy sessions launching soon!")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            
-            Spacer()
-        }
-        .padding()
-        .background(Color.orange.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
+    // removed comingSoonBanner
     
     private var infoBanner: some View {
         VStack(alignment: .leading, spacing: 12) {

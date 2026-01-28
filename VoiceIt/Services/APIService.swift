@@ -11,11 +11,8 @@ final class APIService: @unchecked Sendable {
     
     /// Current authentication token
     var authToken: String? {
-        get {
-            KeychainManager.shared.retrieveString(key: .authToken)
-        }
-        set {
-            if let token = newValue {
+        didSet {
+            if let token = authToken {
                 try? KeychainManager.shared.save(token.data(using: .utf8) ?? Data(), key: .authToken)
             } else {
                 try? KeychainManager.shared.delete(key: .authToken)
@@ -33,7 +30,10 @@ final class APIService: @unchecked Sendable {
     
     // MARK: - Initialization
     
-    private init() {}
+    private init() {
+        // Load token from keychain on startup
+        self.authToken = KeychainManager.shared.retrieveString(key: .authToken)
+    }
     
     // MARK: - Authentication
     
@@ -313,6 +313,149 @@ final class APIService: @unchecked Sendable {
             throw APIError.invalidResponse
         }
     }
+    
+    // MARK: - Roadmap
+    
+    /// Submit a vote for a roadmap feature
+    func submitRoadmapVote(
+        featureId: String,
+        voteType: String, // "interested" or "not_important"
+        anonUserId: String
+    ) async throws -> RoadmapVoteResponse {
+        let url = URL(string: "\(Constants.API.baseURL)\(Constants.API.Endpoints.roadmapVote)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = Constants.Network.requestTimeout
+        
+        let body: [String: Any] = [
+            "feature_id": featureId,
+            "vote_type": voteType,
+            "anon_user_id": anonUserId,
+            "source": "ios",
+            "timestamp": ISO8601DateFormatter().string(from: Date())
+        ]
+        
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        switch httpResponse.statusCode {
+        case 200...299:
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            return try decoder.decode(RoadmapVoteResponse.self, from: data)
+            
+        case 400...499:
+            if let errorResponse = try? JSONDecoder().decode(RoadmapVoteResponse.self, from: data),
+               let message = errorResponse.message {
+                throw APIError.serverError(message)
+            }
+            throw APIError.serverError("Invalid vote request.")
+            
+        case 500...599:
+            throw APIError.serverError("Server error. Please try again later.")
+            
+        default:
+            throw APIError.invalidResponse
+        }
+    }
+    
+    /// Get vote counts for all roadmap features
+    func getRoadmapVoteCounts() async throws -> [String: RoadmapVoteCounts] {
+        let url = URL(string: "\(Constants.API.baseURL)\(Constants.API.Endpoints.roadmapVoteCounts)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.timeoutInterval = Constants.Network.requestTimeout
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw APIError.invalidResponse
+        }
+        
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        let countsResponse = try decoder.decode(RoadmapVoteCountsResponse.self, from: data)
+        
+        return countsResponse.counts
+    }
+    
+    /// Submit a sponsor referral for a roadmap feature
+    func submitSponsorReferral(
+        featureId: String,
+        yourName: String,
+        yourEmail: String,
+        yourPhone: String?,
+        sponsorName: String,
+        sponsorEmail: String?,
+        sponsorPhone: String?,
+        relationship: String?,
+        comments: String?,
+        anonUserId: String
+    ) async throws -> SponsorReferralResponse {
+        let url = URL(string: "\(Constants.API.baseURL)\(Constants.API.Endpoints.roadmapSponsorReferral)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = Constants.Network.requestTimeout
+        
+        let body: [String: Any?] = [
+            "feature_id": featureId,
+            "referrer": [
+                "name": yourName,
+                "email": yourEmail,
+                "phone": yourPhone
+            ],
+            "sponsor": [
+                "name": sponsorName,
+                "email": sponsorEmail,
+                "phone": sponsorPhone
+            ],
+            "relationship": relationship,
+            "comments": comments,
+            "anon_user_id": anonUserId,
+            "source": "ios",
+            "timestamp": ISO8601DateFormatter().string(from: Date())
+        ]
+        
+        // Remove nil values
+        let cleanedBody = body.compactMapValues { $0 }
+        request.httpBody = try JSONSerialization.data(withJSONObject: cleanedBody)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        // Handle different status codes
+        switch httpResponse.statusCode {
+        case 200...299:
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            return try decoder.decode(SponsorReferralResponse.self, from: data)
+            
+        case 400...499:
+            // Client error - try to parse error message
+            if let errorResponse = try? JSONDecoder().decode(SponsorReferralResponse.self, from: data),
+               let message = errorResponse.message {
+                throw APIError.serverError(message)
+            }
+            throw APIError.serverError("Invalid request. Please check your information.")
+            
+        case 500...599:
+            throw APIError.serverError("Server error. Please try again later.")
+            
+        default:
+            throw APIError.invalidResponse
+        }
+    }
 }
 
 // MARK: - Response Models
@@ -371,4 +514,27 @@ enum APIError: LocalizedError {
     }
 }
 
+// MARK: - Roadmap Models
+
+struct RoadmapVoteResponse: Codable {
+    let success: Bool
+    let message: String?
+    let voteId: String?
+}
+
+struct RoadmapVoteCounts: Codable {
+    let interested: Int
+    let skipped: Int
+}
+
+struct RoadmapVoteCountsResponse: Codable {
+    let success: Bool
+    let counts: [String: RoadmapVoteCounts]
+}
+
+struct SponsorReferralResponse: Codable {
+    let success: Bool
+    let message: String?
+    let referralId: String?
+}
 

@@ -11,7 +11,7 @@ struct ResourcesView: View {
     @State private var resources: [Resource] = []
     @State private var searchText = ""
     @State private var isLoading = false
-    @State private var selectedTab: ResourceTab = .map
+    @State private var selectedTab: ResourceTab = .contacts // Default to Contacts as verified source
     
     // MARK: - Body
     
@@ -39,7 +39,15 @@ struct ResourcesView: View {
                 Group {
                     switch selectedTab {
                     case .map:
-                        MapResourcesView(resources: resources)
+                        ZStack(alignment: .top) {
+                            MapResourcesView(resources: resources)
+                                .overlay(Color.black.opacity(0.05)) // Dim map slightly to show it's less prioritized? Or just keep as is but add banner.
+                                // Actually, user said "make that show as a preview/ I want this".
+                                // So we should probably overlay the preview banner on the map.
+                            
+                            RoadmapPreviewBanner(featureId: "shelter-map") // We need to add this feature ID
+                                .padding()
+                        }
                     case .list:
                         EnhancedListResourcesView(
                             resources: resources,

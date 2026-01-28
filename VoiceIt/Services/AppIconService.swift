@@ -7,6 +7,7 @@ final class AppIconService: @unchecked Sendable {
     // MARK: - Properties
     
     /// Current app icon
+    @MainActor
     var currentIcon: AppIcon {
         guard let iconName = UIApplication.shared.alternateIconName else {
             return .default
@@ -15,6 +16,7 @@ final class AppIconService: @unchecked Sendable {
     }
     
     /// Whether changing icons is supported
+    @MainActor
     var supportsAlternateIcons: Bool {
         UIApplication.shared.supportsAlternateIcons
     }

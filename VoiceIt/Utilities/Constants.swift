@@ -120,6 +120,11 @@ enum Constants {
             
             // Waitlist
             static let waitlist = "/api/app/waitlist"
+            
+            // Roadmap
+            static let roadmapVote = "/api/roadmap/vote"
+            static let roadmapVoteCounts = "/api/roadmap/vote-counts"
+            static let roadmapSponsorReferral = "/api/roadmap/sponsor-referral"
         }
     }
     

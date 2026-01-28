@@ -605,7 +605,7 @@ struct TimelineView: View {
         Task {
             do {
                 let image = try await fileStorageService.loadImage(photo.imageFilePath)
-                await MainActor.run {
+                _ = await MainActor.run {
                     loadedImages[photo.id] = image
                     loadingImageIds.remove(photo.id)
                 }

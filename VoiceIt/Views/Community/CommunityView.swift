@@ -4,7 +4,9 @@ import SwiftUI
 @available(iOS 18, *)
 struct CommunityView: View {
     @Environment(\.communityService) private var communityService
+    @EnvironmentObject var roadmapStore: RoadmapStore
     @State private var showPrivacySettings = false
+    @State private var showRoadmap = false
     
     var body: some View {
         NavigationStack {
@@ -29,12 +31,23 @@ struct CommunityView: View {
             .navigationTitle("Community")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showPrivacySettings = true
-                    } label: {
-                        Image(systemName: "gear")
+                    HStack {
+                        Button {
+                            showRoadmap = true
+                        } label: {
+                            Image(systemName: "map")
+                        }
+                        
+                        Button {
+                            showPrivacySettings = true
+                        } label: {
+                            Image(systemName: "gear")
+                        }
                     }
                 }
+            }
+            .sheet(isPresented: $showRoadmap) {
+                CommunityRoadmapView(store: roadmapStore)
             }
             .sheet(isPresented: $showPrivacySettings) {
                 PrivacySettingsView()
@@ -106,64 +119,104 @@ struct CommunityView: View {
     private var featuresGrid: some View {
         VStack(spacing: 16) {
             // Support Groups
-            NavigationLink {
-                SupportGroupsListView()
-            } label: {
-                FeatureCard(
-                    icon: "bubble.left.and.bubble.right.fill",
-                    title: "Anonymous Support Groups",
-                    description: "Join moderated discussions with others who understand",
-                    badge: "Anonymous",
-                    badgeColor: .green,
-                    gradient: [Color.purple, Color.blue]
-                )
+            if let feature = roadmapStore.features.first(where: { $0.id == "support-groups" }),
+               feature.status == .preview {
+                NavigationLink {
+                    SupportGroupsListView()
+                } label: {
+                    PreviewFeatureCard(feature: feature, store: roadmapStore)
+                }
+                .buttonStyle(.plain)
+            } else {
+                NavigationLink {
+                    SupportGroupsListView()
+                } label: {
+                    FeatureCard(
+                        icon: "bubble.left.and.bubble.right.fill",
+                        title: "Anonymous Support Groups",
+                        description: "Join moderated discussions with others who understand",
+                        badge: "Anonymous",
+                        badgeColor: .green,
+                        gradient: [Color.purple, Color.blue]
+                    )
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
             
             // Free Therapy
-            NavigationLink {
-                TherapyListView()
-            } label: {
-                FeatureCard(
-                    icon: "heart.text.square.fill",
-                    title: "Free Therapy Sessions",
-                    description: "Book 30-min video sessions with licensed therapists",
-                    badge: "Pro Bono",
-                    badgeColor: .pink,
-                    gradient: [Color.pink, Color.orange]
-                )
+            if let feature = roadmapStore.features.first(where: { $0.id == "therapy-sessions" }),
+               feature.status == .preview {
+                NavigationLink {
+                    TherapyListView()
+                } label: {
+                    PreviewFeatureCard(feature: feature, store: roadmapStore)
+                }
+                .buttonStyle(.plain)
+            } else {
+                NavigationLink {
+                    TherapyListView()
+                } label: {
+                    FeatureCard(
+                        icon: "heart.text.square.fill",
+                        title: "Free Therapy Sessions",
+                        description: "Book 30-min video sessions with licensed therapists",
+                        badge: "Pro Bono",
+                        badgeColor: .pink,
+                        gradient: [Color.pink, Color.orange]
+                    )
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
             
             // Legal Consultations
-            NavigationLink {
-                LawyersListView()
-            } label: {
-                FeatureCard(
-                    icon: "hammer.circle.fill",
-                    title: "Legal Consultations",
-                    description: "Connect with pro bono lawyers for initial consultations",
-                    badge: "Confidential",
-                    badgeColor: .blue,
-                    gradient: [Color.blue, Color.cyan]
-                )
+            if let feature = roadmapStore.features.first(where: { $0.id == "legal-consultations" }),
+               feature.status == .preview {
+                NavigationLink {
+                    LawyersListView()
+                } label: {
+                    PreviewFeatureCard(feature: feature, store: roadmapStore)
+                }
+                .buttonStyle(.plain)
+            } else {
+                NavigationLink {
+                    LawyersListView()
+                } label: {
+                    FeatureCard(
+                        icon: "hammer.circle.fill",
+                        title: "Legal Consultations",
+                        description: "Connect with pro bono lawyers for initial consultations",
+                        badge: "Confidential",
+                        badgeColor: .blue,
+                        gradient: [Color.blue, Color.cyan]
+                    )
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
             
             // Resource Library
-            NavigationLink {
-                ResourceLibraryView()
-            } label: {
-                FeatureCard(
-                    icon: "book.circle.fill",
-                    title: "Resource Library",
-                    description: "Articles, videos, guides, and downloadable checklists",
-                    badge: "\(communityService.articles.count) Resources",
-                    badgeColor: .orange,
-                    gradient: [Color.orange, Color.yellow]
-                )
+            if let feature = roadmapStore.features.first(where: { $0.id == "resource-library" }),
+               feature.status == .preview {
+                NavigationLink {
+                    ResourceLibraryView()
+                } label: {
+                    PreviewFeatureCard(feature: feature, store: roadmapStore)
+                }
+                .buttonStyle(.plain)
+            } else {
+                NavigationLink {
+                    ResourceLibraryView()
+                } label: {
+                    FeatureCard(
+                        icon: "book.circle.fill",
+                        title: "Resource Library",
+                        description: "Articles, videos, guides, and downloadable checklists",
+                        badge: "\(communityService.articles.count) Resources",
+                        badgeColor: .orange,
+                        gradient: [Color.orange, Color.yellow]
+                    )
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
     }
     
@@ -393,4 +446,5 @@ struct PrivacySettingsView: View {
 #Preview {
     CommunityView()
         .environment(\.communityService, CommunityService())
+        .environmentObject(RoadmapStore())
 }

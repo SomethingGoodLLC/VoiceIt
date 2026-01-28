@@ -29,8 +29,8 @@ struct ResourceLibraryView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                // Coming Soon Banner
-                comingSoonBanner
+                // Preview Banner
+                PreviewBanner()
                 
                 // Search Bar
                 searchBar
@@ -57,28 +57,7 @@ struct ResourceLibraryView: View {
         }
     }
     
-    private var comingSoonBanner: some View {
-        HStack(spacing: 12) {
-            Image(systemName: "sparkles")
-                .font(.title2)
-                .foregroundStyle(.orange)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Feature Coming Soon")
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                
-                Text("Demo data shown below. Real resource library launching soon!")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            
-            Spacer()
-        }
-        .padding()
-        .background(Color.orange.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
+    // removed comingSoonBanner
     
     private var searchBar: some View {
         HStack {

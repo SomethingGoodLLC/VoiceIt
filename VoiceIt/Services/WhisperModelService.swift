@@ -142,7 +142,8 @@ final class WhisperModelService: @unchecked Sendable {
     
     /// Convert M4A audio to WAV format (16kHz, mono) for WhisperKit
     private func convertToWAV(audioURL: URL) async throws -> URL {
-        let asset = AVAsset(url: audioURL)
+        // Use AVURLAsset instead of deprecated AVAsset(url:)
+        let asset = AVURLAsset(url: audioURL)
         
         guard let reader = try? AVAssetReader(asset: asset) else {
             throw TranscriptionError.whisperTranscriptionFailed
@@ -181,13 +182,27 @@ final class WhisperModelService: @unchecked Sendable {
         writer.startWriting()
         writer.startSession(atSourceTime: .zero)
         
+        // Wrap non-Sendable objects to safely pass them to the closure
+        // These objects are safe to use on the serial queue provided by requestMediaDataWhenReady
+        struct UncheckedSendable<T>: @unchecked Sendable {
+            let value: T
+        }
+        
+        let writerInputBox = UncheckedSendable(value: writerInput)
+        let readerOutputBox = UncheckedSendable(value: readerOutput)
+        let writerBox = UncheckedSendable(value: writer)
+        
         await withCheckedContinuation { continuation in
             writerInput.requestMediaDataWhenReady(on: DispatchQueue.global()) {
-                while writerInput.isReadyForMoreMediaData {
-                    if let sampleBuffer = readerOutput.copyNextSampleBuffer() {
-                        writerInput.append(sampleBuffer)
+                let input = writerInputBox.value
+                let output = readerOutputBox.value
+                let writer = writerBox.value
+                
+                while input.isReadyForMoreMediaData {
+                    if let sampleBuffer = output.copyNextSampleBuffer() {
+                        input.append(sampleBuffer)
                     } else {
-                        writerInput.markAsFinished()
+                        input.markAsFinished()
                         writer.finishWriting {
                             continuation.resume()
                         }

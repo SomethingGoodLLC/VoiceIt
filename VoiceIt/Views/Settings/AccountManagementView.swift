@@ -52,8 +52,16 @@ struct AccountManagementView: View {
                         }
                         .padding(.top, 30)
                         
-                        // Content - Always show logged in view since users must sign in during onboarding
-                        loggedInView
+                        // Content
+                        if isAuthenticated {
+                            loggedInView
+                        } else {
+                            if viewMode == .signup {
+                                signupView
+                            } else {
+                                loginView
+                            }
+                        }
                         
                         // Error message
                         if !errorMessage.isEmpty {
@@ -83,13 +91,7 @@ struct AccountManagementView: View {
             }
             .onAppear {
                 // Check authentication state when view appears
-                // Users should always be authenticated since it's required during onboarding
                 isAuthenticated = apiService.isAuthenticated
-                
-                // If somehow not authenticated, log them out to force re-onboarding
-                if !apiService.isAuthenticated {
-                    print("⚠️ User accessed Account Management without being authenticated. This should not happen.")
-                }
             }
         }
     }
@@ -427,14 +429,19 @@ struct AccountManagementView: View {
     }
     
     private func handleLogout() {
+        print("🔘 Logout requested")
         apiService.logout()
         TimelineSyncService.shared.isSyncEnabled = false
         email = ""
         password = ""
         confirmPassword = ""
         name = ""
-        isAuthenticated = false
-        viewMode = .login
+        
+        withAnimation {
+            isAuthenticated = false
+            viewMode = .login
+        }
+        print("✅ Logout complete, switching to login view")
     }
 }
 

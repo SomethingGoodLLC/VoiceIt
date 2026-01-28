@@ -18,6 +18,8 @@ struct SettingsView: View {
     @State private var showingAbout = false
     @State private var showingResetConfirmation = false
     @State private var showingAccountManagement = false
+    @State private var developerModeCounter = 0
+    @State private var showDeveloperMode = false
     
     // MARK: - Body
     
@@ -32,6 +34,10 @@ struct SettingsView: View {
                 notificationSection
                 exportSection
                 aboutSection
+                
+                if showDeveloperMode {
+                    developerSection
+                }
             }
             .navigationTitle("Settings")
             .sheet(isPresented: $showingPasscodeSetup) {
@@ -301,15 +307,51 @@ struct SettingsView: View {
                 Label("Support & Safety Resources", systemImage: "heart.fill")
             }
             
-            HStack {
-                Text("App Version")
-                Spacer()
-                Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0")
-                    .foregroundStyle(.secondary)
+            Button {
+                developerModeCounter += 1
+                if developerModeCounter >= 5 {
+                    showDeveloperMode = true
+                    HapticService.shared.success()
+                }
+            } label: {
+                HStack {
+                    Text("App Version")
+                        .foregroundStyle(.primary)
+                    Spacer()
+                    Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0")
+                        .foregroundStyle(.secondary)
+                }
             }
             
         } header: {
             Text("About")
+        }
+    }
+    
+    // MARK: - Developer Section (Hidden)
+    
+    private var developerSection: some View {
+        Section {
+            NavigationLink {
+                DebugRoadmapEventsView()
+            } label: {
+                Label("Roadmap Analytics Events", systemImage: "chart.bar.doc.horizontal")
+            }
+            
+            Button(role: .destructive) {
+                showDeveloperMode = false
+                developerModeCounter = 0
+            } label: {
+                Label("Hide Developer Options", systemImage: "eye.slash")
+            }
+        } header: {
+            HStack {
+                Text("Developer")
+                Image(systemName: "hammer.fill")
+                    .font(.caption)
+            }
+        } footer: {
+            Text("These options are for development and debugging purposes.")
         }
     }
     
