@@ -15,7 +15,7 @@ struct ContentView: View {
     @State private var selectedTab = 0
     @State private var isAuthenticated = false
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
-    @State private var showPanicButton = true
+    @State private var showPanicButton = false
     
     @Environment(\.authenticationService) private var authService
     @Environment(\.stealthModeService) private var stealthService
