@@ -24,6 +24,9 @@ final class StealthModeService: @unchecked Sendable {
     /// Last user interaction timestamp
     private var lastInteraction = Date()
     
+    /// Track when app went to background
+    private var didBackgroundAt: Date?
+    
     /// Auto-hide timer
     private var autoHideTimer: Timer?
     
@@ -174,18 +177,26 @@ final class StealthModeService: @unchecked Sendable {
     // MARK: - App Lifecycle Handling
     
     private func handleAppWillResignActive() {
-        // Optionally activate stealth mode when app goes to background
-        // This can be toggled in settings
-        if hideAppIcon {
-            Task { @MainActor in
-                activateStealthMode()
-            }
+        // Always activate stealth mode when app goes to background for privacy protection
+        didBackgroundAt = Date()
+        Task { @MainActor in
+            activateStealthMode()
         }
     }
     
     private func handleAppDidBecomeActive() {
-        // Require authentication when app comes back to foreground
-        // if stealth mode was active
+        // Activate stealth mode when app comes to foreground if:
+        // 1. App was in background (didBackgroundAt is set)
+        // 2. It's been more than 1 second since background (not just a quick system interruption)
+        if let backgroundTime = didBackgroundAt {
+            let timeInBackground = Date().timeIntervalSince(backgroundTime)
+            if timeInBackground > 1.0 {
+                Task { @MainActor in
+                    activateStealthMode()
+                }
+            }
+            didBackgroundAt = nil
+        }
         recordUserInteraction()
     }
     
@@ -212,6 +223,7 @@ enum DecoyScreenType: String, CaseIterable, Codable {
     case calculator = "Calculator"
     case weather = "Weather"
     case notes = "Notes"
+    case voiceChanger = "Voice Changer"
     
     var icon: String {
         switch self {
@@ -219,6 +231,7 @@ enum DecoyScreenType: String, CaseIterable, Codable {
         case .calculator: return "function"
         case .weather: return "cloud.sun.fill"
         case .notes: return "note.text"
+        case .voiceChanger: return "mic.circle.fill"
         }
     }
     

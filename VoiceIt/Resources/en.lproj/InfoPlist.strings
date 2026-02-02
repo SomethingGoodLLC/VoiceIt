@@ -1,8 +1,15 @@
-"CFBundleDisplayName" = "My Patterns";
-"NSCameraUsageDescription" = "Voice It needs access to your camera to capture photos and videos as evidence.";
-"NSFaceIDUsageDescription" = "Voice It uses Face ID to securely protect your evidence and personal information.";
-"NSLocationAlwaysAndWhenInUseUsageDescription" = "Voice It can optionally track your location in the background for safety purposes.";
-"NSLocationWhenInUseUsageDescription" = "Voice It can optionally record your location with evidence for documentation purposes.";
+/* 
+  InfoPlist.strings
+  VoiceIt
+
+  Created by VoiceIt on 2025.
+*/
+
+"CFBundleDisplayName" = "Voice It";
 "NSMicrophoneUsageDescription" = "Voice It needs access to your microphone to record voice notes as evidence.";
+"NSCameraUsageDescription" = "Voice It needs access to your camera to capture photos and videos as evidence.";
 "NSPhotoLibraryUsageDescription" = "Voice It needs access to your photo library to save and retrieve evidence securely.";
+"NSLocationWhenInUseUsageDescription" = "Voice It can optionally record your location with evidence for documentation purposes.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "Voice It can optionally track your location in the background for safety purposes.";
+"NSFaceIDUsageDescription" = "Voice It uses Face ID to securely protect your evidence and personal information.";
 "NSSpeechRecognitionUsageDescription" = "Voice It uses speech recognition to transcribe voice notes, helping you document what happened. All transcription is done on-device for your privacy.";

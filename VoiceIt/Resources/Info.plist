@@ -39,6 +39,24 @@
 				<key>UIPrerenderedIcon</key>
 				<false/>
 			</dict>
+			<key>VoiceChanger</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>VoiceChanger</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+			<key>VoiceMemos</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>VoiceMemos</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
 			<key>Weather</key>
 			<dict>
 				<key>CFBundleIconFiles</key>

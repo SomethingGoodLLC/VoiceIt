@@ -15,7 +15,7 @@ struct ContentView: View {
     @State private var selectedTab = 0
     @State private var isAuthenticated = false
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
-    @State private var showPanicButton = false
+    @State private var showPanicButton = false // HIDDEN: Temporarily disabled until fully implemented
     
     @Environment(\.authenticationService) private var authService
     @Environment(\.stealthModeService) private var stealthService
@@ -33,20 +33,18 @@ struct ContentView: View {
             if !hasCompletedOnboarding && !demoMode {
                 // Show onboarding only once (skip in demo mode)
                 OnboardingView(isAuthenticated: $isAuthenticated, hasCompletedOnboarding: $hasCompletedOnboarding)
+            } else if stealthService.isStealthActive {
+                // PRIORITY: Show stealth mode decoy screen when active (even if not authenticated)
+                // This ensures returning to app shows decoy screen, not auth prompt
+                StealthModeContainerView(stealthService: stealthService) {
+                    Color.clear // Placeholder, stealth container shows decoy
+                }
             } else if !isAuthenticated && !demoMode {
                 // Show authentication if onboarding is done but not authenticated (skip in demo mode)
                 authenticationPrompt
             } else {
-                // Show main app content with stealth mode wrapper
-                if stealthService.isStealthActive {
-                    // Fullscreen stealth mode (no tabs visible)
-                    StealthModeContainerView(stealthService: stealthService) {
-                        Color.clear // Placeholder, stealth container shows decoy
-                    }
-                } else {
-                    // Normal app with tabs and panic button
-                    mainContentWithPanicButton
-                }
+                // Show main app content
+                mainContentWithPanicButton
             }
         }
         .onChange(of: scenePhase) { oldPhase, newPhase in
@@ -54,26 +52,59 @@ struct ContentView: View {
             if newPhase == .active && (isAuthenticated || demoMode) && apiService.isAuthenticated && !demoMode {
                 apiService.trackAppOpen()
             }
-            
-            // Lock the app when it goes to background/inactive
-            if newPhase == .background {
-                // Ensure the decoy screen is shown next time
-                isAuthenticated = false
-                stealthService.isStealthActive = true
-            }
         }
     }
     
     // MARK: - Authentication Prompt
     
-    @ViewBuilder
     private var authenticationPrompt: some View {
-        // Show decoy screen directly as the lock screen
-        DecoyLockScreenView(
-            isAuthenticated: $isAuthenticated,
-            stealthService: stealthService,
-            authService: authService
-        )
+        ZStack {
+            Color.voiceitGradient
+                .ignoresSafeArea()
+            
+            VStack(spacing: 30) {
+                Image(systemName: authService.biometricType.icon)
+                    .font(.system(size: 80))
+                    .foregroundStyle(.white)
+                
+                Text("Welcome Back")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.white)
+                
+                Text("Authenticate to access your evidence")
+                    .font(.title3)
+                    .foregroundStyle(.white.opacity(0.9))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+                
+                Button {
+                    Task {
+                        do {
+                            if authService.biometricType != .none {
+                                try await authService.authenticate()
+                                isAuthenticated = true
+                            } else {
+                                // No biometrics available, just let them in
+                                isAuthenticated = true
+                            }
+                        } catch {
+                            print("Authentication failed: \(error)")
+                        }
+                    }
+                } label: {
+                    Label(authService.biometricType != .none ? "Authenticate with \(authService.biometricType.displayName)" : "Continue",
+                          systemImage: authService.biometricType.icon)
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(.white.opacity(0.2))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .padding(.horizontal)
+            }
+        }
     }
     
     // MARK: - Main Content with Panic Button
@@ -135,48 +166,6 @@ struct ContentView: View {
                 .tag(4)
         }
         .tint(.voiceitPurple)
-    }
-}
-
-// MARK: - Decoy Lock Screen View
-
-private struct DecoyLockScreenView: View {
-    @Binding var isAuthenticated: Bool
-    @Bindable var stealthService: StealthModeService
-    let authService: AuthenticationService
-    
-    var body: some View {
-        Group {
-            // Show decoy screen based on selected type
-            switch stealthService.decoyScreen {
-            case .calculator:
-                CalculatorDecoyView()
-                    .environment(\.authenticationService, authService)
-                    .environment(\.stealthModeService, stealthService)
-            case .weather:
-                WeatherDecoyView()
-                    .environment(\.authenticationService, authService)
-                    .environment(\.stealthModeService, stealthService)
-            case .notes:
-                NotesDecoyView()
-                    .environment(\.authenticationService, authService)
-                    .environment(\.stealthModeService, stealthService)
-            case .crossStitch:
-                CrossStitchDecoyView()
-                    .environment(\.authenticationService, authService)
-                    .environment(\.stealthModeService, stealthService)
-            }
-        }
-        .onChange(of: stealthService.isStealthActive) { oldValue, newValue in
-            if !newValue && !isAuthenticated {
-                // Decoy was unlocked, authenticate the user
-                isAuthenticated = true
-            }
-        }
-        .onAppear {
-            // Ensure stealth mode is active so decoy shows
-            stealthService.isStealthActive = true
-        }
     }
 }
 

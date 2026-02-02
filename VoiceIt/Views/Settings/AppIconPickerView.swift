@@ -150,6 +150,8 @@ struct AppIconPickerView: View {
             return .pink
         case .crossStitch:
             return .teal
+        case .voiceChanger:
+            return .purple
         }
     }
 }

@@ -563,6 +563,8 @@ struct StealthWalkthroughView: View {
                 appIcon = .notes
             case .weather:
                 appIcon = .weather
+            case .voiceChanger:
+                appIcon = .voiceChanger
             }
             
             do {
@@ -736,6 +738,8 @@ struct StealthWalkthroughView: View {
             return "Type your passcode in the search bar"
         case .weather:
             return "Type your passcode in the search bar"
+        case .voiceChanger:
+            return "Passcode entry not hidden - use biometric trigger"
         }
     }
     

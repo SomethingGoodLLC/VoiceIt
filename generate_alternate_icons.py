@@ -209,6 +209,95 @@ def draw_crossstitch_icon(draw, center_x, center_y, size, color):
         y = start_y + i * cell_size
         draw.line([start_x, y, start_x + grid_size, y], fill=color, width=thin_width)
 
+def draw_voicememos_icon(draw, center_x, center_y, size, color):
+    """Draw voice memos symbol (waveform)"""
+    # Draw a waveform using varying height rectangles
+    waveform_width = int(size * 0.7)
+    waveform_height = int(size * 0.5)
+    
+    start_x = center_x - waveform_width // 2
+    
+    # Generate some heights for the bars (simulated waveform)
+    import random
+    random.seed(42) # Fixed seed for consistency
+    
+    num_bars = 9
+    bar_width = waveform_width // (num_bars * 2 - 1)
+    bar_spacing = bar_width
+    
+    # Middle bar is tallest
+    heights = [0.3, 0.5, 0.7, 0.9, 1.0, 0.9, 0.7, 0.5, 0.3]
+    
+    for i in range(num_bars):
+        h = int(waveform_height * heights[i])
+        x = start_x + i * (bar_width + bar_spacing)
+        y_top = center_y - h // 2
+        y_bottom = center_y + h // 2
+        
+        draw.rounded_rectangle(
+            [x, y_top, x + bar_width, y_bottom],
+            radius=bar_width // 2,
+            fill=color
+        )
+
+def draw_voicechanger_icon(draw, center_x, center_y, size, color):
+    """Draw voice changer symbol (microphone with magic sparkles)"""
+    # Microphone body
+    mic_width = size // 4
+    mic_height = int(size * 0.45)
+    mic_x = center_x - mic_width // 2
+    mic_y = center_y - mic_height // 2 - size // 10
+    
+    draw.rounded_rectangle(
+        [mic_x, mic_y, mic_x + mic_width, mic_y + mic_height],
+        radius=mic_width // 2,
+        fill=color
+    )
+    
+    # Microphone stand/base
+    stand_width = size // 10
+    stand_height = size // 6
+    stand_x = center_x - stand_width // 2
+    stand_y = mic_y + mic_height
+    
+    draw.rectangle(
+        [stand_x, stand_y, stand_x + stand_width, stand_y + stand_height],
+        fill=color
+    )
+    
+    base_width = size // 3
+    base_height = size // 20
+    base_x = center_x - base_width // 2
+    base_y = stand_y + stand_height
+    
+    draw.rounded_rectangle(
+        [base_x, base_y, base_x + base_width, base_y + base_height],
+        radius=base_height // 2,
+        fill=color
+    )
+    
+    # Sparkles (magic effect)
+    sparkle_positions = [
+        (center_x + size // 3, center_y - size // 3),
+        (center_x - size // 3, center_y - size // 4),
+        (center_x + size // 4, center_y + size // 6)
+    ]
+    
+    sparkle_size = size // 15
+    
+    for sx, sy in sparkle_positions:
+        # Draw a 4-pointed star
+        draw.polygon([
+            (sx, sy - sparkle_size),
+            (sx + sparkle_size // 2, sy - sparkle_size // 2),
+            (sx + sparkle_size, sy),
+            (sx + sparkle_size // 2, sy + sparkle_size // 2),
+            (sx, sy + sparkle_size),
+            (sx - sparkle_size // 2, sy + sparkle_size // 2),
+            (sx - sparkle_size, sy),
+            (sx - sparkle_size // 2, sy - sparkle_size // 2)
+        ], fill=color)
+
 def create_alternate_icon(icon_type, output_dir, size=180):
     """Create an alternate app icon"""
     
@@ -233,6 +322,14 @@ def create_alternate_icon(icon_type, output_dir, size=180):
         'CrossStitch': {
             'colors': ((80, 150, 150), (100, 180, 180)),  # Teal gradient
             'draw_func': draw_crossstitch_icon
+        },
+        'VoiceMemos': {
+            'colors': ((200, 50, 50), (230, 80, 80)),  # Red gradient
+            'draw_func': draw_voicememos_icon
+        },
+        'VoiceChanger': {
+            'colors': ((140, 80, 200), (180, 120, 240)),  # Purple gradient
+            'draw_func': draw_voicechanger_icon
         }
     }
     
@@ -270,7 +367,7 @@ def main():
     output_dir = 'VoiceIt/Icons'
     os.makedirs(output_dir, exist_ok=True)
     
-    icon_types = ['Calculator', 'Weather', 'Notes', 'Wellness', 'CrossStitch']
+    icon_types = ['Calculator', 'Weather', 'Notes', 'Wellness', 'CrossStitch', 'VoiceMemos', 'VoiceChanger']
     
     # Generate @1x (60x60), @2x (120x120) and @3x (180x180) for each icon
     for icon_type in icon_types:

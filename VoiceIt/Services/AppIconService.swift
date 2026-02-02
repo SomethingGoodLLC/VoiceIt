@@ -49,9 +49,18 @@ final class AppIconService: @unchecked Sendable {
             throw AppIconError.notSupported
         }
         
+        // Check if already on this icon
+        if icon == currentIcon {
+            print("ℹ️ AppIconService: Already using '\(icon.rawValue)' icon")
+            return
+        }
+        
         let iconName = icon == .default ? nil : icon.rawValue
         
         print("📱 AppIconService: Attempting to change icon to '\(iconName ?? "default")'")
+        
+        // Small delay to ensure app is in stable state
+        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
         
         do {
             try await UIApplication.shared.setAlternateIconName(iconName)
@@ -61,8 +70,26 @@ final class AppIconService: @unchecked Sendable {
             
             // Provide haptic feedback
             HapticService.shared.success()
-        } catch {
+        } catch let error as NSError {
             print("❌ AppIconService: Failed to change icon - \(error.localizedDescription)")
+            print("❌ Error code: \(error.code), domain: \(error.domain)")
+            
+            // If resource temporarily unavailable, retry once after longer delay
+            if error.code == 3072 || error.localizedDescription.contains("temporarily unavailable") {
+                print("⏳ AppIconService: Resource unavailable, waiting and retrying...")
+                try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
+                
+                do {
+                    try await UIApplication.shared.setAlternateIconName(iconName)
+                    updateCurrentIcon()
+                    print("✅ AppIconService: Successfully changed icon on retry")
+                    HapticService.shared.success()
+                    return
+                } catch {
+                    print("❌ AppIconService: Retry also failed")
+                }
+            }
+            
             // Update anyway just in case
             updateCurrentIcon()
             throw error
@@ -79,6 +106,7 @@ enum AppIcon: String, CaseIterable, Hashable {
     case weather = "Weather"
     case notes = "Notes"
     case wellness = "Wellness"
+    case voiceChanger = "VoiceChanger"
     
     var displayName: String {
         switch self {
@@ -94,6 +122,8 @@ enum AppIcon: String, CaseIterable, Hashable {
             return "My Notes"
         case .wellness:
             return "Wellness Journal"
+        case .voiceChanger:
+            return "Voice FX"
         }
     }
     
@@ -111,6 +141,8 @@ enum AppIcon: String, CaseIterable, Hashable {
             return "Disguise as a notes app"
         case .wellness:
             return "Disguise as a wellness journal"
+        case .voiceChanger:
+            return "Disguise as a voice changer app"
         }
     }
     
@@ -128,6 +160,8 @@ enum AppIcon: String, CaseIterable, Hashable {
             return "note.text"
         case .wellness:
             return "heart.circle.fill"
+        case .voiceChanger:
+            return "mic.circle.fill"
         }
     }
 }

@@ -154,6 +154,8 @@ struct StealthModeSettingsView: View {
             return "Type your passcode in the search bar"
         case .weather:
             return "Type your passcode in the search bar"
+        case .voiceChanger:
+            return "Passcode entry not hidden - use biometric trigger"
         }
     }
     
@@ -167,6 +169,8 @@ struct StealthModeSettingsView: View {
             return "Long-press the + button to unlock with Face ID"
         case .weather:
             return "Long-press the refresh button to unlock with Face ID"
+        case .voiceChanger:
+            return "Long-press the record button to unlock with Face ID"
         }
     }
     
@@ -185,6 +189,8 @@ struct StealthModeSettingsView: View {
                 appIcon = .crossStitch
             case .weather:
                 appIcon = .weather
+            case .voiceChanger:
+                appIcon = .voiceChanger
             }
             
             print("🔄 StealthModeSettingsView: Attempting to change icon to \(appIcon.rawValue)")

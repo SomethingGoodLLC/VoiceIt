@@ -32,9 +32,7 @@ targets:
       - path: VoiceIt
         excludes:
           - "Resources/Info.plist"
-    resources:
-      - path: VoiceIt/Icons
-        buildPhase: resources
+    resources: []
     dependencies:
       - package: WhisperKit
     info:
@@ -69,6 +67,14 @@ targets:
             Wellness:
               CFBundleIconFiles:
                 - Wellness
+              UIPrerenderedIcon: false
+            VoiceMemos:
+              CFBundleIconFiles:
+                - VoiceMemos
+              UIPrerenderedIcon: false
+            VoiceChanger:
+              CFBundleIconFiles:
+                - VoiceChanger
               UIPrerenderedIcon: false
           CFBundlePrimaryIcon:
             CFBundleIconFiles:

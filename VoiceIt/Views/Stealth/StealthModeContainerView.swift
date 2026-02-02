@@ -63,6 +63,10 @@ struct StealthModeContainerView<Content: View>: View {
             CrossStitchDecoyView()
                 .environment(\.authenticationService, authService)
                 .environment(\.stealthModeService, stealthService)
+        case .voiceChanger:
+            VoiceChangerDecoyView()
+                .environment(\.authenticationService, authService)
+                .environment(\.stealthModeService, stealthService)
         }
     }
     

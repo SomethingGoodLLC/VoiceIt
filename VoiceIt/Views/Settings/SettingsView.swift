@@ -26,6 +26,7 @@ struct SettingsView: View {
         NavigationStack {
             List {
                 securitySection
+                appearanceSection
                 stealthModeSection
                 transcriptionSection
                 privacySection
@@ -115,16 +116,10 @@ struct SettingsView: View {
         }
     }
     
-    // MARK: - Stealth Mode Section
+    // MARK: - Appearance Section
     
-    private var stealthModeSection: some View {
+    private var appearanceSection: some View {
         Section {
-            NavigationLink {
-                StealthModeSettingsView(stealthService: stealthService)
-            } label: {
-                Label("Stealth Mode Settings", systemImage: "eye.slash.fill")
-            }
-            
             Button {
                 showingAppIconPicker = true
             } label: {
@@ -140,6 +135,22 @@ struct SettingsView: View {
                 }
             }
             .foregroundStyle(.primary)
+        } header: {
+            Text("Appearance")
+        } footer: {
+            Text("Choose an app icon to disguise the app.")
+        }
+    }
+
+    // MARK: - Stealth Mode Section
+    
+    private var stealthModeSection: some View {
+        Section {
+            NavigationLink {
+                StealthModeSettingsView(stealthService: stealthService)
+            } label: {
+                Label("Stealth Mode Settings", systemImage: "eye.slash.fill")
+            }
             
             HStack {
                 Label("To Hide App", systemImage: "rectangle.portrait.and.arrow.right")
