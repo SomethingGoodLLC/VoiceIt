@@ -2,6 +2,9 @@ import SwiftUI
 
 /// Decoy calculator screen for stealth mode
 struct CalculatorDecoyView: View {
+    @Environment(\.authenticationService) private var authService
+    @Environment(\.stealthModeService) private var stealthService
+    
     @State private var display = "0"
     @State private var currentOperation: Operation?
     @State private var previousValue: Double = 0
@@ -31,6 +34,10 @@ struct CalculatorDecoyView: View {
                     .padding(.horizontal, 24)
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
+                    // Keep gesture on display too
+                    .onLongPressGesture(minimumDuration: 1.0) {
+                        triggerBiometricUnlock()
+                    }
                 
                 // Buttons
                 ForEach(buttons.indices, id: \.self) { row in
@@ -43,14 +50,28 @@ struct CalculatorDecoyView: View {
                     }
                     .padding(.horizontal)
                 }
-                
-                // Hidden unlock instruction
-                Text("Swipe down from top to unlock")
-                    .font(.caption2)
-                    .foregroundColor(.white.opacity(0.3))
-                    .padding(.top, 8)
             }
             .padding(.bottom, 20)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .triggerBiometricUnlock)) { _ in
+            triggerBiometricUnlock()
+        }
+    }
+    
+    private func triggerBiometricUnlock() {
+        Task {
+            do {
+                // Try biometrics ONLY first (no passcode fallback)
+                try await authService.authenticateWithBiometrics(reason: "Unlock with \(authService.biometricType.displayName)")
+                // If successful, deactivate stealth mode
+                await MainActor.run {
+                    stealthService.isStealthActive = false
+                }
+            } catch {
+                // If biometrics fail, silently stay in stealth mode
+                // User can still use passcode method via typing it
+                print("Biometric unlock failed: \(error.localizedDescription)")
+            }
         }
     }
     
@@ -78,6 +99,9 @@ struct CalculatorDecoyView: View {
             }
             
         case .equals:
+            // Check for unlock code before performing operation
+            checkForUnlock()
+            
             performOperation()
             currentOperation = nil
             shouldResetDisplay = true
@@ -102,6 +126,22 @@ struct CalculatorDecoyView: View {
                 } else {
                     display += button.title
                 }
+            }
+        }
+    }
+    
+    private func checkForUnlock() {
+        // Try to verify the current display as a passcode
+        Task {
+            do {
+                if try authService.verifyPasscode(display) {
+                    await MainActor.run {
+                        stealthService.isStealthActive = false
+                    }
+                }
+            } catch {
+                // Ignore errors, just don't unlock
+                print("Unlock failed: \(error.localizedDescription)")
             }
         }
     }
@@ -166,6 +206,17 @@ struct CalculatorButtonView: View {
                 .background(button.backgroundColor)
                 .cornerRadius(38)
         }
+        // Add gesture directly to button to capture touches
+        .simultaneousGesture(
+            LongPressGesture(minimumDuration: 1.0)
+                .onEnded { _ in
+                    // Only trigger for equals button, or maybe all buttons?
+                    // User specifically asked about equals button
+                    if button == .equals {
+                        NotificationCenter.default.post(name: .triggerBiometricUnlock, object: nil)
+                    }
+                }
+        )
     }
 }
 
@@ -215,6 +266,10 @@ enum CalculatorButton: Hashable {
     var foregroundColor: Color {
         return .white
     }
+}
+
+extension Notification.Name {
+    static let triggerBiometricUnlock = Notification.Name("triggerBiometricUnlock")
 }
 
 #Preview {

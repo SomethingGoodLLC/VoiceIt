@@ -54,6 +54,10 @@ targets:
               CFBundleIconFiles:
                 - Calculator
               UIPrerenderedIcon: false
+            CrossStitch:
+              CFBundleIconFiles:
+                - CrossStitch
+              UIPrerenderedIcon: false
             Weather:
               CFBundleIconFiles:
                 - Weather

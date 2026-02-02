@@ -11,8 +11,12 @@ final class StealthModeService: @unchecked Sendable {
     /// Whether stealth mode is currently active
     var isStealthActive = false
     
-    /// Selected decoy screen type
-    var decoyScreen: DecoyScreenType = .calculator
+    /// Selected decoy screen type (persisted to UserDefaults)
+    var decoyScreen: DecoyScreenType {
+        didSet {
+            UserDefaults.standard.set(decoyScreen.rawValue, forKey: "selectedDecoyScreen")
+        }
+    }
     
     /// Auto-hide after inactivity (in seconds, 0 = disabled)
     var autoHideDelay: TimeInterval = 0
@@ -32,6 +36,14 @@ final class StealthModeService: @unchecked Sendable {
     // MARK: - Initialization
     
     init() {
+        // Load saved decoy screen preference
+        if let savedDecoy = UserDefaults.standard.string(forKey: "selectedDecoyScreen"),
+           let decoyType = DecoyScreenType(rawValue: savedDecoy) {
+            self.decoyScreen = decoyType
+        } else {
+            self.decoyScreen = .crossStitch
+        }
+        
         setupNotifications()
         startAutoHideTimer()
     }
@@ -196,12 +208,14 @@ final class StealthModeService: @unchecked Sendable {
 // MARK: - Decoy Screen Type
 
 enum DecoyScreenType: String, CaseIterable, Codable {
+    case crossStitch = "Cross Stitch"
     case calculator = "Calculator"
     case weather = "Weather"
     case notes = "Notes"
     
     var icon: String {
         switch self {
+        case .crossStitch: return "scissors"
         case .calculator: return "function"
         case .weather: return "cloud.sun.fill"
         case .notes: return "note.text"

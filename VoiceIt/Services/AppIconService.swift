@@ -4,21 +4,39 @@ import Observation
 /// Service for managing alternate app icons for disguise
 @Observable
 final class AppIconService: @unchecked Sendable {
+    // MARK: - Shared Instance
+    
+    @MainActor
+    static let shared = AppIconService()
+    
     // MARK: - Properties
     
     /// Current app icon
     @MainActor
-    var currentIcon: AppIcon {
-        guard let iconName = UIApplication.shared.alternateIconName else {
-            return .default
-        }
-        return AppIcon.allCases.first { $0.rawValue == iconName } ?? .default
-    }
+    var currentIcon: AppIcon = .default
     
     /// Whether changing icons is supported
     @MainActor
     var supportsAlternateIcons: Bool {
         UIApplication.shared.supportsAlternateIcons
+    }
+    
+    // MARK: - Initialization
+    
+    @MainActor
+    private init() {
+        updateCurrentIcon()
+    }
+    
+    // MARK: - Helper
+    
+    @MainActor
+    private func updateCurrentIcon() {
+        if let iconName = UIApplication.shared.alternateIconName {
+            currentIcon = AppIcon.allCases.first { $0.rawValue == iconName } ?? .default
+        } else {
+            currentIcon = .default
+        }
     }
     
     // MARK: - Change Icon
@@ -27,15 +45,28 @@ final class AppIconService: @unchecked Sendable {
     @MainActor
     func changeIcon(to icon: AppIcon) async throws {
         guard supportsAlternateIcons else {
+            print("📛 AppIconService: Alternate icons not supported")
             throw AppIconError.notSupported
         }
         
         let iconName = icon == .default ? nil : icon.rawValue
         
-        try await UIApplication.shared.setAlternateIconName(iconName)
+        print("📱 AppIconService: Attempting to change icon to '\(iconName ?? "default")'")
         
-        // Provide haptic feedback
-        HapticService.shared.success()
+        do {
+            try await UIApplication.shared.setAlternateIconName(iconName)
+            updateCurrentIcon()
+            
+            print("✅ AppIconService: Successfully changed icon to '\(iconName ?? "default")'")
+            
+            // Provide haptic feedback
+            HapticService.shared.success()
+        } catch {
+            print("❌ AppIconService: Failed to change icon - \(error.localizedDescription)")
+            // Update anyway just in case
+            updateCurrentIcon()
+            throw error
+        }
     }
 }
 
@@ -43,6 +74,7 @@ final class AppIconService: @unchecked Sendable {
 
 enum AppIcon: String, CaseIterable, Hashable {
     case `default` = "AppIcon"
+    case crossStitch = "CrossStitch"
     case calculator = "Calculator"
     case weather = "Weather"
     case notes = "Notes"
@@ -52,6 +84,8 @@ enum AppIcon: String, CaseIterable, Hashable {
         switch self {
         case .default:
             return "Voice It"
+        case .crossStitch:
+            return "My Patterns"
         case .calculator:
             return "Calculator"
         case .weather:
@@ -67,6 +101,8 @@ enum AppIcon: String, CaseIterable, Hashable {
         switch self {
         case .default:
             return "Standard app icon"
+        case .crossStitch:
+            return "Disguise as a cross-stitch app"
         case .calculator:
             return "Disguise as a calculator app"
         case .weather:
@@ -82,6 +118,8 @@ enum AppIcon: String, CaseIterable, Hashable {
         switch self {
         case .default:
             return "waveform.circle.fill"
+        case .crossStitch:
+            return "scissors"
         case .calculator:
             return "plusminus.circle.fill"
         case .weather:

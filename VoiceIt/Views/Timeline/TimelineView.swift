@@ -12,6 +12,7 @@ struct TimelineView: View {
     @Query(sort: \TextEntry.timestamp, order: .reverse) private var textEntries: [TextEntry]
     
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.stealthModeService) private var stealthService
     
     // Services
     private let fileStorageService: FileStorageService
@@ -27,7 +28,6 @@ struct TimelineView: View {
     // State
     @State private var filterType: EvidenceFilterType = .all
     @State private var showingFilterSheet = false
-    @State private var stealthMode = false
     @State private var isRefreshing = false
     @State private var showingExportSheet = false
     @State private var itemToDelete: (any EvidenceProtocol)?
@@ -42,33 +42,22 @@ struct TimelineView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                if stealthMode {
-                    // Decoy screen (Calculator UI)
-                    decoyScreen
-                } else {
-                    // Real timeline content
-                    VStack(spacing: 0) {
-                        // Evidence list with pull-to-refresh
-                        evidenceList
-                        
-                        // Bottom sticky banner
-                        exportBanner
-                    }
-                }
+            VStack(spacing: 0) {
+                // Evidence list with pull-to-refresh
+                evidenceList
+                
+                // Bottom sticky banner
+                exportBanner
             }
             .navigationTitle("Evidence Timeline")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    // Stealth mode toggle
+                    // Quick hide button - activates stealth mode with preset decoy
                     Button {
-                        withAnimation(.spring(response: 0.3)) {
-                            stealthMode.toggle()
-                        }
+                        stealthService.activateStealthMode(decoy: stealthService.decoyScreen)
                     } label: {
-                        Label("Stealth Mode", systemImage: stealthMode ? "eye.slash.fill" : "eye.fill")
-                            .symbolEffect(.bounce, value: stealthMode)
+                        Label("Quick Hide", systemImage: "eye.fill")
                     }
                 }
                 
@@ -96,14 +85,6 @@ struct TimelineView: View {
                 }
             } message: { item in
                 Text("This action cannot be undone. The evidence '\(item.displayTitle)' will be permanently deleted.")
-            }
-            .onReceive(NotificationCenter.default.publisher(for: UIDevice.deviceDidShakeNotification)) { _ in
-                // Shake gesture to exit stealth mode
-                if stealthMode {
-                    withAnimation(.spring(response: 0.3)) {
-                        stealthMode = false
-                    }
-                }
             }
         }
     }
@@ -489,63 +470,6 @@ struct TimelineView: View {
         .opacity(filteredEvidence.isEmpty ? 0.6 : 1)
     }
     
-    // MARK: - Decoy Screen (Stealth Mode)
-    
-    private var decoyScreen: some View {
-        VStack {
-            Text("Calculator")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .padding(.top, 60)
-            
-            Spacer()
-            
-            // Simple calculator display
-            VStack(spacing: 1) {
-                HStack {
-                    Spacer()
-                    Text("0")
-                        .font(.system(size: 60, weight: .light))
-                        .padding()
-                }
-                .background(Color(.systemGray6))
-                
-                // Calculator button grid
-                VStack(spacing: 1) {
-                    ForEach(0..<4) { row in
-                        HStack(spacing: 1) {
-                            ForEach(0..<4) { col in
-                                Color(.systemGray5)
-                                    .frame(height: 80)
-                                    .overlay(
-                                        Text(calculatorButton(row: row, col: col))
-                                            .font(.title)
-                                    )
-                            }
-                        }
-                    }
-                }
-            }
-            .cornerRadius(12)
-            .padding()
-            
-            Text("Shake device to exit")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .padding(.bottom)
-        }
-    }
-    
-    private func calculatorButton(row: Int, col: Int) -> String {
-        let buttons = [
-            ["C", "±", "%", "÷"],
-            ["7", "8", "9", "×"],
-            ["4", "5", "6", "-"],
-            ["1", "2", "3", "+"]
-        ]
-        return buttons[row][col]
-    }
-    
     // MARK: - Computed Properties
     
     private var allEvidence: [any EvidenceProtocol] {
@@ -611,7 +535,7 @@ struct TimelineView: View {
                 }
             } catch {
                 print("❌ Failed to load image: \(error.localizedDescription)")
-                await MainActor.run {
+                _ = await MainActor.run {
                     loadingImageIds.remove(photo.id)
                 }
             }

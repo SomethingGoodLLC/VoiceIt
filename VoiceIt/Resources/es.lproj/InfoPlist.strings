@@ -1,0 +1,8 @@
+"CFBundleDisplayName" = "Mis Patrones";
+"NSCameraUsageDescription" = "Voice It necesita acceso a tu cámara para capturar fotos y videos como evidencia.";
+"NSFaceIDUsageDescription" = "Voice It utiliza Face ID para proteger de forma segura tu evidencia e información personal.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "Voice It puede rastrear opcionalmente tu ubicación en segundo plano por motivos de seguridad.";
+"NSLocationWhenInUseUsageDescription" = "Voice It puede registrar opcionalmente tu ubicación con evidencia para fines de documentación.";
+"NSMicrophoneUsageDescription" = "Voice It necesita acceso a tu micrófono para grabar notas de voz como evidencia.";
+"NSPhotoLibraryUsageDescription" = "Voice It necesita acceso a tu biblioteca de fotos para guardar y recuperar evidencia de forma segura.";
+"NSSpeechRecognitionUsageDescription" = "Voice It utiliza el reconocimiento de voz para transcribir notas de voz, ayudándote a documentar lo sucedido. Toda la transcripción se realiza en el dispositivo por tu privacidad.";

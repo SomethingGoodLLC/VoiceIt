@@ -148,10 +148,12 @@ struct AppIconPickerView: View {
             return .yellow
         case .wellness:
             return .pink
+        case .crossStitch:
+            return .teal
         }
     }
 }
 
 #Preview {
-    AppIconPickerView(service: AppIconService())
+    AppIconPickerView(service: AppIconService.shared)
 }

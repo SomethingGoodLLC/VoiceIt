@@ -171,6 +171,44 @@ def draw_wellness_icon(draw, center_x, center_y, size, color):
         fill=color
     )
 
+def draw_crossstitch_icon(draw, center_x, center_y, size, color):
+    """Draw cross-stitch symbol (grid pattern with X stitches)"""
+    # Draw a 3x3 grid with cross-stitch X patterns
+    grid_size = int(size * 0.8)
+    cell_size = grid_size // 3
+    start_x = center_x - grid_size // 2
+    start_y = center_y - grid_size // 2
+    line_width = max(2, size // 30)
+    
+    # Draw cross stitches in alternating cells
+    for row in range(3):
+        for col in range(3):
+            cell_x = start_x + col * cell_size
+            cell_y = start_y + row * cell_size
+            padding = cell_size // 6
+            
+            # Draw X in each cell
+            draw.line(
+                [cell_x + padding, cell_y + padding,
+                 cell_x + cell_size - padding, cell_y + cell_size - padding],
+                fill=color, width=line_width
+            )
+            draw.line(
+                [cell_x + cell_size - padding, cell_y + padding,
+                 cell_x + padding, cell_y + cell_size - padding],
+                fill=color, width=line_width
+            )
+    
+    # Draw grid lines
+    thin_width = max(1, size // 60)
+    for i in range(4):
+        # Vertical lines
+        x = start_x + i * cell_size
+        draw.line([x, start_y, x, start_y + grid_size], fill=color, width=thin_width)
+        # Horizontal lines
+        y = start_y + i * cell_size
+        draw.line([start_x, y, start_x + grid_size, y], fill=color, width=thin_width)
+
 def create_alternate_icon(icon_type, output_dir, size=180):
     """Create an alternate app icon"""
     
@@ -191,6 +229,10 @@ def create_alternate_icon(icon_type, output_dir, size=180):
         'Wellness': {
             'colors': ((200, 100, 150), (230, 130, 180)),  # Pink gradient
             'draw_func': draw_wellness_icon
+        },
+        'CrossStitch': {
+            'colors': ((80, 150, 150), (100, 180, 180)),  # Teal gradient
+            'draw_func': draw_crossstitch_icon
         }
     }
     
@@ -210,8 +252,15 @@ def create_alternate_icon(icon_type, output_dir, size=180):
     symbol_size = int(size * 0.5)
     draw_func(draw, size // 2, size // 2, symbol_size, (255, 255, 255, 255))
     
+    # Determine filename suffix
+    scale = size // 60
+    if scale == 1:
+        suffix = ""  # Base filename for 1x
+    else:
+        suffix = f"@{scale}x"
+        
     # Save the icon
-    output_path = os.path.join(output_dir, f"{icon_type}@{size//60}x.png")
+    output_path = os.path.join(output_dir, f"{icon_type}{suffix}.png")
     img.save(output_path, 'PNG')
     print(f"✅ Created {icon_type} icon: {output_path}")
 
@@ -221,10 +270,13 @@ def main():
     output_dir = 'VoiceIt/Icons'
     os.makedirs(output_dir, exist_ok=True)
     
-    icon_types = ['Calculator', 'Weather', 'Notes', 'Wellness']
+    icon_types = ['Calculator', 'Weather', 'Notes', 'Wellness', 'CrossStitch']
     
-    # Generate @2x (120x120) and @3x (180x180) for each icon
+    # Generate @1x (60x60), @2x (120x120) and @3x (180x180) for each icon
     for icon_type in icon_types:
+        # @1x version (60x60) - base size
+        create_alternate_icon(icon_type, output_dir, 60)
+        
         # @2x version (120x120)
         create_alternate_icon(icon_type, output_dir, 120)
         

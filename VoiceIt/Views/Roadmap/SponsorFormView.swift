@@ -123,7 +123,7 @@ struct SponsorFormView: View {
             }
             .alert("Submission Error", isPresented: $showErrorAlert) {
                 Button("Retry") {
-                    Task { await submitForm() }
+                    submitForm()
                 }
                 Button("Cancel", role: .cancel) { }
             } message: {
@@ -167,7 +167,7 @@ struct SponsorFormView: View {
             print("✅ Sponsor Referral Submitted Successfully")
             print("   Referral ID: \(response.referralId ?? "none")")
             print("   Your Info: \(yourName), \(yourEmail)")
-            print("   Sponsor Info: \(sponsorName), \(sponsorEmail ?? "no email")")
+            print("   Sponsor Info: \(sponsorName), \(sponsorEmail.isEmpty ? "no email" : sponsorEmail)")
             print("   Connection: \(relationship)")
             
             isSubmitting = false

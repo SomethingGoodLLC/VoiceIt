@@ -7,7 +7,7 @@ struct SettingsView: View {
     @Environment(\.authenticationService) private var authService
     @Environment(\.stealthModeService) private var stealthService
     @Environment(\.apiService) private var apiService
-    @State private var appIconService = AppIconService()
+    @State private var appIconService = AppIconService.shared
     @State private var notificationService = NotificationService()
     @State private var hapticService = HapticService.shared
     
@@ -17,7 +17,6 @@ struct SettingsView: View {
     @State private var showingAppIconPicker = false
     @State private var showingAbout = false
     @State private var showingResetConfirmation = false
-    @State private var showingAccountManagement = false
     @State private var developerModeCounter = 0
     @State private var showDeveloperMode = false
     
@@ -26,7 +25,6 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             List {
-                accountSection
                 securitySection
                 stealthModeSection
                 transcriptionSection
@@ -46,9 +44,6 @@ struct SettingsView: View {
             .sheet(isPresented: $showingAppIconPicker) {
                 AppIconPickerView(service: appIconService)
             }
-            .sheet(isPresented: $showingAccountManagement) {
-                AccountManagementView()
-            }
             .alert("Reset All Data", isPresented: $showingResetConfirmation) {
                 Button("Cancel", role: .cancel) {}
                 Button("Reset", role: .destructive) {
@@ -60,65 +55,37 @@ struct SettingsView: View {
         }
     }
     
-    // MARK: - Account Section
-    
-    private var accountSection: some View {
-        Section {
-            Button {
-                showingAccountManagement = true
-            } label: {
-                HStack {
-                    Label(apiService.isAuthenticated ? "Account Settings" : "Sign In / Sign Up", 
-                          systemImage: apiService.isAuthenticated ? "person.circle.fill" : "cloud.fill")
-                    
-                    Spacer()
-                    
-                    if apiService.isAuthenticated {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
-                    }
-                }
-            }
-        } header: {
-            HStack {
-                Text("Cloud Sync (Optional)")
-                Spacer()
-                Text("Coming Soon")
-                    .font(.caption)
-                    .foregroundStyle(.orange)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(.orange.opacity(0.2))
-                    .cornerRadius(4)
-            }
-        } footer: {
-            Text(apiService.isAuthenticated ? 
-                 "Connected. Cloud sync will be available once backend is ready." : 
-                 "Sign in now to prepare for cloud backup and sync (coming soon).")
-        }
-    }
-    
     // MARK: - Security Section
     
     private var securitySection: some View {
         Section {
-            Toggle(isOn: Binding(
-                get: { authService.isBiometricEnabled },
-                set: { newValue in
-                    if newValue {
-                        // Enabling biometrics - authenticate first
-                        Task {
-                            await enableBiometrics()
+            // Show biometric toggle only if device supports biometrics
+            if authService.biometricType != .none {
+                Toggle(isOn: Binding(
+                    get: { authService.isBiometricEnabled },
+                    set: { newValue in
+                        if newValue {
+                            // Enabling biometrics - authenticate first
+                            Task {
+                                await enableBiometrics()
+                            }
+                        } else {
+                            // Disabling biometrics
+                            authService.isBiometricEnabled = false
                         }
-                    } else {
-                        // Disabling biometrics
-                        authService.isBiometricEnabled = false
                     }
+                )) {
+                    Label(authService.biometricType.displayName, systemImage: authService.biometricType.icon)
                 }
-            )) {
-                Label("\(authService.biometricType.displayName)", systemImage: authService.biometricType.icon)
+            } else {
+                // Show informational row when biometrics not available
+                HStack {
+                    Label("Biometrics", systemImage: "lock.fill")
+                    Spacer()
+                    Text("Not Available")
+                        .foregroundStyle(.secondary)
+                }
             }
-            .disabled(authService.biometricType == .none)
             
             Button {
                 showingPasscodeSetup = true
@@ -140,7 +107,11 @@ struct SettingsView: View {
         } header: {
             Text("Security")
         } footer: {
-            Text("Protect your evidence with biometric authentication and automatic locking.")
+            if authService.biometricType == .none {
+                Text("Biometric authentication is not available on this device. Use your passcode to unlock the app.")
+            } else {
+                Text("Protect your evidence with biometric authentication and automatic locking.")
+            }
         }
     }
     
@@ -171,9 +142,9 @@ struct SettingsView: View {
             .foregroundStyle(.primary)
             
             HStack {
-                Label("Quick Hide Gesture", systemImage: "hand.raised.fill")
+                Label("To Hide App", systemImage: "rectangle.portrait.and.arrow.right")
                 Spacer()
-                Text("Shake Device")
+                Text("Go to Home Screen")
                     .foregroundStyle(.secondary)
             }
             

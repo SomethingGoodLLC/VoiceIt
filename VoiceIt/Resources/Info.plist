@@ -21,6 +21,15 @@
 				<key>UIPrerenderedIcon</key>
 				<false/>
 			</dict>
+			<key>CrossStitch</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>CrossStitch</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
 			<key>Notes</key>
 			<dict>
 				<key>CFBundleIconFiles</key>

@@ -2,17 +2,21 @@ import SwiftUI
 
 /// Container view that shows decoy screens or actual content based on stealth mode
 struct StealthModeContainerView<Content: View>: View {
-    @State private var stealthService: StealthModeService
+    @Environment(\.authenticationService) private var authService
+    let stealthService: StealthModeService
     @State private var showUnlockPrompt = false
     @State private var isUnlocking = false
     @State private var unlockError: String?
     
     let content: Content
     
-    init(stealthService: StealthModeService, @ViewBuilder content: () -> Content) {
-        _stealthService = State(initialValue: stealthService)
+    init(stealthService: StealthModeService, onUnlock: (() -> Void)? = nil, @ViewBuilder content: () -> Content) {
+        self.stealthService = stealthService
+        self.onUnlock = onUnlock
         self.content = content()
     }
+    
+    private let onUnlock: (() -> Void)?
     
     var body: some View {
         ZStack {
@@ -20,21 +24,14 @@ struct StealthModeContainerView<Content: View>: View {
                 // Show decoy screen
                 decoyScreen
                     .transition(.opacity)
+                    .onChange(of: stealthService.isStealthActive) { oldValue, newValue in
+                        if !newValue {
+                            // If stealth mode became inactive (unlocked), notify parent
+                            onUnlock?()
+                        }
+                    }
                 
-                // Unlock gesture area at top
-                GeometryReader { geometry in
-                    Color.clear
-                        .frame(height: 60)
-                        .contentShape(Rectangle())
-                        .gesture(
-                            DragGesture(minimumDistance: 30)
-                                .onEnded { value in
-                                    if value.translation.height > 50 {
-                                        showUnlockPrompt = true
-                                    }
-                                }
-                        )
-                }
+                // Remove swipe down gesture - unlocking is now done via the decoy apps
             } else {
                 // Show actual content
                 content
@@ -52,10 +49,20 @@ struct StealthModeContainerView<Content: View>: View {
         switch stealthService.decoyScreen {
         case .calculator:
             CalculatorDecoyView()
+                .environment(\.authenticationService, authService)
+                .environment(\.stealthModeService, stealthService)
         case .weather:
-            WeatherDecoyView()
+            WeatherDecoyView() // Keep weather as visual-only or implementing a tap pattern later
+                .environment(\.authenticationService, authService)
+                .environment(\.stealthModeService, stealthService)
         case .notes:
             NotesDecoyView()
+                .environment(\.authenticationService, authService)
+                .environment(\.stealthModeService, stealthService)
+        case .crossStitch:
+            CrossStitchDecoyView()
+                .environment(\.authenticationService, authService)
+                .environment(\.stealthModeService, stealthService)
         }
     }
     
@@ -122,6 +129,7 @@ struct StealthModeContainerView<Content: View>: View {
                 await MainActor.run {
                     isUnlocking = false
                     showUnlockPrompt = false
+                    onUnlock?() // Notify parent view that unlock happened
                 }
             } catch {
                 await MainActor.run {

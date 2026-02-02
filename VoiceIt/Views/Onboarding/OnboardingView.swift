@@ -8,8 +8,7 @@ struct OnboardingView: View {
     @Binding var hasCompletedOnboarding: Bool
     
     @State private var currentPage = 0
-    @State private var showingAuthSetup = false
-    @State private var showingEmergencyContactsSetup = false
+    @State private var showingStealthWalkthrough = false
     @State private var showingSafetyPlan = false
     @State private var showingEmailSignup = false
     
@@ -42,18 +41,15 @@ struct OnboardingView: View {
                     safetyPlanPage
                         .tag(4)
                     
-                    emergencyContactsPage
-                        .tag(5)
-                    
                     stealthModePage
-                        .tag(6)
+                        .tag(5)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .always))
                 .indexViewStyle(.page(backgroundDisplayMode: .always))
                 
                 // Continue button
                 Button {
-                    if currentPage < 6 {
+                    if currentPage < 5 {
                         withAnimation {
                             currentPage += 1
                         }
@@ -62,7 +58,7 @@ struct OnboardingView: View {
                         showingEmailSignup = true
                     }
                 } label: {
-                    Text(currentPage < 6 ? "Continue" : "Get Started")
+                    Text(currentPage < 5 ? "Continue" : "Get Started")
                         .font(.headline)
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
@@ -72,30 +68,18 @@ struct OnboardingView: View {
                 }
                 .padding()
                 
-                // Skip button for middle pages (4-5) only - NOT on the last page (6)
-                // Email signup is MANDATORY before proceeding
-                if currentPage >= 4 && currentPage < 6 {
-                    Button("Skip for Now") {
-                        withAnimation {
-                            currentPage = 6
-                        }
-                    }
-                    .font(.footnote)
-                    .foregroundStyle(.white.opacity(0.7))
-                    .padding(.bottom)
-                }
             }
         }
         .sheet(isPresented: $showingEmailSignup) {
             EmailSignupView(
                 isAuthenticated: $isAuthenticated,
                 hasCompletedOnboarding: $hasCompletedOnboarding,
-                showingAuthSetup: $showingAuthSetup
+                showingStealthWalkthrough: $showingStealthWalkthrough
             )
             .interactiveDismissDisabled() // CRITICAL: Email signup is MANDATORY - cannot be dismissed
         }
-        .sheet(isPresented: $showingAuthSetup) {
-            AuthenticationSetupView(isAuthenticated: $isAuthenticated, hasCompletedOnboarding: $hasCompletedOnboarding)
+        .sheet(isPresented: $showingStealthWalkthrough) {
+            StealthWalkthroughView(isAuthenticated: $isAuthenticated, hasCompletedOnboarding: $hasCompletedOnboarding)
         }
     }
     
@@ -290,55 +274,6 @@ struct OnboardingView: View {
         .padding()
     }
     
-    // MARK: - Emergency Contacts Page
-    
-    private var emergencyContactsPage: some View {
-        VStack(spacing: 30) {
-            Spacer()
-            
-            Image(systemName: "person.crop.circle.badge.exclamationmark")
-                .font(.system(size: 100))
-                .foregroundStyle(.white)
-            
-            Text("Emergency Contacts")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .foregroundStyle(.white)
-            
-            Text("Set up trusted contacts who can receive alerts during emergencies")
-                .font(.title3)
-                .foregroundStyle(.white.opacity(0.9))
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-            
-            VStack(alignment: .leading, spacing: 20) {
-                emergencyContactFeature(icon: "phone.fill", text: "Quick call access")
-                emergencyContactFeature(icon: "message.fill", text: "Automatic SMS alerts")
-                emergencyContactFeature(icon: "bell.fill", text: "Panic button integration")
-            }
-            .padding(.horizontal)
-            
-            Button {
-                showingEmergencyContactsSetup = true
-            } label: {
-                Text("Set Up Now")
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(.white.opacity(0.3))
-                    .clipShape(RoundedRectangle(cornerRadius: Constants.UI.cornerRadius))
-            }
-            .padding(.horizontal)
-            
-            Spacer()
-        }
-        .padding()
-        .sheet(isPresented: $showingEmergencyContactsSetup) {
-            EmergencyContactsView()
-        }
-    }
-    
     // MARK: - Stealth Mode Page
     
     private var stealthModePage: some View {
@@ -361,9 +296,9 @@ struct OnboardingView: View {
                 .padding(.horizontal)
             
             VStack(alignment: .leading, spacing: 20) {
-                stealthFeature(icon: "hand.raised.fill", text: "Shake device to hide")
-                stealthFeature(icon: "faceid", text: "Unlock with Face ID/Touch ID")
-                stealthFeature(icon: "app.badge", text: "Calculator & weather disguises")
+                stealthFeature(icon: "eye.fill", text: "Tap the eye icon to hide instantly")
+                stealthFeature(icon: "eye.slash", text: "Disguised as Calculator, Notes, or Cross Stitch")
+                stealthFeature(icon: "faceid", text: "Long-press (1.5 sec) anywhere to unlock with Face ID")
             }
             .padding(.horizontal)
             
@@ -375,19 +310,6 @@ struct OnboardingView: View {
     // MARK: - Helper Views for New Pages
     
     private func safetyPlanItem(icon: String, text: String) -> some View {
-        HStack(spacing: 15) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundStyle(.white)
-                .frame(width: 30)
-            
-            Text(text)
-                .font(.headline)
-                .foregroundStyle(.white)
-        }
-    }
-    
-    private func emergencyContactFeature(icon: String, text: String) -> some View {
         HStack(spacing: 15) {
             Image(systemName: icon)
                 .font(.title2)
@@ -414,26 +336,35 @@ struct OnboardingView: View {
     }
 }
 
-// MARK: - Authentication Setup View
+// MARK: - Stealth Walkthrough View
 
-struct AuthenticationSetupView: View {
+struct StealthWalkthroughView: View {
     @Binding var isAuthenticated: Bool
     @Binding var hasCompletedOnboarding: Bool
     
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.stealthModeService) private var stealthService
     @Environment(\.authenticationService) private var authService
     
-    @State private var setupStep: SetupStep = .choose
+    @State private var currentStep = 0
     @State private var passcode = ""
     @State private var confirmPasscode = ""
-    @State private var errorMessage = ""
-    @FocusState private var isPasscodeFieldFocused: Bool
+    @State private var passcodeError: String?
+    @State private var passcodeSet = false
+    @State private var appIconService = AppIconService.shared
     
-    enum SetupStep {
-        case choose
-        case enterPasscode
-        case confirmPasscode
-        case enableBiometrics
+    // Whether biometrics are available
+    private var needsPasscode: Bool {
+        authService.biometricType == .none
+    }
+    
+    // Total steps: 3 if biometrics available, 4 if passcode needed
+    private var totalSteps: Int {
+        needsPasscode ? 4 : 3
+    }
+    
+    private var lastStepIndex: Int {
+        totalSteps - 1
     }
     
     var body: some View {
@@ -443,315 +374,375 @@ struct AuthenticationSetupView: View {
                     .ignoresSafeArea()
                 
                 VStack(spacing: 30) {
-                    // Icon
-                    Image(systemName: iconForStep)
-                        .font(.system(size: 80))
-                        .foregroundStyle(.white)
+                    Spacer()
                     
-                    // Title
-                    Text(titleForStep)
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.white)
-                        .multilineTextAlignment(.center)
-                    
-                    // Subtitle
-                    Text(subtitleForStep)
-                        .font(.body)
-                        .foregroundStyle(.white.opacity(0.9))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                    
-                    // Content for each step
-                    contentForStep
-                    
-                    // Error message
-                    if !errorMessage.isEmpty {
-                        Text(errorMessage)
-                            .foregroundStyle(.white)
-                            .font(.caption)
-                            .padding(.horizontal)
-                            .padding(.vertical, 8)
-                            .background(.red.opacity(0.3))
-                            .cornerRadius(8)
+                    // Content based on step
+                    TabView(selection: $currentStep) {
+                        stealthIntroView.tag(0)
+                        decoySelectionView.tag(1)
+                        
+                        if needsPasscode {
+                            passcodeSetupView.tag(2)
+                            unlockView.tag(3)
+                        } else {
+                            unlockView.tag(2)
+                        }
                     }
+                    .tabViewStyle(.page(indexDisplayMode: .always))
+                    .indexViewStyle(.page(backgroundDisplayMode: .always))
+                    
+                    // Continue Button
+                    Button {
+                        handleContinue()
+                    } label: {
+                        Text(continueButtonText)
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(.white.opacity(continueButtonEnabled ? 0.2 : 0.1))
+                            .clipShape(RoundedRectangle(cornerRadius: Constants.UI.cornerRadius))
+                    }
+                    .disabled(!continueButtonEnabled)
+                    .padding()
                     
                     Spacer()
                 }
-                .padding()
             }
             .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-    
-    // MARK: - Step Content
-    
-    @ViewBuilder
-    private var contentForStep: some View {
-        switch setupStep {
-        case .choose:
-            chooseSecurityOptions
-        case .enterPasscode:
-            passcodeEntryView
-        case .confirmPasscode:
-            passcodeConfirmView
-        case .enableBiometrics:
-            biometricsView
-        }
-    }
-    
-    private var chooseSecurityOptions: some View {
-        VStack(spacing: 16) {
-            // Set up passcode button
-            Button {
-                setupStep = .enterPasscode
-                errorMessage = ""
-            } label: {
-                HStack {
-                    Image(systemName: "lock.fill")
-                        .font(.title2)
-                    Text("Set Up Passcode")
-                        .font(.headline)
-                }
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(.white.opacity(0.2))
-                .clipShape(RoundedRectangle(cornerRadius: Constants.UI.cornerRadius))
-            }
-            
-            // Enable biometrics (if available)
-            if authService.biometricType != .none {
-                Button {
-                    setupStep = .enableBiometrics
-                    errorMessage = ""
-                } label: {
-                    HStack {
-                        Image(systemName: authService.biometricType.icon)
-                            .font(.title2)
-                        Text("Enable \(authService.biometricType.displayName)")
-                            .font(.headline)
-                    }
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(.white.opacity(0.2))
-                    .clipShape(RoundedRectangle(cornerRadius: Constants.UI.cornerRadius))
-                }
-            }
-        }
-    }
-    
-    private var passcodeEntryView: some View {
-        VStack(spacing: 20) {
-            // Passcode input
-            SecureField("Enter 6-digit passcode", text: $passcode)
-                .textContentType(.newPassword)
-                .keyboardType(.numberPad)
-                .font(.title3)
-                .foregroundStyle(.white)
-                .padding()
-                .background(.white.opacity(0.2))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .focused($isPasscodeFieldFocused)
-                .onChange(of: passcode) { oldValue, newValue in
-                    // Limit to numbers only
-                    passcode = newValue.filter { $0.isNumber }
-                    // Auto-advance when 6 digits entered
-                    if passcode.count == 6 {
-                        setupStep = .confirmPasscode
-                        errorMessage = ""
-                    }
-                }
-            
-            // Requirements
-            VStack(alignment: .leading, spacing: 8) {
-                requirementRow(met: passcode.count >= 6, text: "At least 6 digits")
-                requirementRow(met: passcode.allSatisfy { $0.isNumber }, text: "Numbers only")
-            }
-            .padding(.horizontal)
-            
-            // Back button
-            Button {
-                setupStep = .choose
-                passcode = ""
-                errorMessage = ""
-            } label: {
-                Text("Back")
-                    .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.7))
-            }
-        }
-        .onAppear {
-            isPasscodeFieldFocused = true
-        }
-    }
-    
-    private var passcodeConfirmView: some View {
-        VStack(spacing: 20) {
-            // Confirm passcode input
-            SecureField("Confirm passcode", text: $confirmPasscode)
-                .textContentType(.newPassword)
-                .keyboardType(.numberPad)
-                .font(.title3)
-                .foregroundStyle(.white)
-                .padding()
-                .background(.white.opacity(0.2))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .focused($isPasscodeFieldFocused)
-                .onChange(of: confirmPasscode) { oldValue, newValue in
-                    confirmPasscode = newValue.filter { $0.isNumber }
-                    if confirmPasscode.count == 6 {
-                        savePasscode()
-                    }
-                }
-            
-            // Match indicator
-            if confirmPasscode.count > 0 {
-                HStack(spacing: 8) {
-                    Image(systemName: confirmPasscode == passcode ? "checkmark.circle.fill" : "xmark.circle.fill")
-                        .foregroundStyle(confirmPasscode == passcode ? .green : .red)
-                    Text(confirmPasscode == passcode ? "Passcodes match" : "Passcodes don't match")
-                        .font(.caption)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    // Only allow skip if biometrics are available (they can use Face ID to unlock)
+                    if !needsPasscode && currentStep < lastStepIndex {
+                        Button("Skip") {
+                            completeOnboarding()
+                        }
                         .foregroundStyle(.white)
+                    }
                 }
             }
-            
-            // Back button
-            Button {
-                setupStep = .enterPasscode
-                confirmPasscode = ""
-                errorMessage = ""
-            } label: {
-                Text("Back")
-                    .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.7))
-            }
-        }
-        .onAppear {
-            isPasscodeFieldFocused = true
         }
     }
     
-    private var biometricsView: some View {
-        VStack(spacing: 20) {
-            Button {
-                Task {
-                    await enableBiometrics()
-                }
-            } label: {
-                Label("Enable \(authService.biometricType.displayName)", systemImage: authService.biometricType.icon)
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(.white.opacity(0.2))
-                    .clipShape(RoundedRectangle(cornerRadius: Constants.UI.cornerRadius))
-            }
-            
-            Button {
-                // Complete without biometrics
-                isAuthenticated = true
-                hasCompletedOnboarding = true
-                dismiss()
-            } label: {
-                Text("Skip Biometrics")
-                    .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.7))
-            }
+    private var continueButtonText: String {
+        if currentStep == lastStepIndex {
+            return "Finish Setup"
+        } else if needsPasscode && currentStep == 2 && !passcodeSet {
+            return "Set Passcode"
+        } else {
+            return "Next"
         }
     }
     
-    // MARK: - Helpers
-    
-    private func requirementRow(met: Bool, text: String) -> some View {
-        HStack(spacing: 8) {
-            Image(systemName: met ? "checkmark.circle.fill" : "circle")
-                .foregroundStyle(met ? .green : .white.opacity(0.5))
-            Text(text)
-                .font(.caption)
-                .foregroundStyle(.white)
+    private var continueButtonEnabled: Bool {
+        // On passcode step, require valid passcode before continuing
+        if needsPasscode && currentStep == 2 && !passcodeSet {
+            return passcode.count >= 6 && passcode == confirmPasscode && passcode.allSatisfy { $0.isNumber }
         }
+        return true
     }
     
-    private var iconForStep: String {
-        switch setupStep {
-        case .choose:
-            return "lock.shield.fill"
-        case .enterPasscode, .confirmPasscode:
-            return "key.fill"
-        case .enableBiometrics:
-            return authService.biometricType.icon
-        }
-    }
-    
-    private var titleForStep: String {
-        switch setupStep {
-        case .choose:
-            return "Set Up Security"
-        case .enterPasscode:
-            return "Create Passcode"
-        case .confirmPasscode:
-            return "Confirm Passcode"
-        case .enableBiometrics:
-            return "Enable Biometrics"
-        }
-    }
-    
-    private var subtitleForStep: String {
-        switch setupStep {
-        case .choose:
-            return "Protect your evidence with a passcode or biometric authentication"
-        case .enterPasscode:
-            return "Enter a 6-digit passcode"
-        case .confirmPasscode:
-            return "Re-enter your passcode to confirm"
-        case .enableBiometrics:
-            return "Use \(authService.biometricType.displayName) for quick and secure access"
-        }
-    }
-    
-    // MARK: - Actions
-    
-    private func savePasscode() {
-        guard passcode == confirmPasscode else {
-            errorMessage = "Passcodes don't match"
+    private func handleContinue() {
+        // Special handling for passcode step
+        if needsPasscode && currentStep == 2 && !passcodeSet {
+            savePasscode()
             return
         }
         
-        guard passcode.count >= 6 else {
-            errorMessage = "Passcode must be at least 6 digits"
+        if currentStep < lastStepIndex {
+            withAnimation {
+                currentStep += 1
+            }
+        } else {
+            completeOnboarding()
+        }
+    }
+    
+    private func savePasscode() {
+        guard passcode.count >= 6,
+              passcode == confirmPasscode,
+              passcode.allSatisfy({ $0.isNumber }) else {
+            passcodeError = "Please enter matching 6+ digit passcodes"
             return
         }
         
         do {
             try authService.setPasscode(passcode)
-            errorMessage = ""
+            passcodeSet = true
+            passcodeError = nil
+            HapticService.shared.success()
             
-            // Move to biometrics if available, otherwise complete
-            if authService.biometricType != .none {
-                setupStep = .enableBiometrics
-            } else {
-                isAuthenticated = true
-                hasCompletedOnboarding = true
-                dismiss()
+            // Move to next step
+            withAnimation {
+                currentStep += 1
             }
         } catch {
-            errorMessage = error.localizedDescription
+            passcodeError = error.localizedDescription
+            HapticService.shared.error()
         }
     }
     
-    @MainActor
-    private func enableBiometrics() async {
-        do {
-            try await authService.authenticate()
-            authService.isBiometricEnabled = true
-            isAuthenticated = true
-            hasCompletedOnboarding = true
-            dismiss()
-        } catch {
-            errorMessage = "Failed to enable biometrics: \(error.localizedDescription)"
+    // MARK: - Steps
+    
+    private var stealthIntroView: some View {
+        VStack(spacing: 30) {
+            Image(systemName: "eye.slash.fill")
+                .font(.system(size: 80))
+                .foregroundStyle(.white)
+            
+            Text("Hide in Plain Sight")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .foregroundStyle(.white)
+                .multilineTextAlignment(.center)
+            
+            Text("Voice It is designed to protect your privacy. Learn how to instantly hide the app in an emergency.")
+                .font(.title3)
+                .foregroundStyle(.white.opacity(0.9))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
         }
+    }
+    
+    private var decoySelectionView: some View {
+        VStack(spacing: 30) {
+            Text("Choose Your Disguise")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .foregroundStyle(.white)
+                .multilineTextAlignment(.center)
+            
+            Text("When you hide the app, it will look like one of these:")
+                .font(.body)
+                .foregroundStyle(.white.opacity(0.9))
+                .multilineTextAlignment(.center)
+            
+            VStack(spacing: 15) {
+                ForEach(DecoyScreenType.allCases, id: \.self) { type in
+                    Button {
+                        stealthService.setDecoyScreen(type)
+                        // Also change the app icon to match the selected decoy
+                        changeIconToMatch(type)
+                    } label: {
+                        HStack {
+                            Image(systemName: type.icon)
+                                .font(.title2)
+                                .frame(width: 40)
+                            
+                            Text(type.displayName)
+                                .font(.headline)
+                            
+                            Spacer()
+                            
+                            if stealthService.decoyScreen == type {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(.green)
+                            }
+                        }
+                        .foregroundStyle(.white)
+                        .padding()
+                        .background(.white.opacity(stealthService.decoyScreen == type ? 0.3 : 0.1))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+    
+    private func changeIconToMatch(_ decoy: DecoyScreenType) {
+        Task {
+            // Map decoy type to app icon
+            let appIcon: AppIcon
+            switch decoy {
+            case .crossStitch:
+                appIcon = .crossStitch
+            case .calculator:
+                appIcon = .calculator
+            case .notes:
+                appIcon = .notes
+            case .weather:
+                appIcon = .weather
+            }
+            
+            do {
+                try await appIconService.changeIcon(to: appIcon)
+            } catch {
+                // Silently fail - icon change is a nice-to-have during onboarding
+                print("Failed to change app icon during onboarding: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    private var passcodeSetupView: some View {
+        VStack(spacing: 24) {
+            Image(systemName: "key.fill")
+                .font(.system(size: 60))
+                .foregroundStyle(.white)
+            
+            Text("Set Your Passcode")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .foregroundStyle(.white)
+                .multilineTextAlignment(.center)
+            
+            Text("Since Face ID isn't available, you'll need a passcode to unlock the app from stealth mode.")
+                .font(.body)
+                .foregroundStyle(.white.opacity(0.9))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+            
+            VStack(spacing: 16) {
+                SecureField("Enter 6+ digit passcode", text: $passcode)
+                    .keyboardType(.numberPad)
+                    .textContentType(.newPassword)
+                    .padding()
+                    .background(.white.opacity(0.2))
+                    .foregroundStyle(.white)
+                    .cornerRadius(12)
+                    .tint(.white)
+                
+                SecureField("Confirm passcode", text: $confirmPasscode)
+                    .keyboardType(.numberPad)
+                    .textContentType(.newPassword)
+                    .padding()
+                    .background(.white.opacity(0.2))
+                    .foregroundStyle(.white)
+                    .cornerRadius(12)
+                    .tint(.white)
+                
+                // Validation indicators
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 8) {
+                        Image(systemName: passcode.count >= 6 ? "checkmark.circle.fill" : "circle")
+                            .foregroundStyle(passcode.count >= 6 ? .green : .white.opacity(0.5))
+                        Text("At least 6 digits")
+                            .font(.caption)
+                            .foregroundStyle(.white)
+                    }
+                    
+                    HStack(spacing: 8) {
+                        Image(systemName: passcode.allSatisfy { $0.isNumber } && !passcode.isEmpty ? "checkmark.circle.fill" : "circle")
+                            .foregroundStyle(passcode.allSatisfy { $0.isNumber } && !passcode.isEmpty ? .green : .white.opacity(0.5))
+                        Text("Numbers only")
+                            .font(.caption)
+                            .foregroundStyle(.white)
+                    }
+                    
+                    HStack(spacing: 8) {
+                        Image(systemName: passcode == confirmPasscode && !passcode.isEmpty ? "checkmark.circle.fill" : "circle")
+                            .foregroundStyle(passcode == confirmPasscode && !passcode.isEmpty ? .green : .white.opacity(0.5))
+                        Text("Passcodes match")
+                            .font(.caption)
+                            .foregroundStyle(.white)
+                    }
+                }
+                
+                if let error = passcodeError {
+                    Text(error)
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                        .padding()
+                        .background(.red.opacity(0.2))
+                        .cornerRadius(8)
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+    
+    private var unlockView: some View {
+        VStack(spacing: 24) {
+            Image(systemName: authService.biometricType == .none ? "lock.open.fill" : authService.biometricType.icon)
+                .font(.system(size: 60))
+                .foregroundStyle(.white)
+            
+            Text("How to Unlock")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .foregroundStyle(.white)
+                .multilineTextAlignment(.center)
+            
+            Text("When the decoy is showing:")
+                .font(.body)
+                .foregroundStyle(.white.opacity(0.9))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+            
+            VStack(alignment: .leading, spacing: 16) {
+                // Biometric unlock (if available)
+                if authService.biometricType != .none {
+                    unlockMethodRow(
+                        icon: authService.biometricType.icon,
+                        title: "\(authService.biometricType.displayName) (Recommended)",
+                        description: "Long-press (1.5 sec) any item, button, or empty area"
+                    )
+                }
+                
+                // Passcode unlock
+                unlockMethodRow(
+                    icon: "key.fill",
+                    title: authService.biometricType == .none ? "Your Passcode" : "Passcode",
+                    description: unlockDescriptionForCurrentDecoy
+                )
+            }
+            .padding(.horizontal)
+            
+            // Success message if passcode was set
+            if passcodeSet {
+                HStack(spacing: 8) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                    Text("Passcode set successfully!")
+                        .font(.subheadline)
+                }
+                .foregroundStyle(.white)
+                .padding()
+                .background(.green.opacity(0.2))
+                .cornerRadius(10)
+            }
+        }
+    }
+    
+    private func unlockMethodRow(icon: String, title: String, description: String) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundStyle(.white)
+                .frame(width: 30)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                Text(description)
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.8))
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.white.opacity(0.15))
+        .cornerRadius(12)
+    }
+    
+    private var unlockDescriptionForCurrentDecoy: String {
+        switch stealthService.decoyScreen {
+        case .calculator:
+            return "Type your passcode and press ="
+        case .notes:
+            return "Type your passcode in a new note"
+        case .crossStitch:
+            return "Type your passcode in the search bar"
+        case .weather:
+            return "Type your passcode in the search bar"
+        }
+    }
+    
+    private func completeOnboarding() {
+        isAuthenticated = true
+        hasCompletedOnboarding = true
+        dismiss()
     }
 }
 
@@ -760,7 +751,7 @@ struct AuthenticationSetupView: View {
 struct EmailSignupView: View {
     @Binding var isAuthenticated: Bool
     @Binding var hasCompletedOnboarding: Bool
-    @Binding var showingAuthSetup: Bool
+    @Binding var showingStealthWalkthrough: Bool
     
     @Environment(\.dismiss) private var dismiss
     
@@ -999,12 +990,12 @@ struct EmailSignupView: View {
                 }
                 
                 if response.success {
-                    // Success - dismiss email signup and show authentication setup
+                    // Success - dismiss email signup and show stealth walkthrough
                     await MainActor.run {
                         dismiss()
                         // Small delay to allow sheet to dismiss
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            showingAuthSetup = true
+                            showingStealthWalkthrough = true
                         }
                     }
                 } else {
