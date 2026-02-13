@@ -129,11 +129,21 @@ struct StealthModeContainerView<Content: View>: View {
         
         Task {
             do {
-                try await stealthService.deactivateStealthMode()
+                // First, authenticate the user
+                try await stealthService.authenticate()
+                
                 await MainActor.run {
+                    // Clear background tracking to prevent re-activation after Face ID
+                    stealthService.clearBackgroundTracking()
+                    
+                    // Then notify parent to set authentication state BEFORE deactivating stealth
+                    onUnlock?()
+                    
+                    // Finally, deactivate stealth mode (without re-authenticating)
+                    stealthService.isStealthActive = false
+                    
                     isUnlocking = false
                     showUnlockPrompt = false
-                    onUnlock?() // Notify parent view that unlock happened
                 }
             } catch {
                 await MainActor.run {

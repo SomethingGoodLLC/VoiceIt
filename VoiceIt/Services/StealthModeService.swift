@@ -8,8 +8,12 @@ import LocalAuthentication
 final class StealthModeService: @unchecked Sendable {
     // MARK: - Properties
     
-    /// Whether stealth mode is currently active
-    var isStealthActive = false
+    /// Whether stealth mode is currently active (persisted to UserDefaults)
+    var isStealthActive: Bool = false {
+        didSet {
+            UserDefaults.standard.set(isStealthActive, forKey: "isStealthModeActive")
+        }
+    }
     
     /// Selected decoy screen type (persisted to UserDefaults)
     var decoyScreen: DecoyScreenType {
@@ -47,6 +51,18 @@ final class StealthModeService: @unchecked Sendable {
             self.decoyScreen = .crossStitch
         }
         
+        // Restore stealth mode state from UserDefaults
+        // If the key exists, use the saved value
+        // If the key doesn't exist (first launch), default to false to allow onboarding
+        if let savedState = UserDefaults.standard.object(forKey: "isStealthModeActive") as? Bool {
+            self.isStealthActive = savedState
+        } else {
+            // First launch - don't show stealth mode
+            self.isStealthActive = false
+            // Set the flag so future launches know it's not the first time
+            UserDefaults.standard.set(false, forKey: "isStealthModeActive")
+        }
+        
         setupNotifications()
         startAutoHideTimer()
     }
@@ -77,6 +93,15 @@ final class StealthModeService: @unchecked Sendable {
             self?.handleAppDidBecomeActive()
         }
         
+        // Listen for app about to terminate (force quit)
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.willTerminateNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.handleAppWillTerminate()
+        }
+        
         // Listen for user interactions to reset auto-hide timer
         NotificationCenter.default.addObserver(
             forName: UIApplication.userDidTakeScreenshotNotification,
@@ -103,6 +128,8 @@ final class StealthModeService: @unchecked Sendable {
         // Require biometric or passcode authentication
         try await authenticate()
         isStealthActive = false
+        // Persist to UserDefaults immediately
+        UserDefaults.standard.set(false, forKey: "isStealthModeActive")
         recordUserInteraction()
     }
     
@@ -115,7 +142,7 @@ final class StealthModeService: @unchecked Sendable {
     // MARK: - Authentication
     
     /// Authenticate user with biometrics or passcode
-    private func authenticate() async throws {
+    func authenticate() async throws {
         let context = LAContext()
         var error: NSError?
         
@@ -179,7 +206,8 @@ final class StealthModeService: @unchecked Sendable {
     private func handleAppWillResignActive() {
         // Always activate stealth mode when app goes to background for privacy protection
         didBackgroundAt = Date()
-        Task { @MainActor in
+        // Execute synchronously on main thread to ensure state is updated before suspension
+        MainActor.assumeIsolated {
             activateStealthMode()
         }
     }
@@ -191,13 +219,29 @@ final class StealthModeService: @unchecked Sendable {
         if let backgroundTime = didBackgroundAt {
             let timeInBackground = Date().timeIntervalSince(backgroundTime)
             if timeInBackground > 1.0 {
-                Task { @MainActor in
+                // Execute synchronously
+                MainActor.assumeIsolated {
                     activateStealthMode()
                 }
             }
             didBackgroundAt = nil
         }
         recordUserInteraction()
+    }
+    
+    private func handleAppWillTerminate() {
+        // Ensure stealth mode is active when app is force quit
+        // This ensures the decoy screen is shown on next launch
+        MainActor.assumeIsolated {
+            isStealthActive = true
+            UserDefaults.standard.set(true, forKey: "isStealthModeActive")
+        }
+    }
+    
+    /// Clear background tracking to prevent re-activation (used when unlocking)
+    @MainActor
+    func clearBackgroundTracking() {
+        didBackgroundAt = nil
     }
     
     // MARK: - Configuration

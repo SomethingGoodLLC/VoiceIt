@@ -21,38 +21,11 @@
 				<key>UIPrerenderedIcon</key>
 				<false/>
 			</dict>
-			<key>CrossStitch</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>CrossStitch</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
 			<key>Notes</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
 				<array>
 					<string>Notes</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>VoiceChanger</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>VoiceChanger</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>VoiceMemos</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>VoiceMemos</string>
 				</array>
 				<key>UIPrerenderedIcon</key>
 				<false/>

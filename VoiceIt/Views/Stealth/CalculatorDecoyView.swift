@@ -65,6 +65,7 @@ struct CalculatorDecoyView: View {
                 try await authService.authenticateWithBiometrics(reason: "Unlock with \(authService.biometricType.displayName)")
                 // If successful, deactivate stealth mode
                 await MainActor.run {
+                    stealthService.clearBackgroundTracking()
                     stealthService.isStealthActive = false
                 }
             } catch {
@@ -136,6 +137,7 @@ struct CalculatorDecoyView: View {
             do {
                 if try authService.verifyPasscode(display) {
                     await MainActor.run {
+                        stealthService.clearBackgroundTracking()
                         stealthService.isStealthActive = false
                     }
                 }

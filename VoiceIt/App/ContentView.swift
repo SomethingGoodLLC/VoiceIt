@@ -15,7 +15,7 @@ struct ContentView: View {
     @State private var selectedTab = 0
     @State private var isAuthenticated = false
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
-    @State private var showPanicButton = false // HIDDEN: Temporarily disabled until fully implemented
+    @State private var showPanicButton = true
     
     @Environment(\.authenticationService) private var authService
     @Environment(\.stealthModeService) private var stealthService
@@ -34,22 +34,40 @@ struct ContentView: View {
                 // Show onboarding only once (skip in demo mode)
                 OnboardingView(isAuthenticated: $isAuthenticated, hasCompletedOnboarding: $hasCompletedOnboarding)
             } else if stealthService.isStealthActive {
-                // PRIORITY: Show stealth mode decoy screen when active (even if not authenticated)
-                // This ensures returning to app shows decoy screen, not auth prompt
-                StealthModeContainerView(stealthService: stealthService) {
-                    Color.clear // Placeholder, stealth container shows decoy
+                // Show stealth mode (decoy) BEFORE authentication check
+                // This ensures the decoy is shown immediately when returning from background
+                StealthModeContainerView(stealthService: stealthService, onUnlock: {
+                    // When unlocked from stealth mode, mark as authenticated
+                    isAuthenticated = true
+                    // Sync with auth service state
+                    authService.isAuthenticated = true
+                }) {
+                    Color.clear // Placeholder
                 }
             } else if !isAuthenticated && !demoMode {
-                // Show authentication if onboarding is done but not authenticated (skip in demo mode)
+                // Show authentication if not in stealth mode and not authenticated
                 authenticationPrompt
             } else {
-                // Show main app content
+                // Normal app with tabs and panic button
                 mainContentWithPanicButton
             }
         }
+        .onChange(of: stealthService.isStealthActive) { oldValue, newValue in
+            // When stealth mode is deactivated, authenticate the user
+            if oldValue == true && newValue == false {
+                isAuthenticated = true
+                authService.isAuthenticated = true
+            }
+        }
         .onChange(of: scenePhase) { oldPhase, newPhase in
+            // Reset authentication when app backgrounds for security (defense-in-depth)
+            // This ensures users must re-authenticate even if StealthMode fails to activate
+            if newPhase == .background || newPhase == .inactive {
+                isAuthenticated = false
+            }
+            
             // Track app open when user brings app to foreground (skip in demo mode)
-            if newPhase == .active && (isAuthenticated || demoMode) && apiService.isAuthenticated && !demoMode {
+            if newPhase == .active && apiService.isAuthenticated && !demoMode {
                 apiService.trackAppOpen()
             }
         }
@@ -84,9 +102,12 @@ struct ContentView: View {
                             if authService.biometricType != .none {
                                 try await authService.authenticate()
                                 isAuthenticated = true
+                                // Deactivate stealth mode after successful authentication
+                                stealthService.isStealthActive = false
                             } else {
                                 // No biometrics available, just let them in
                                 isAuthenticated = true
+                                stealthService.isStealthActive = false
                             }
                         } catch {
                             print("Authentication failed: \(error)")
