@@ -51,17 +51,11 @@ final class StealthModeService: @unchecked Sendable {
             self.decoyScreen = .crossStitch
         }
         
-        // Restore stealth mode state from UserDefaults
-        // If the key exists, use the saved value
-        // If the key doesn't exist (first launch), default to false to allow onboarding
-        if let savedState = UserDefaults.standard.object(forKey: "isStealthModeActive") as? Bool {
-            self.isStealthActive = savedState
-        } else {
-            // First launch - don't show stealth mode
-            self.isStealthActive = false
-            // Set the flag so future launches know it's not the first time
-            UserDefaults.standard.set(false, forKey: "isStealthModeActive")
-        }
+        // Privacy-first: always launch into the disguised decoy lock screen.
+        // The decoy is the only lock screen; unlocking requires biometric/passcode.
+        // The onboarding flow takes precedence on first launch and clears this on completion.
+        self.isStealthActive = true
+        UserDefaults.standard.set(true, forKey: "isStealthModeActive")
         
         setupNotifications()
         startAutoHideTimer()
@@ -114,10 +108,14 @@ final class StealthModeService: @unchecked Sendable {
     
     // MARK: - Stealth Mode Control
     
-    /// Activate stealth mode
+    /// Activate stealth mode.
+    /// Passing `nil` preserves the user's currently selected decoy. Lifecycle and
+    /// auto-hide activations must use `nil` so backgrounding never resets the decoy.
     @MainActor
-    func activateStealthMode(decoy: DecoyScreenType = .calculator) {
-        decoyScreen = decoy
+    func activateStealthMode(decoy: DecoyScreenType? = nil) {
+        if let decoy {
+            decoyScreen = decoy
+        }
         isStealthActive = true
         recordUserInteraction()
     }

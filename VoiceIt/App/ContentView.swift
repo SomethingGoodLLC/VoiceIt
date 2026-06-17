@@ -33,9 +33,9 @@ struct ContentView: View {
             if !hasCompletedOnboarding && !demoMode {
                 // Show onboarding only once (skip in demo mode)
                 OnboardingView(isAuthenticated: $isAuthenticated, hasCompletedOnboarding: $hasCompletedOnboarding)
-            } else if stealthService.isStealthActive {
-                // Show stealth mode (decoy) BEFORE authentication check
-                // This ensures the decoy is shown immediately when returning from background
+            } else if stealthService.isStealthActive && !demoMode {
+                // The disguised decoy is the only lock screen. Unlocking happens from
+                // within the decoy via biometric/passcode. Launches locked-by-default.
                 StealthModeContainerView(stealthService: stealthService, onUnlock: {
                     // When unlocked from stealth mode, mark as authenticated
                     isAuthenticated = true
@@ -44,9 +44,6 @@ struct ContentView: View {
                 }) {
                     Color.clear // Placeholder
                 }
-            } else if !isAuthenticated && !demoMode {
-                // Show authentication if not in stealth mode and not authenticated
-                authenticationPrompt
             } else {
                 // Normal app with tabs and panic button
                 mainContentWithPanicButton
@@ -69,61 +66,6 @@ struct ContentView: View {
             // Track app open when user brings app to foreground (skip in demo mode)
             if newPhase == .active && apiService.isAuthenticated && !demoMode {
                 apiService.trackAppOpen()
-            }
-        }
-    }
-    
-    // MARK: - Authentication Prompt
-    
-    private var authenticationPrompt: some View {
-        ZStack {
-            Color.voiceitGradient
-                .ignoresSafeArea()
-            
-            VStack(spacing: 30) {
-                Image(systemName: authService.biometricType.icon)
-                    .font(.system(size: 80))
-                    .foregroundStyle(.white)
-                
-                Text("Welcome Back")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundStyle(.white)
-                
-                Text("Authenticate to access your evidence")
-                    .font(.title3)
-                    .foregroundStyle(.white.opacity(0.9))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-                
-                Button {
-                    Task {
-                        do {
-                            if authService.biometricType != .none {
-                                try await authService.authenticate()
-                                isAuthenticated = true
-                                // Deactivate stealth mode after successful authentication
-                                stealthService.isStealthActive = false
-                            } else {
-                                // No biometrics available, just let them in
-                                isAuthenticated = true
-                                stealthService.isStealthActive = false
-                            }
-                        } catch {
-                            print("Authentication failed: \(error)")
-                        }
-                    }
-                } label: {
-                    Label(authService.biometricType != .none ? "Authenticate with \(authService.biometricType.displayName)" : "Continue",
-                          systemImage: authService.biometricType.icon)
-                        .font(.headline)
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(.white.opacity(0.2))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-                .padding(.horizontal)
             }
         }
     }

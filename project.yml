@@ -66,6 +66,14 @@ targets:
               CFBundleIconFiles:
                 - Wellness
               UIPrerenderedIcon: false
+            CrossStitch:
+              CFBundleIconFiles:
+                - CrossStitch
+              UIPrerenderedIcon: false
+            VoiceChanger:
+              CFBundleIconFiles:
+                - VoiceChanger
+              UIPrerenderedIcon: false
           CFBundlePrimaryIcon:
             CFBundleIconFiles:
               - AppIcon
@@ -118,6 +126,7 @@ targets:
     dependencies:
       - target: VoiceIt
     settings:
+      PRODUCT_NAME: VoiceItTests
       BUNDLE_LOADER: $(TEST_HOST)
       TEST_HOST: $(BUILT_PRODUCTS_DIR)/VoiceIt.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VoiceIt
 

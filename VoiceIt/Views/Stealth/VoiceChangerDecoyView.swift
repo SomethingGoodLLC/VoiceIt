@@ -20,7 +20,7 @@ struct VoiceChangerDecoyView: View {
             
             VStack(spacing: 30) {
                 // Header
-                Text("Voice FX")
+                Text("Voice It FX")
                     .font(.system(size: 32, weight: .bold, design: .rounded))
                     .foregroundStyle(
                         LinearGradient(

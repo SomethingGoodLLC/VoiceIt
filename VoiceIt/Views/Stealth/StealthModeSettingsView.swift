@@ -10,6 +10,7 @@ struct StealthModeSettingsView: View {
     @State private var isChangingIcon = false
     @State private var showingIconChangeAlert = false
     @State private var pendingDecoy: DecoyScreenType?
+    @State private var shouldChangeIconAfterAlert = false
     @State private var iconChangeError: String?
     @State private var showingIconChangeError = false
     
@@ -120,18 +121,25 @@ struct StealthModeSettingsView: View {
             Button("Change Icon & Decoy") {
                 selectedDecoy = decoy
                 stealthService.setDecoyScreen(decoy)
-                changeIconToMatch(decoy)
+                shouldChangeIconAfterAlert = true
             }
             Button("Cancel", role: .cancel) {
                 pendingDecoy = nil
+                shouldChangeIconAfterAlert = false
             }
         } message: { decoy in
             Text("Choosing '\(decoy.displayName)' will also change the app icon on your home screen to match this disguise.")
         }
-        .alert("Icon Change Failed", isPresented: $showingIconChangeError) {
+        .onChange(of: showingIconChangeAlert) { _, isShowing in
+            guard !isShowing, shouldChangeIconAfterAlert, let decoy = pendingDecoy else { return }
+            shouldChangeIconAfterAlert = false
+            pendingDecoy = nil
+            changeIconToMatch(decoy)
+        }
+        .alert("Home-Screen Icon", isPresented: $showingIconChangeError) {
             Button("OK", role: .cancel) { }
         } message: {
-            Text(iconChangeError ?? "Unknown error occurred")
+            Text(iconChangeError ?? "The home-screen icon couldn't be updated right now.")
         }
     }
     
@@ -179,19 +187,7 @@ struct StealthModeSettingsView: View {
             isChangingIcon = true
             
             // Map decoy type to app icon
-            let appIcon: AppIcon
-            switch decoy {
-            case .calculator:
-                appIcon = .calculator
-            case .notes:
-                appIcon = .notes
-            case .crossStitch:
-                appIcon = .crossStitch
-            case .weather:
-                appIcon = .weather
-            case .voiceChanger:
-                appIcon = .voiceChanger
-            }
+            let appIcon = AppIcon.forDecoy(decoy)
             
             print("🔄 StealthModeSettingsView: Attempting to change icon to \(appIcon.rawValue)")
             print("🔄 StealthModeSettingsView: supportsAlternateIcons = \(appIconService.supportsAlternateIcons)")
@@ -202,8 +198,10 @@ struct StealthModeSettingsView: View {
                 print("✅ StealthModeSettingsView: Icon change completed successfully")
                 print("✅ StealthModeSettingsView: Current icon after change = \(appIconService.currentIcon.rawValue)")
             } catch {
+                // Icon change is best-effort: the decoy is already set and fully functional.
+                // Surface a soft, informational message rather than an alarming failure.
                 print("❌ StealthModeSettingsView: Failed to change app icon: \(error)")
-                iconChangeError = "Failed to change icon: \(error.localizedDescription)"
+                iconChangeError = error.localizedDescription
                 showingIconChangeError = true
             }
             

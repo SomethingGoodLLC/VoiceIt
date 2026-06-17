@@ -59,6 +59,7 @@
 		6C5900E7CBF01ED1DE587E7D /* AccountManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D79A1DBEA90AC72AA9A83C2 /* AccountManagementView.swift */; };
 		6D26A327F43A6486D2182B77 /* PasscodeSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C964608A521F0EEBFB1B1833 /* PasscodeSetupView.swift */; };
 		6D57965DD9AF89C3FBB9E942 /* VoiceMemoDecoyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95541EBB6D2B0CD58213829F /* VoiceMemoDecoyView.swift */; };
+		6DC18541EF0D80511D792E14 /* AppIconConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10A692B99B50FCC3EB17D926 /* AppIconConfigurationTests.swift */; };
 		6DD26027E48D85A82C3D747E /* VoiceChanger@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EC0C136D5B3572F884376AB3 /* VoiceChanger@2x.png */; };
 		6F4A3B46ED8C3C537DD6F71F /* Wellness@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EB5BD148C2A1AD84FD041BB1 /* Wellness@3x.png */; };
 		706409EFEDAB674A30B44BB7 /* DebugRoadmapEventsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81ED4FD8344F80446522FAC0 /* DebugRoadmapEventsView.swift */; };
@@ -71,6 +72,7 @@
 		7BA575BDF27D3636F7CC338F /* Weather@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 296ACBD2F3D5CD15AE00C0DD /* Weather@3x.png */; };
 		7DD294CDAECC5DC3FD6EC13F /* ResourceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B75616B1B58488242222264 /* ResourceDetailView.swift */; };
 		7E019996C603BD4F63ECA372 /* EditTextEntrySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24B17962267B1AE36AF545A9 /* EditTextEntrySheet.swift */; };
+		7F83C5ACD3D4307AB4FEB404 /* StealthModeServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC59EE4236C18BBAEC468CA5 /* StealthModeServiceTests.swift */; };
 		7F91A8706A872BE30EFD31C4 /* NationalHotlineRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C694B7F01B3B5C198172DF9A /* NationalHotlineRow.swift */; };
 		805B5F8AD948CB49A77CD0C6 /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2D5B1040617F27E4DA175D /* Date+Extensions.swift */; };
 		83CE63C597DC4C19F1FE89E7 /* VoiceItApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BACABB994CD3BB20AEAFC2F7 /* VoiceItApp.swift */; };
@@ -161,6 +163,7 @@
 		0B013FA312B24F90A735653B /* ResourcesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourcesView.swift; sourceTree = "<group>"; };
 		0CFC966BBA3EE84748E6FB76 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
 		0DDA5D344563DA667053292A /* FilterChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterChip.swift; sourceTree = "<group>"; };
+		10A692B99B50FCC3EB17D926 /* AppIconConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconConfigurationTests.swift; sourceTree = "<group>"; };
 		11FB7D9D90775C719EF0A61E /* RoadmapFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoadmapFeature.swift; sourceTree = "<group>"; };
 		12EB0EF11DBCA2DA41378582 /* VoiceMemos.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = VoiceMemos.png; sourceTree = "<group>"; };
 		139F6B78D75AF10E0A8AA573 /* CalculatorDecoyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorDecoyView.swift; sourceTree = "<group>"; };
@@ -254,11 +257,12 @@
 		C254C4009DB93C85720B8DC8 /* CommunityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityService.swift; sourceTree = "<group>"; };
 		C3C1EBFC0599DA596BAF5006 /* TherapyListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TherapyListView.swift; sourceTree = "<group>"; };
 		C4AB1A622901DFE88E824C7C /* Wellness@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Wellness@2x.png"; sourceTree = "<group>"; };
-		C56DD62E7B1EFD99B3E7962D /* VoiceItTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = file; name = VoiceItTests.xctest; path = VoiceIt.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C56DD62E7B1EFD99B3E7962D /* VoiceItTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VoiceItTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5DAF7B9778A99B0143BC8CE /* Calculator@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Calculator@3x.png"; sourceTree = "<group>"; };
 		C694B7F01B3B5C198172DF9A /* NationalHotlineRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NationalHotlineRow.swift; sourceTree = "<group>"; };
 		C82E53A51D445386782E277F /* TimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineView.swift; sourceTree = "<group>"; };
 		C964608A521F0EEBFB1B1833 /* PasscodeSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasscodeSetupView.swift; sourceTree = "<group>"; };
+		CC59EE4236C18BBAEC468CA5 /* StealthModeServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StealthModeServiceTests.swift; sourceTree = "<group>"; };
 		CD4A0832DEC7DA52277AFAE8 /* Notes@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Notes@2x.png"; sourceTree = "<group>"; };
 		CD500FE0444098AA5FED6F8F /* VoiceChangerDecoyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceChangerDecoyView.swift; sourceTree = "<group>"; };
 		CDC336421DE5E3E57CDE7070 /* Evidence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Evidence.swift; sourceTree = "<group>"; };
@@ -437,6 +441,8 @@
 		3D69C7D876F28F06B939C7B5 /* VoiceItTests */ = {
 			isa = PBXGroup;
 			children = (
+				10A692B99B50FCC3EB17D926 /* AppIconConfigurationTests.swift */,
+				CC59EE4236C18BBAEC468CA5 /* StealthModeServiceTests.swift */,
 				97C9C852D9874714ACA9FC60 /* VoiceItTests.swift */,
 			);
 			path = VoiceItTests;
@@ -935,6 +941,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6DC18541EF0D80511D792E14 /* AppIconConfigurationTests.swift in Sources */,
+				7F83C5ACD3D4307AB4FEB404 /* StealthModeServiceTests.swift in Sources */,
 				3A17C16328A9EFBAB982042B /* VoiceItTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1089,6 +1097,7 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.voiceit.VoiceItTests;
+				PRODUCT_NAME = VoiceItTests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VoiceIt.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VoiceIt";
@@ -1105,6 +1114,7 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.voiceit.VoiceItTests;
+				PRODUCT_NAME = VoiceItTests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VoiceIt.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/VoiceIt";

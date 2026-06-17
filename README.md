@@ -351,10 +351,9 @@ VoiceIt is designed to be fully accessible to all users, following Apple's Human
   - Supports email and notes for additional context
   
 - 🕶️ **Stealth Mode**: Advanced privacy protection with decoy screens
-  - Three realistic decoy screens:
-    - Calculator: Fully functional calculator app
-    - Weather: Realistic weather display
-    - Notes: Convincing notes app interface
+  - Multiple realistic decoy screens (Calculator, Weather, Notes, Cross Stitch, Voice Changer)
+  - Home-screen app icon automatically changes to match the selected decoy (each disguise must be registered in `Info.plist` under `CFBundleAlternateIcons`)
+  - Icon changes are deferred until after the confirmation alert dismisses to avoid conflicts with iOS system icon-change prompts
   - Shake device to instantly activate stealth mode
   - Swipe down from top of decoy screen to unlock
   - Biometric (Face ID/Touch ID) or passcode authentication required

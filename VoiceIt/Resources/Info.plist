@@ -48,6 +48,24 @@
 				<key>UIPrerenderedIcon</key>
 				<false/>
 			</dict>
+			<key>CrossStitch</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>CrossStitch</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+			<key>VoiceChanger</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>VoiceChanger</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
 		</dict>
 		<key>CFBundlePrimaryIcon</key>
 		<dict>

@@ -552,20 +552,7 @@ struct StealthWalkthroughView: View {
     
     private func changeIconToMatch(_ decoy: DecoyScreenType) {
         Task {
-            // Map decoy type to app icon
-            let appIcon: AppIcon
-            switch decoy {
-            case .crossStitch:
-                appIcon = .crossStitch
-            case .calculator:
-                appIcon = .calculator
-            case .notes:
-                appIcon = .notes
-            case .weather:
-                appIcon = .weather
-            case .voiceChanger:
-                appIcon = .voiceChanger
-            }
+            let appIcon = AppIcon.forDecoy(decoy)
             
             do {
                 try await appIconService.changeIcon(to: appIcon)
@@ -746,6 +733,8 @@ struct StealthWalkthroughView: View {
     private func completeOnboarding() {
         isAuthenticated = true
         hasCompletedOnboarding = true
+        // New users land in the app, not the decoy (the service launches locked-by-default).
+        stealthService.isStealthActive = false
         dismiss()
     }
 }
