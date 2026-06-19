@@ -15,7 +15,10 @@ struct ContentView: View {
     @State private var selectedTab = 0
     @State private var isAuthenticated = false
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
-    @State private var showPanicButton = true
+    
+    // MARK: - Hold for SOS (disabled)
+    // Uncomment showPanicButton + PanicButtonView overlay below to re-enable the floating SOS button.
+    // @State private var showPanicButton = true
     
     @Environment(\.authenticationService) private var authService
     @Environment(\.stealthModeService) private var stealthService
@@ -75,15 +78,15 @@ struct ContentView: View {
         ZStack {
             mainTabView
             
-            // Panic button overlay
-            if showPanicButton {
-                PanicButtonView(
-                    stealthService: stealthService,
-                    emergencyService: emergencyService,
-                    locationService: locationService,
-                    audioRecordingService: audioRecordingService
-                )
-            }
+            // Panic button overlay (disabled — uncomment to re-enable Hold for SOS)
+            // if showPanicButton {
+            //     PanicButtonView(
+            //         stealthService: stealthService,
+            //         emergencyService: emergencyService,
+            //         locationService: locationService,
+            //         audioRecordingService: audioRecordingService
+            //     )
+            // }
             
             // Transient privacy overlay during brief inactive states (Control Center, etc.)
             if stealthService.isPrivacyShieldVisible && !stealthService.isStealthActive {

@@ -350,7 +350,7 @@ VoiceIt is designed to be fully accessible to all users, following Apple's Human
   - Tracks last contacted timestamp
   - Supports email and notes for additional context
   
-- 🕶️ **Stealth Mode**: Advanced privacy protection with decoy screens
+- 🕶️ **Stealth Mode**: Advanced privacy protection with decoy screensw
   - Multiple realistic decoy screens (Calculator, Weather, Notes, Cross Stitch, Voice Changer)
   - Home-screen app icon automatically changes to match the selected decoy. Each disguise is an `.appiconset` inside `Assets.xcassets` and is listed in the `ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES` build setting (in `project.yml`). The asset-catalog compiler generates the `CFBundleAlternateIcons`/`CFBundleIconName` entries automatically — do NOT hand-write these keys in `Info.plist`.
   - iOS 26 note: loose-PNG alternate icons declared via `CFBundleIconFiles` no longer render (the API reports success but the home screen never updates, even after a restart). Alternate icons MUST live in the asset catalog.
