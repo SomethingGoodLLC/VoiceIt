@@ -28,8 +28,11 @@ final class StealthModeService: @unchecked Sendable {
     /// Last user interaction timestamp
     private var lastInteraction = Date()
     
-    /// Track when app went to background
-    private var didBackgroundAt: Date?
+    /// Transient privacy overlay shown during brief inactive states (not persisted).
+    var isPrivacyShieldVisible: Bool = false
+    
+    /// Whether didEnterBackground fired during the current lifecycle transition
+    private var didReachBackground = false
     
     /// Auto-hide timer
     private var autoHideTimer: Timer?
@@ -69,7 +72,7 @@ final class StealthModeService: @unchecked Sendable {
     // MARK: - Setup
     
     private func setupNotifications() {
-        // Listen for app entering background
+        // Transient inactive (Control Center, app switcher snapshot) — privacy shield only
         NotificationCenter.default.addObserver(
             forName: UIApplication.willResignActiveNotification,
             object: nil,
@@ -78,7 +81,15 @@ final class StealthModeService: @unchecked Sendable {
             self?.handleAppWillResignActive()
         }
         
-        // Listen for app entering foreground
+        // True background — commit stealth lock
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.didEnterBackgroundNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.handleAppDidEnterBackground()
+        }
+        
         NotificationCenter.default.addObserver(
             forName: UIApplication.didBecomeActiveNotification,
             object: nil,
@@ -116,6 +127,7 @@ final class StealthModeService: @unchecked Sendable {
         if let decoy {
             decoyScreen = decoy
         }
+        isPrivacyShieldVisible = false
         isStealthActive = true
         recordUserInteraction()
     }
@@ -125,16 +137,22 @@ final class StealthModeService: @unchecked Sendable {
     func deactivateStealthMode() async throws {
         // Require biometric or passcode authentication
         try await authenticate()
-        isStealthActive = false
-        // Persist to UserDefaults immediately
-        UserDefaults.standard.set(false, forKey: "isStealthModeActive")
-        recordUserInteraction()
+        completeUnlock()
     }
     
     /// Quick hide (used for shake gesture or emergency)
     @MainActor
     func quickHide() {
         activateStealthMode(decoy: decoyScreen)
+    }
+    
+    /// Call after successful auth from a decoy screen to return to the main app.
+    @MainActor
+    func completeUnlock() {
+        clearBackgroundTracking()
+        isStealthActive = false
+        UserDefaults.standard.set(false, forKey: "isStealthModeActive")
+        recordUserInteraction()
     }
     
     // MARK: - Authentication
@@ -201,30 +219,32 @@ final class StealthModeService: @unchecked Sendable {
     
     // MARK: - App Lifecycle Handling
     
-    private func handleAppWillResignActive() {
-        // Always activate stealth mode when app goes to background for privacy protection
-        didBackgroundAt = Date()
-        // Execute synchronously on main thread to ensure state is updated before suspension
+    /// Show transient privacy overlay on inactive; do not commit stealth lock.
+    func handleAppWillResignActive() {
         MainActor.assumeIsolated {
+            guard !isStealthActive else { return }
+            isPrivacyShieldVisible = true
+        }
+    }
+    
+    /// Commit stealth lock when the app truly enters background.
+    func handleAppDidEnterBackground() {
+        MainActor.assumeIsolated {
+            didReachBackground = true
+            isPrivacyShieldVisible = false
             activateStealthMode()
         }
     }
     
-    private func handleAppDidBecomeActive() {
-        // Activate stealth mode when app comes to foreground if:
-        // 1. App was in background (didBackgroundAt is set)
-        // 2. It's been more than 1 second since background (not just a quick system interruption)
-        if let backgroundTime = didBackgroundAt {
-            let timeInBackground = Date().timeIntervalSince(backgroundTime)
-            if timeInBackground > 1.0 {
-                // Execute synchronously
-                MainActor.assumeIsolated {
-                    activateStealthMode()
-                }
+    func handleAppDidBecomeActive() {
+        MainActor.assumeIsolated {
+            if !didReachBackground {
+                // Transient inactive only — clear overlay without locking.
+                isPrivacyShieldVisible = false
             }
-            didBackgroundAt = nil
+            didReachBackground = false
+            recordUserInteraction()
         }
-        recordUserInteraction()
     }
     
     private func handleAppWillTerminate() {
@@ -236,10 +256,18 @@ final class StealthModeService: @unchecked Sendable {
         }
     }
     
-    /// Clear background tracking to prevent re-activation (used when unlocking)
+    /// Clear background tracking and privacy shield (used when unlocking)
     @MainActor
     func clearBackgroundTracking() {
-        didBackgroundAt = nil
+        didReachBackground = false
+        isPrivacyShieldVisible = false
+    }
+    
+    /// Dismiss the transient privacy overlay without changing stealth lock state.
+    @MainActor
+    func dismissPrivacyShield() {
+        isPrivacyShieldVisible = false
+        didReachBackground = false
     }
     
     // MARK: - Configuration

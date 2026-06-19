@@ -2,7 +2,6 @@ import SwiftUI
 
 /// Container view that shows decoy screens or actual content based on stealth mode
 struct StealthModeContainerView<Content: View>: View {
-    @Environment(\.authenticationService) private var authService
     let stealthService: StealthModeService
     @State private var showUnlockPrompt = false
     @State private var isUnlocking = false
@@ -22,7 +21,7 @@ struct StealthModeContainerView<Content: View>: View {
         ZStack {
             if stealthService.isStealthActive {
                 // Show decoy screen
-                decoyScreen
+                DecoyScreenView(decoyType: stealthService.decoyScreen)
                     .transition(.opacity)
                     .onChange(of: stealthService.isStealthActive) { oldValue, newValue in
                         if !newValue {
@@ -41,32 +40,6 @@ struct StealthModeContainerView<Content: View>: View {
         .animation(.easeInOut, value: stealthService.isStealthActive)
         .sheet(isPresented: $showUnlockPrompt) {
             unlockPromptView
-        }
-    }
-    
-    @ViewBuilder
-    private var decoyScreen: some View {
-        switch stealthService.decoyScreen {
-        case .calculator:
-            CalculatorDecoyView()
-                .environment(\.authenticationService, authService)
-                .environment(\.stealthModeService, stealthService)
-        case .weather:
-            WeatherDecoyView() // Keep weather as visual-only or implementing a tap pattern later
-                .environment(\.authenticationService, authService)
-                .environment(\.stealthModeService, stealthService)
-        case .notes:
-            NotesDecoyView()
-                .environment(\.authenticationService, authService)
-                .environment(\.stealthModeService, stealthService)
-        case .crossStitch:
-            CrossStitchDecoyView()
-                .environment(\.authenticationService, authService)
-                .environment(\.stealthModeService, stealthService)
-        case .voiceChanger:
-            VoiceChangerDecoyView()
-                .environment(\.authenticationService, authService)
-                .environment(\.stealthModeService, stealthService)
         }
     }
     
@@ -133,14 +106,11 @@ struct StealthModeContainerView<Content: View>: View {
                 try await stealthService.authenticate()
                 
                 await MainActor.run {
-                    // Clear background tracking to prevent re-activation after Face ID
-                    stealthService.clearBackgroundTracking()
-                    
                     // Then notify parent to set authentication state BEFORE deactivating stealth
                     onUnlock?()
                     
                     // Finally, deactivate stealth mode (without re-authenticating)
-                    stealthService.isStealthActive = false
+                    stealthService.completeUnlock()
                     
                     isUnlocking = false
                     showUnlockPrompt = false

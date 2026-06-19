@@ -8,7 +8,7 @@ final class StealthModeServiceTests: XCTestCase {
         service.setDecoyScreen(.voiceChanger)
 
         // Simulate a lifecycle/auto-hide activation (no decoy argument), as fired by
-        // handleAppWillResignActive / handleAppDidBecomeActive / checkAutoHide.
+        // handleAppDidEnterBackground / checkAutoHide.
         service.activateStealthMode()
 
         XCTAssertEqual(
@@ -46,5 +46,97 @@ final class StealthModeServiceTests: XCTestCase {
 
         XCTAssertEqual(service.decoyScreen, .weather)
         XCTAssertTrue(service.isStealthActive)
+    }
+
+    func testWillResignActive_doesNotActivateStealth_regression() {
+        let service = StealthModeService()
+        service.isStealthActive = false
+
+        service.handleAppWillResignActive()
+
+        XCTAssertFalse(
+            service.isStealthActive,
+            "REGRESSION: transient inactive must not commit stealth lock"
+        )
+        XCTAssertTrue(
+            service.isPrivacyShieldVisible,
+            "Transient inactive should show privacy shield overlay"
+        )
+    }
+
+    func testDidEnterBackground_activatesStealth() {
+        let service = StealthModeService()
+        service.isStealthActive = false
+
+        service.handleAppDidEnterBackground()
+
+        XCTAssertTrue(service.isStealthActive)
+        XCTAssertFalse(service.isPrivacyShieldVisible)
+    }
+
+    func testDidBecomeActive_afterTransientInactive_clearsShieldWithoutLocking_regression() {
+        let service = StealthModeService()
+        service.isStealthActive = false
+
+        service.handleAppWillResignActive()
+        service.handleAppDidBecomeActive()
+
+        XCTAssertFalse(
+            service.isStealthActive,
+            "REGRESSION: returning from transient inactive must stay unlocked"
+        )
+        XCTAssertFalse(service.isPrivacyShieldVisible)
+    }
+
+    func testDidBecomeActive_afterBackground_keepsStealthLocked() {
+        let service = StealthModeService()
+        service.isStealthActive = false
+
+        service.handleAppWillResignActive()
+        service.handleAppDidEnterBackground()
+        service.handleAppDidBecomeActive()
+
+        XCTAssertTrue(
+            service.isStealthActive,
+            "App must remain locked after true background"
+        )
+        XCTAssertFalse(service.isPrivacyShieldVisible)
+    }
+
+    func testDismissPrivacyShield_clearsOverlayWithoutUnlocking() {
+        let service = StealthModeService()
+        service.isStealthActive = false
+        service.handleAppWillResignActive()
+
+        service.dismissPrivacyShield()
+
+        XCTAssertFalse(service.isPrivacyShieldVisible)
+        XCTAssertFalse(service.isStealthActive)
+    }
+
+    func testQuickHideClearsPrivacyShield_regression() {
+        let service = StealthModeService()
+        service.isStealthActive = false
+        service.handleAppWillResignActive()
+        XCTAssertTrue(service.isPrivacyShieldVisible)
+
+        service.quickHide()
+
+        XCTAssertTrue(service.isStealthActive)
+        XCTAssertFalse(
+            service.isPrivacyShieldVisible,
+            "REGRESSION: quick hide must commit stealth and clear transient shield"
+        )
+    }
+
+    func testCompleteUnlock_clearsShieldAndTracking() {
+        let service = StealthModeService()
+        service.handleAppWillResignActive()
+        service.handleAppDidEnterBackground()
+
+        service.completeUnlock()
+
+        XCTAssertFalse(service.isStealthActive)
+        XCTAssertFalse(service.isPrivacyShieldVisible)
     }
 }

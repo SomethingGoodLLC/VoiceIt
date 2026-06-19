@@ -114,7 +114,7 @@ struct CrossStitchDecoyView: View {
         
         do {
             if try authService.verifyPasscode(text) {
-                stealthService.isStealthActive = false
+                stealthService.completeUnlock()
                 searchText = ""
             }
         } catch {
@@ -127,7 +127,7 @@ struct CrossStitchDecoyView: View {
             do {
                 try await authService.authenticateWithBiometrics(reason: "Unlock with \(authService.biometricType.displayName)")
                 await MainActor.run {
-                    stealthService.isStealthActive = false
+                    stealthService.completeUnlock()
                 }
             } catch {
                 print("Biometric unlock failed: \(error.localizedDescription)")

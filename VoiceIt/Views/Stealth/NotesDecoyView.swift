@@ -69,7 +69,7 @@ struct NotesDecoyView: View {
                 try await authService.authenticateWithBiometrics(reason: "Unlock with \(authService.biometricType.displayName)")
                 // If successful, deactivate stealth mode
                 await MainActor.run {
-                    stealthService.isStealthActive = false
+                    stealthService.completeUnlock()
                 }
             } catch {
                 // If biometrics fail, silently stay in stealth mode
@@ -133,7 +133,7 @@ struct DecoyNoteEditorView: View {
         do {
             if try authService.verifyPasscode(potentialPasscode) {
                 Task { @MainActor in
-                    stealthService.isStealthActive = false
+                    stealthService.completeUnlock()
                 }
             }
         } catch {

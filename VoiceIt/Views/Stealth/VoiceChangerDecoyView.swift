@@ -178,7 +178,7 @@ struct VoiceChangerDecoyView: View {
             do {
                 try await authService.authenticateWithBiometrics(reason: "Unlock Voice It")
                 await MainActor.run {
-                    stealthService.isStealthActive = false
+                    stealthService.completeUnlock()
                 }
             } catch {
                 // Fail silently or handle error if needed

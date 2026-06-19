@@ -358,7 +358,8 @@ VoiceIt is designed to be fully accessible to all users, following Apple's Human
   - Swipe down from top of decoy screen to unlock
   - Biometric (Face ID/Touch ID) or passcode authentication required
   - Auto-hide after configurable inactivity period (1-30 minutes)
-  - Automatic activation on app switcher detection (optional)
+  - **Background lock**: decoy lock commits only when the app truly enters background (home swipe / app switch away)
+  - **Privacy shield**: brief system interruptions (Control Center, app switcher snapshot) show a temporary decoy overlay without locking you out
   - Seamless transition animations
   - All evidence remains encrypted and hidden
   
@@ -560,6 +561,9 @@ struct ContentView: View {
   - [ ] Unlock returns to actual app
   - [ ] Auto-hide after inactivity works
   - [ ] Settings allow decoy screen selection
+  - [ ] Scrolling and normal in-app use do not trigger decoy lock
+  - [ ] Control Center briefly shows privacy overlay, then returns to app without unlock
+  - [ ] True background (home swipe) shows decoy lock on return
   - [ ] Auto-hide timer configuration works
   
 - [ ] **Location Tracking**:

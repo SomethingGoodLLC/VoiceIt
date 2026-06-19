@@ -142,7 +142,7 @@ struct WeatherDecoyView: View {
             do {
                 if try authService.verifyPasscode(text) {
                     await MainActor.run {
-                        stealthService.isStealthActive = false
+                        stealthService.completeUnlock()
                         // Clear text for next time
                         searchText = ""
                     }
@@ -160,7 +160,7 @@ struct WeatherDecoyView: View {
                 try await authService.authenticateWithBiometrics(reason: "Unlock with \(authService.biometricType.displayName)")
                 // If successful, deactivate stealth mode
                 await MainActor.run {
-                    stealthService.isStealthActive = false
+                    stealthService.completeUnlock()
                 }
             } catch {
                 // If biometrics fail, silently stay in stealth mode

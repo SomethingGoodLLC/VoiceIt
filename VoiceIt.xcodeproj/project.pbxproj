@@ -77,6 +77,7 @@
 		805B5F8AD948CB49A77CD0C6 /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2D5B1040617F27E4DA175D /* Date+Extensions.swift */; };
 		83CE63C597DC4C19F1FE89E7 /* VoiceItApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BACABB994CD3BB20AEAFC2F7 /* VoiceItApp.swift */; };
 		84252B186764658693C7FED0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69568CB2D1D9198A6182399B /* ContentView.swift */; };
+		8693AFB9F0412621D0C77C20 /* DecoyScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 154EC10FB2FC34FC5B8820DA /* DecoyScreenView.swift */; };
 		8CF3AEC5C4AB5E49D65F0611 /* PanicButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F87D2ACA57E684508AA3F653 /* PanicButtonView.swift */; };
 		90BFBED237A8F83426534726 /* VoiceChanger@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 15D94F317503BE91185DB90E /* VoiceChanger@3x.png */; };
 		9339E0D97EAEFB4E6717A7E0 /* AudioRecordingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43066BFF09B0607CA690B5D9 /* AudioRecordingService.swift */; };
@@ -168,6 +169,7 @@
 		12EB0EF11DBCA2DA41378582 /* VoiceMemos.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = VoiceMemos.png; sourceTree = "<group>"; };
 		139F6B78D75AF10E0A8AA573 /* CalculatorDecoyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorDecoyView.swift; sourceTree = "<group>"; };
 		14EA895DE3067426DA51C24F /* CommunityArticle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityArticle.swift; sourceTree = "<group>"; };
+		154EC10FB2FC34FC5B8820DA /* DecoyScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoyScreenView.swift; sourceTree = "<group>"; };
 		15D94F317503BE91185DB90E /* VoiceChanger@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "VoiceChanger@3x.png"; sourceTree = "<group>"; };
 		178FB6DE5847C6ACF8C4DE9B /* AppIconPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconPickerView.swift; sourceTree = "<group>"; };
 		1AE3957150D0E19458369C97 /* Weather@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Weather@2x.png"; sourceTree = "<group>"; };
@@ -408,6 +410,7 @@
 				CD500FE0444098AA5FED6F8F /* VoiceChangerDecoyView.swift */,
 				95541EBB6D2B0CD58213829F /* VoiceMemoDecoyView.swift */,
 				7C2742932089A14E801E752E /* WeatherDecoyView.swift */,
+				A37A0BACB599F27DB79A6301 /* Components */,
 			);
 			path = Stealth;
 			sourceTree = "<group>";
@@ -592,6 +595,14 @@
 				549EAC6868BF53423FBDAA6A /* VoiceRecorderView.swift */,
 			);
 			path = AddEvidence;
+			sourceTree = "<group>";
+		};
+		A37A0BACB599F27DB79A6301 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				154EC10FB2FC34FC5B8820DA /* DecoyScreenView.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 		AEB799DE6856AA72BF448CB8 /* Components */ = {
@@ -849,6 +860,7 @@
 				95CF17C75C5E8B6CBF47334A /* CrossStitchDecoyView.swift in Sources */,
 				805B5F8AD948CB49A77CD0C6 /* Date+Extensions.swift in Sources */,
 				706409EFEDAB674A30B44BB7 /* DebugRoadmapEventsView.swift in Sources */,
+				8693AFB9F0412621D0C77C20 /* DecoyScreenView.swift in Sources */,
 				7E019996C603BD4F63ECA372 /* EditTextEntrySheet.swift in Sources */,
 				C6F52E431153F2154445C571 /* EmergencyContact.swift in Sources */,
 				08464BAF0FDD594916AFC0B3 /* EmergencyContactsView.swift in Sources */,

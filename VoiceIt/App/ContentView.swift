@@ -57,9 +57,8 @@ struct ContentView: View {
             }
         }
         .onChange(of: scenePhase) { oldPhase, newPhase in
-            // Reset authentication when app backgrounds for security (defense-in-depth)
-            // This ensures users must re-authenticate even if StealthMode fails to activate
-            if newPhase == .background || newPhase == .inactive {
+            // Reset authentication only on true background (not transient inactive)
+            if newPhase == .background {
                 isAuthenticated = false
             }
             
@@ -85,7 +84,16 @@ struct ContentView: View {
                     audioRecordingService: audioRecordingService
                 )
             }
+            
+            // Transient privacy overlay during brief inactive states (Control Center, etc.)
+            if stealthService.isPrivacyShieldVisible && !stealthService.isStealthActive {
+                DecoyScreenView(decoyType: stealthService.decoyScreen)
+                    .ignoresSafeArea()
+                    .allowsHitTesting(false)
+                    .transition(.opacity)
+            }
         }
+        .animation(.easeInOut, value: stealthService.isPrivacyShieldVisible)
         .onShake {
             // Quick hide on shake gesture
             stealthService.quickHide()
