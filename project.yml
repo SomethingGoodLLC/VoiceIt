@@ -32,9 +32,7 @@ targets:
       - path: VoiceIt
         excludes:
           - "Resources/Info.plist"
-    resources:
-      - path: VoiceIt/Icons
-        buildPhase: resources
+          - "Icons"
     dependencies:
       - package: WhisperKit
     info:
@@ -48,36 +46,6 @@ targets:
           UIImageName: shield.checkered
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: true
-        CFBundleIcons:
-          CFBundleAlternateIcons:
-            Calculator:
-              CFBundleIconFiles:
-                - Calculator
-              UIPrerenderedIcon: false
-            Weather:
-              CFBundleIconFiles:
-                - Weather
-              UIPrerenderedIcon: false
-            Notes:
-              CFBundleIconFiles:
-                - Notes
-              UIPrerenderedIcon: false
-            Wellness:
-              CFBundleIconFiles:
-                - Wellness
-              UIPrerenderedIcon: false
-            CrossStitch:
-              CFBundleIconFiles:
-                - CrossStitch
-              UIPrerenderedIcon: false
-            VoiceChanger:
-              CFBundleIconFiles:
-                - VoiceChanger
-              UIPrerenderedIcon: false
-          CFBundlePrimaryIcon:
-            CFBundleIconFiles:
-              - AppIcon
-            UIPrerenderedIcon: false
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationLandscapeLeft
@@ -100,6 +68,8 @@ targets:
     settings:
       SWIFT_VERSION: "6.0"
       SWIFT_STRICT_CONCURRENCY: complete
+      ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES: "Calculator Weather Notes CrossStitch VoiceChanger Wellness"
+      ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: NO
       PRODUCT_BUNDLE_IDENTIFIER: com.voiceit.app
       DEVELOPMENT_TEAM: ""
       CODE_SIGN_STYLE: Automatic
